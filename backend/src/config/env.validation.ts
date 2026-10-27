@@ -84,6 +84,11 @@ class EnvironmentVariables {
   @IsString()
   METRICS_TOKEN?: string;
 
+  /** 1 liga /api/docs e /api/docs-json; em produção fica desligado por padrão. */
+  @IsOptional()
+  @IsIn(['0', '1'], { message: 'OPENAPI_ENABLED deve ser 0 ou 1.' })
+  OPENAPI_ENABLED?: string;
+
   /** E-mails (vírgula) autorizados a ações administrativas, como sincronizar SRD. */
   @IsOptional()
   @IsString()

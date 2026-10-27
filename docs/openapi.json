@@ -1,0 +1,6008 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/health/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/metrics": {
+      "get": {
+        "operationId": "MetricsController_scrape",
+        "parameters": [
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Metrics"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "operationId": "UsersController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/me/achievements": {
+      "get": {
+        "operationId": "UsersController_getAchievements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/characters": {
+      "get": {
+        "operationId": "CharactersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "post": {
+        "operationId": "CharactersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}": {
+      "get": {
+        "operationId": "CharactersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "patch": {
+        "operationId": "CharactersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "delete": {
+        "operationId": "CharactersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spells": {
+      "get": {
+        "operationId": "CharactersController_getSpells",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "post": {
+        "operationId": "CharactersController_addSpell",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCharacterSpellDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/inventory": {
+      "post": {
+        "operationId": "CharactersController_addInventoryItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddInventoryItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/inventory/{inventoryItemId}": {
+      "patch": {
+        "operationId": "CharactersController_updateInventoryItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inventoryItemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInventoryItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "delete": {
+        "operationId": "CharactersController_removeInventoryItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inventoryItemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spells/{characterSpellId}": {
+      "patch": {
+        "operationId": "CharactersController_updateSpell",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterSpellId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCharacterSpellDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      },
+      "delete": {
+        "operationId": "CharactersController_removeSpell",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterSpellId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spells/{characterSpellId}/cast": {
+      "post": {
+        "operationId": "CharactersController_castSpell",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterSpellId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CastCharacterSpellDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spell-slots/reset": {
+      "post": {
+        "operationId": "CharactersController_resetSpellSlots",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spell-slots/{level}/use": {
+      "post": {
+        "operationId": "CharactersController_useSpellSlot",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/characters/{id}/spell-slots/{level}/restore": {
+      "post": {
+        "operationId": "CharactersController_restoreSpellSlot",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/combat": {
+      "get": {
+        "operationId": "CombatController_getEncounter",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      },
+      "post": {
+        "operationId": "CombatController_startEncounter",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartEncounterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      },
+      "patch": {
+        "operationId": "CombatController_updateEncounter",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEncounterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      },
+      "delete": {
+        "operationId": "CombatController_endEncounter",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/combat/participants": {
+      "post": {
+        "operationId": "CombatController_addParticipant",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/combat/participants/{participantId}": {
+      "patch": {
+        "operationId": "CombatController_updateParticipant",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      },
+      "delete": {
+        "operationId": "CombatController_removeParticipant",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/combat/next-turn": {
+      "post": {
+        "operationId": "CombatController_nextTurn",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps": {
+      "get": {
+        "operationId": "VttController_findMaps",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "post": {
+        "operationId": "VttController_createMap",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVttMapDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/player-view": {
+      "get": {
+        "operationId": "VttController_playerView",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}": {
+      "get": {
+        "operationId": "VttController_findMap",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "patch": {
+        "operationId": "VttController_updateMap",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVttMapDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "delete": {
+        "operationId": "VttController_removeMap",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens": {
+      "post": {
+        "operationId": "VttController_createToken",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVttTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/{tokenId}": {
+      "patch": {
+        "operationId": "VttController_updateToken",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVttTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "delete": {
+        "operationId": "VttController_removeToken",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/{tokenId}/move": {
+      "patch": {
+        "operationId": "VttController_moveToken",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveVttTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/doors/toggle": {
+      "post": {
+        "operationId": "VttController_toggleDoor",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleVttDoorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/markers": {
+      "post": {
+        "operationId": "VttController_createMarker",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVttMarkerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/markers/{markerId}": {
+      "patch": {
+        "operationId": "VttController_updateMarker",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "markerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVttMarkerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "delete": {
+        "operationId": "VttController_removeMarker",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "markerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/hotspots": {
+      "post": {
+        "operationId": "VttController_createHotspot",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVttMapHotspotDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/hotspots/{hotspotId}": {
+      "patch": {
+        "operationId": "VttController_updateHotspot",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hotspotId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVttMapHotspotDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      },
+      "delete": {
+        "operationId": "VttController_removeHotspot",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hotspotId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/hotspots/{hotspotId}/target": {
+      "post": {
+        "operationId": "VttController_createHotspotTarget",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hotspotId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVttMapDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
+    "/api/dice/roll": {
+      "post": {
+        "operationId": "DiceController_roll",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollDiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dice"
+        ]
+      }
+    },
+    "/api/dice/campaign/{campaignId}": {
+      "get": {
+        "operationId": "DiceController_campaignRolls",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dice"
+        ]
+      }
+    },
+    "/api/dice/history": {
+      "get": {
+        "operationId": "DiceController_history",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dice"
+        ]
+      }
+    },
+    "/api/catalog/items": {
+      "get": {
+        "operationId": "CatalogController_listItems",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/catalog/spells": {
+      "get": {
+        "operationId": "CatalogController_listSpells",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/catalog/monsters": {
+      "get": {
+        "operationId": "CatalogController_listMonsters",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/catalog/rules": {
+      "get": {
+        "operationId": "CatalogController_listRules",
+        "parameters": [
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/campaigns": {
+      "get": {
+        "operationId": "CampaignsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      },
+      "post": {
+        "operationId": "CampaignsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      }
+    },
+    "/api/campaigns/join": {
+      "post": {
+        "operationId": "CampaignsController_join",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      }
+    },
+    "/api/campaigns/{id}": {
+      "get": {
+        "operationId": "CampaignsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      },
+      "patch": {
+        "operationId": "CampaignsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      },
+      "delete": {
+        "operationId": "CampaignsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/members/me": {
+      "delete": {
+        "operationId": "CampaignsController_leave",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/members/{userId}": {
+      "delete": {
+        "operationId": "CampaignsController_removeMember",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Campaigns"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/entries": {
+      "get": {
+        "operationId": "WorldController_findEntries",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      },
+      "post": {
+        "operationId": "WorldController_createEntry",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorldEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/entries/{entryId}": {
+      "patch": {
+        "operationId": "WorldController_updateEntry",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorldEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      },
+      "delete": {
+        "operationId": "WorldController_removeEntry",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/calendar": {
+      "get": {
+        "operationId": "WorldController_getCalendar",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      },
+      "put": {
+        "operationId": "WorldController_updateCalendar",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCalendarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/weather": {
+      "post": {
+        "operationId": "WorldController_setWeather",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWeatherDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/clock/advance": {
+      "post": {
+        "operationId": "WorldController_advanceClock",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvanceClockDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/events": {
+      "get": {
+        "operationId": "WorldController_findEvents",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      },
+      "post": {
+        "operationId": "WorldController_createEvent",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorldEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/world/events/{eventId}": {
+      "patch": {
+        "operationId": "WorldController_updateEvent",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorldEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      },
+      "delete": {
+        "operationId": "WorldController_removeEvent",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "World"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/journal": {
+      "get": {
+        "operationId": "JournalController_findAll",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      },
+      "post": {
+        "operationId": "JournalController_create",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJournalEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/journal/since-last-visit": {
+      "get": {
+        "operationId": "JournalController_sinceLastVisit",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/journal/visit": {
+      "post": {
+        "operationId": "JournalController_markVisit",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/journal/{entryId}": {
+      "patch": {
+        "operationId": "JournalController_update",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateJournalEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      },
+      "delete": {
+        "operationId": "JournalController_remove",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Journal"
+        ]
+      }
+    },
+    "/api/catalog/srd/sync": {
+      "post": {
+        "operationId": "SrdController_sync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncSrdDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Srd"
+        ]
+      }
+    },
+    "/api/catalog/srd/endpoints": {
+      "get": {
+        "operationId": "SrdController_listEndpoints",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Srd"
+        ]
+      }
+    },
+    "/api/catalog/srd/resources": {
+      "get": {
+        "operationId": "SrdController_listResources",
+        "parameters": [
+          {
+            "name": "endpoint",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Srd"
+        ]
+      }
+    },
+    "/api/catalog/srd/resources/{endpoint}/{index}": {
+      "get": {
+        "operationId": "SrdController_getResource",
+        "parameters": [
+          {
+            "name": "endpoint",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "index",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Srd"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
+      "get": {
+        "operationId": "ExplorationController_getState",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Exploration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/characters/{characterId}/travel": {
+      "post": {
+        "operationId": "ExplorationController_travel",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TravelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Exploration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/characters/{characterId}/rest": {
+      "post": {
+        "operationId": "ExplorationController_rest",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Exploration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/narration": {
+      "post": {
+        "operationId": "NarrationController_send",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendNarrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Narration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/narration/drafts": {
+      "get": {
+        "operationId": "NarrationController_listDrafts",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Narration"
+        ]
+      },
+      "post": {
+        "operationId": "NarrationController_createDraft",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveNarrationDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Narration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/narration/drafts/{draftId}": {
+      "patch": {
+        "operationId": "NarrationController_updateDraft",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "draftId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveNarrationDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Narration"
+        ]
+      },
+      "delete": {
+        "operationId": "NarrationController_removeDraft",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "draftId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Narration"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/chat": {
+      "get": {
+        "operationId": "ChatController_history",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      },
+      "post": {
+        "operationId": "ChatController_send",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendChatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/languages": {
+      "get": {
+        "operationId": "ChatController_languages",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/languages/{languageId}/characters/{characterId}": {
+      "post": {
+        "operationId": "ChatController_teach",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "languageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      },
+      "delete": {
+        "operationId": "ChatController_forget",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "languageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/assistant": {
+      "get": {
+        "operationId": "AssistantController_status",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assistant"
+        ]
+      },
+      "patch": {
+        "operationId": "AssistantController_updateSettings",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssistantSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assistant"
+        ]
+      },
+      "post": {
+        "operationId": "AssistantController_ask",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskAssistantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assistant"
+        ]
+      }
+    },
+    "/api/lore-campaigns": {
+      "post": {
+        "operationId": "LoreController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoreCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/lore/install": {
+      "post": {
+        "operationId": "LoreController_install",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallLoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/lore/state": {
+      "get": {
+        "operationId": "LoreController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/lore/characters": {
+      "post": {
+        "operationId": "LoreController_attach",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttachLoreCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/lore/maps/{mapId}/image": {
+      "get": {
+        "operationId": "LoreController_image",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/lore-packs": {
+      "get": {
+        "operationId": "LoreController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/lore-packs/create-preview": {
+      "post": {
+        "operationId": "LoreController_creationPreview",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewLoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/lore/install-preview": {
+      "post": {
+        "operationId": "LoreController_preview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewLoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Lore"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/knowledge/{entityId}": {
+      "get": {
+        "operationId": "StoryController_knowledge",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/state": {
+      "get": {
+        "operationId": "StoryController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/events": {
+      "get": {
+        "operationId": "StoryController_events",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/facts/{factId}/history": {
+      "get": {
+        "operationId": "StoryController_history",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "factId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/initialize": {
+      "post": {
+        "operationId": "StoryController_initialize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/commands": {
+      "post": {
+        "operationId": "StoryController_command",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryCommandDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/story/corrections": {
+      "post": {
+        "operationId": "StoryController_correction",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryCommandDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Story"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-actions/state": {
+      "get": {
+        "operationId": "GameActionsController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "GameActions"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-actions/initialize": {
+      "post": {
+        "operationId": "GameActionsController_initialize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameActions"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-actions": {
+      "post": {
+        "operationId": "GameActionsController_request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameActions"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-actions/{actionId}/resolve": {
+      "post": {
+        "operationId": "GameActionsController_resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "GameActions"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-master/state": {
+      "get": {
+        "operationId": "GameMasterController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-master/turns/{turnId}": {
+      "get": {
+        "operationId": "GameMasterController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-master/settings": {
+      "patch": {
+        "operationId": "GameMasterController_settings",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-master/actions": {
+      "post": {
+        "operationId": "GameMasterController_request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/game-master/turns/{turnId}/resolve": {
+      "post": {
+        "operationId": "GameMasterController_resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/intents": {
+      "get": {
+        "operationId": "PlayerIntentsController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlayerIntents"
+        ]
+      },
+      "post": {
+        "operationId": "PlayerIntentsController_submit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlayerIntents"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/intents/{turnId}/respond": {
+      "post": {
+        "operationId": "PlayerIntentsController_respond",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlayerIntents"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/intents/{turnId}/cancel": {
+      "post": {
+        "operationId": "PlayerIntentsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PlayerIntents"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/consequences": {
+      "get": {
+        "operationId": "ConsequencesController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      },
+      "post": {
+        "operationId": "ConsequencesController_schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/consequences/policy": {
+      "patch": {
+        "operationId": "ConsequencesController_policy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/consequences/preset": {
+      "post": {
+        "operationId": "ConsequencesController_preset",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/consequences/{itemId}/resolve": {
+      "post": {
+        "operationId": "ConsequencesController_resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      }
+    },
+    "/api/campaigns/{id}/consequences/{itemId}/postpone": {
+      "post": {
+        "operationId": "ConsequencesController_postpone",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostponeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Consequences"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Eldoria RPG API",
+    "description": "API da plataforma Eldoria: autenticação, campanhas, fichas, mesa\nvirtual, combate, mundo vivo e memória da campanha.\n\nAutenticação: `Authorization: Bearer <token>` obtido em `POST /api/auth/login`.\nOs eventos em tempo real usam Socket.IO nos namespaces `/vtt` e `/world`.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Cadastro, login e perfil"
+    },
+    {
+      "name": "campaigns",
+      "description": "Campanhas, convites e membros"
+    },
+    {
+      "name": "characters",
+      "description": "Fichas, inventário, magias e progressão"
+    },
+    {
+      "name": "catalog",
+      "description": "Catálogo SRD e biblioteca"
+    },
+    {
+      "name": "dice",
+      "description": "Rolagens de dados"
+    },
+    {
+      "name": "vtt",
+      "description": "Mapas, tokens, névoa e presença na mesa"
+    },
+    {
+      "name": "combat",
+      "description": "Encontros e iniciativa"
+    },
+    {
+      "name": "world",
+      "description": "Calendário, clima e eventos do mundo"
+    },
+    {
+      "name": "journal",
+      "description": "Diário e memória da campanha"
+    },
+    {
+      "name": "story",
+      "description": "Eventos, fatos e conhecimento"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Token retornado pelo login ou cadastro."
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "displayName"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "avatarUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "CreateCharacterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "race": {
+            "type": "string"
+          },
+          "class": {
+            "type": "string"
+          },
+          "subclass": {
+            "type": "string"
+          },
+          "background": {
+            "type": "string"
+          },
+          "alignment": {
+            "type": "string"
+          },
+          "deity": {
+            "type": "string"
+          },
+          "appearance": {
+            "type": "string"
+          },
+          "backstory": {
+            "type": "string"
+          },
+          "portraitUrl": {
+            "type": "string"
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          },
+          "dexterity": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          },
+          "constitution": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          },
+          "intelligence": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          },
+          "wisdom": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          },
+          "charisma": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 20
+          }
+        },
+        "required": [
+          "name",
+          "race",
+          "class",
+          "strength",
+          "dexterity",
+          "constitution",
+          "intelligence",
+          "wisdom",
+          "charisma"
+        ]
+      },
+      "UpdateCharacterDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "number",
+            "minimum": 1
+          },
+          "xp": {
+            "type": "number",
+            "minimum": 0
+          },
+          "currentHp": {
+            "type": "number",
+            "minimum": 0
+          },
+          "tempHp": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "AddInventoryItemDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      },
+      "UpdateInventoryItemDto": {
+        "type": "object",
+        "properties": {
+          "equipped": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "AddCharacterSpellDto": {
+        "type": "object",
+        "properties": {
+          "spellId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "spellId"
+        ]
+      },
+      "UpdateCharacterSpellDto": {
+        "type": "object",
+        "properties": {
+          "prepared": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CastCharacterSpellDto": {
+        "type": "object",
+        "properties": {
+          "slotLevel": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 9
+          }
+        }
+      },
+      "StartEncounterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          }
+        }
+      },
+      "UpdateEncounterDto": {
+        "type": "object",
+        "properties": {
+          "hpDisplay": {
+            "type": "string",
+            "enum": [
+              "DESCRIPTIVE",
+              "NUMERIC"
+            ]
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "AddParticipantDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "initiative": {
+            "type": "number"
+          },
+          "maxHp": {
+            "type": "number",
+            "minimum": 1
+          },
+          "currentHp": {
+            "type": "number",
+            "minimum": 0
+          },
+          "isAlly": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateParticipantDto": {
+        "type": "object",
+        "properties": {
+          "initiative": {
+            "type": "number"
+          },
+          "currentHp": {
+            "type": "number",
+            "minimum": 0
+          },
+          "maxHp": {
+            "type": "number",
+            "minimum": 1
+          },
+          "isAlly": {
+            "type": "boolean"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateVttMapDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "kind": {
+            "enum": [
+              "WORLD",
+              "REGION",
+              "SETTLEMENT",
+              "BUILDING",
+              "INTERIOR",
+              "OTHER"
+            ],
+            "type": "string"
+          },
+          "parentMapId": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number",
+            "minimum": 8,
+            "maximum": 80
+          },
+          "height": {
+            "type": "number",
+            "minimum": 8,
+            "maximum": 60
+          },
+          "gridSize": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "gridColor": {
+            "type": "string",
+            "pattern": "^#?([0-9A-F]{3}|[0-9A-F]{4}|[0-9A-F]{6}|[0-9A-F]{8})$"
+          },
+          "fogCells": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateVttMapDto": {
+        "type": "object",
+        "properties": {
+          "published": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "WORLD",
+              "REGION",
+              "SETTLEMENT",
+              "BUILDING",
+              "INTERIOR",
+              "OTHER"
+            ]
+          },
+          "lightingMode": {
+            "type": "string",
+            "enum": [
+              "AUTO",
+              "INDOOR",
+              "FIXED_DAY",
+              "FIXED_NIGHT"
+            ]
+          },
+          "ambiencePreset": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "tavern",
+              "city",
+              "forest",
+              "road",
+              "cave",
+              "dungeon",
+              "castle",
+              "sea",
+              "night-wild",
+              "silence",
+              null
+            ]
+          },
+          "parentMapId": {
+            "type": "string",
+            "nullable": true
+          },
+          "width": {
+            "type": "number",
+            "minimum": 8,
+            "maximum": 80
+          },
+          "height": {
+            "type": "number",
+            "minimum": 8,
+            "maximum": 60
+          },
+          "gridSize": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "gridColor": {
+            "type": "string",
+            "pattern": "^#?([0-9A-F]{3}|[0-9A-F]{4}|[0-9A-F]{6}|[0-9A-F]{8})$"
+          },
+          "fogCells": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "vision": {
+            "type": "string",
+            "enum": [
+              "OFF",
+              "LIT",
+              "DARK"
+            ]
+          },
+          "walls": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "CreateVttTokenDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "characterId": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "size": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "lightRadius": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "visionRadius": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateVttTokenDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "characterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "size": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "lightRadius": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "visionRadius": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          }
+        }
+      },
+      "MoveVttTokenDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "ToggleVttDoorDto": {
+        "type": "object",
+        "properties": {
+          "x1": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y1": {
+            "type": "number",
+            "minimum": 0
+          },
+          "x2": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y2": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ]
+      },
+      "CreateVttMarkerDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "label"
+        ]
+      },
+      "UpdateVttMarkerDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000
+          }
+        }
+      },
+      "CreateVttMapHotspotDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "width": {
+            "type": "number",
+            "minimum": 1
+          },
+          "height": {
+            "type": "number",
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "targetMapId": {
+            "type": "string"
+          },
+          "visibleToPlayers": {
+            "type": "boolean"
+          },
+          "travelActionCost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "travelMinutes": {
+            "type": "number",
+            "minimum": 0
+          },
+          "eventNote": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "triggerJournalCategory": {
+            "type": "string",
+            "enum": [
+              "SESSAO",
+              "EVENTO",
+              "MORTE",
+              "LOOT",
+              "DECISAO",
+              "OUTRO"
+            ]
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "label"
+        ]
+      },
+      "UpdateVttMapHotspotDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          },
+          "width": {
+            "type": "number",
+            "minimum": 1
+          },
+          "height": {
+            "type": "number",
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "targetMapId": {
+            "type": "string",
+            "nullable": true
+          },
+          "visibleToPlayers": {
+            "type": "boolean"
+          },
+          "travelActionCost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "travelMinutes": {
+            "type": "number",
+            "minimum": 0
+          },
+          "eventNote": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000
+          },
+          "triggerJournalCategory": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "SESSAO",
+              "EVENTO",
+              "MORTE",
+              "LOOT",
+              "DECISAO",
+              "OUTRO"
+            ]
+          }
+        }
+      },
+      "RollDiceDto": {
+        "type": "object",
+        "properties": {
+          "formula": {
+            "type": "string",
+            "maxLength": 50,
+            "pattern": "^\\d+d(4|6|8|10|12|20|100)([+-]\\d+)?$"
+          },
+          "characterId": {
+            "type": "string"
+          },
+          "campaignId": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "MASTER",
+              "PRIVATE"
+            ]
+          }
+        },
+        "required": [
+          "formula"
+        ]
+      },
+      "CreateCampaignDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "JoinCampaignDto": {
+        "type": "object",
+        "properties": {
+          "inviteCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "inviteCode"
+        ]
+      },
+      "UpdateCampaignDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateWorldEntryDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "OUTRO",
+              "CONTINENTE",
+              "REINO",
+              "FACCAO",
+              "RELIGIAO",
+              "IDIOMA"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 280
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "parentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "name"
+        ]
+      },
+      "UpdateWorldEntryDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "OUTRO",
+              "CONTINENTE",
+              "REINO",
+              "FACCAO",
+              "RELIGIAO",
+              "IDIOMA"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 280
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 10000
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCalendarDto": {
+        "type": "object",
+        "properties": {
+          "monthNames": {
+            "minItems": 1,
+            "maxItems": 24,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "daysPerMonth": {
+            "minItems": 1,
+            "maxItems": 24,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          "weekdayNames": {
+            "minItems": 1,
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "currentDay": {
+            "type": "number",
+            "minimum": 1
+          },
+          "currentMonth": {
+            "type": "number",
+            "minimum": 1
+          },
+          "currentYear": {
+            "type": "number"
+          },
+          "currentHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "currentMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "realMinutesPerTick": {
+            "type": "number",
+            "minimum": 0
+          },
+          "gameMinutesPerTick": {
+            "type": "number",
+            "minimum": 1
+          },
+          "eventChancePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "SetWeatherDto": {
+        "type": "object",
+        "properties": {
+          "weather": {
+            "type": "string",
+            "enum": [
+              "clear",
+              "cloudy",
+              "rain",
+              "storm",
+              "fog",
+              "snow",
+              "wind"
+            ]
+          }
+        },
+        "required": [
+          "weather"
+        ]
+      },
+      "AdvanceClockDto": {
+        "type": "object",
+        "properties": {
+          "minutes": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 525600
+          }
+        },
+        "required": [
+          "minutes"
+        ]
+      },
+      "CreateWorldEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SESSAO",
+              "EVENTO",
+              "MORTE",
+              "LOOT",
+              "DECISAO",
+              "OUTRO"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "weatherEffect": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "clear",
+              "cloudy",
+              "rain",
+              "storm",
+              "fog",
+              "snow",
+              "wind",
+              null
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "UpdateWorldEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SESSAO",
+              "EVENTO",
+              "MORTE",
+              "LOOT",
+              "DECISAO",
+              "OUTRO"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "weatherEffect": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "clear",
+              "cloudy",
+              "rain",
+              "storm",
+              "fog",
+              "snow",
+              "wind",
+              null
+            ]
+          }
+        }
+      },
+      "CreateJournalEntryDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 150
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SESSAO",
+              "EVENTO",
+              "MORTE",
+              "LOOT",
+              "DECISAO",
+              "OUTRO"
+            ]
+          },
+          "sessionDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "UpdateJournalEntryDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SyncSrdDto": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TravelDto": {
+        "type": "object",
+        "properties": {
+          "hotspotId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "hotspotId"
+        ]
+      },
+      "RestDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "short",
+              "long"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "SendNarrationDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "recipientIds": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "recordInJournal": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "SaveNarrationDraftDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "mapId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "SendChatDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "IC",
+              "OOC",
+              "EMOTE",
+              "WHISPER"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "characterId": {
+            "type": "string"
+          },
+          "languageId": {
+            "type": "string"
+          },
+          "recipientIds": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "content"
+        ]
+      },
+      "UpdateAssistantSettingsDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "monthlyLimit": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 500
+          }
+        }
+      },
+      "AskAssistantDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "scene",
+              "npc",
+              "names",
+              "free"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "mapId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "CreateLoreCampaignDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "InstallLoreDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AttachLoreCharacterDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PreviewLoreDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "StoryCommandDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RequestActionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ResolveActionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SettingsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RequestDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ResolveDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "IntentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ReplyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PolicyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ScheduleDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PresetDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PostponeDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+}

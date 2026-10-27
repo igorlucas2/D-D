@@ -36,7 +36,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:e2e:cleanup": "node scripts/e2e-cleanup.cjs"
+    "test:e2e:cleanup": "node scripts/e2e-cleanup.cjs",
+    "openapi:export": "npm run build && node dist/src/scripts/openapi-export.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",
@@ -49,6 +50,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.26",
     "@nestjs/schedule": "^6.1.3",
+    "@nestjs/swagger": "^11.4.7",
     "@nestjs/throttler": "^6.7.1",
     "@nestjs/websockets": "^11.1.26",
     "@prisma/client": "^6.19.3",

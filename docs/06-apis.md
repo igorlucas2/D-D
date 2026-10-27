@@ -81,3 +81,13 @@ Base URL: `http://localhost:3001/api`
 | GET | /catalog/srd/endpoints | Lista endpoints SRD importados e contagem local |
 | GET | /catalog/srd/resources | Lista paginada: `endpoint`, `search`, `take` (1..100, padrão 50) e `cursor`; devolve `{ items, nextCursor }` |
 | GET | /catalog/srd/resources/:endpoint/:index | Retorna recurso SRD detalhado com JSON original |
+
+## OpenAPI e tipos do frontend
+
+- `GET /api/docs` — Swagger UI interativa (desenvolvimento/teste; em produção exige `OPENAPI_ENABLED=1`).
+- `GET /api/docs-json` — documento OpenAPI 3.
+- O arquivo versionado `docs/openapi.json` é gerado a partir do app compilado: `cd backend && npm run openapi:export` (precisa do MySQL).
+- Os tipos do frontend são gerados com `cd frontend && npm run api:types`; `npm run api:types:check` falha se estiverem desatualizados.
+- O CI regenera o documento e falha se `docs/openapi.json` ou `src/lib/openapi.d.ts` divergirem do código.
+
+As respostas de serviço ainda não têm schema (retornam objetos do Prisma); o contrato cobre rotas, parâmetros, corpos de entrada e os DTOs.

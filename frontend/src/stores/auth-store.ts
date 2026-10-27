@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { api, setUnauthorizedHandler } from '@/lib/api';
+import type { LoginRequest, RegisterRequest } from '@/lib/api-contract';
 import type { AuthUser } from '@/lib/types';
 
 interface AuthState {
@@ -31,16 +32,14 @@ export const useAuthStore = create<AuthState>()(
       sessionExpired: false,
 
       login: async (email, password) => {
-        const data = await api.post<AuthResponse>('/auth/login', { email, password });
+        const payload: LoginRequest = { email, password };
+        const data = await api.post<AuthResponse>('/auth/login', payload);
         set({ token: data.accessToken, user: data.user, sessionExpired: false });
       },
 
       register: async (email, password, displayName) => {
-        const data = await api.post<AuthResponse>('/auth/register', {
-          email,
-          password,
-          displayName,
-        });
+        const payload: RegisterRequest = { email, password, displayName };
+        const data = await api.post<AuthResponse>('/auth/register', payload);
         set({ token: data.accessToken, user: data.user });
       },
 

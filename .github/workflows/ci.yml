@@ -58,6 +58,14 @@ jobs:
         run: |
           npm run build
           npm test -- --runInBand
+      - name: Exportar OpenAPI
+        working-directory: backend
+        env:
+          NODE_ENV: test
+        run: node dist/src/scripts/openapi-export.js
+      - name: Conferir contrato versionado
+        working-directory: backend
+        run: git diff --exit-code ../docs/openapi.json
 
   frontend:
     name: Frontend (lint, tipos, build)
@@ -76,6 +84,7 @@ jobs:
       - name: Lint e build
         working-directory: frontend
         run: |
+          npm run api:types:check
           npm run lint
           npm run build
           npx tsc --noEmit

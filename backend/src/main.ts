@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { allowedOrigins } from './config/cors';
+import { setupOpenApi } from './openapi';
 
 /** Loopback em IPv4, IPv6 e no formato mapeado que o Node entrega. */
 function isLoopback(address: string): boolean {
@@ -50,6 +51,9 @@ async function bootstrap() {
 
   app.disable('x-powered-by');
   app.enableShutdownHooks();
+
+  // Documentação em /api/docs (desligada em produção sem OPENAPI_ENABLED=1).
+  setupOpenApi(app);
   // Atrás do proxy do Next (mesma máquina), confiar só em proxy loopback faz
   // req.ip refletir o cliente real sem aceitar X-Forwarded-For de fora.
   // A checagem é explícita porque o Node entrega `::ffff:127.0.0.1`, que não

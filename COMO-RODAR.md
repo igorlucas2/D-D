@@ -89,6 +89,19 @@ npx tsc --noEmit
 npm run build
 ```
 
+### Contrato da API (OpenAPI)
+
+```powershell
+cd backend
+npm run openapi:export      # build + docs/openapi.json (MySQL ativo)
+
+cd ../frontend
+npm run api:types           # gera src/lib/openapi.d.ts
+npm run api:types:check     # falha se estiver desatualizado
+```
+
+A documentação interativa fica em `http://localhost:3001/api/docs` quando o backend roda fora de produção. Em produção, ligue com `OPENAPI_ENABLED=1` e proteja o acesso conforme necessário.
+
 ### E2E (Playwright)
 
 Os testes E2E cobrem página inicial, login/cadastro, 404 custom, criação de
