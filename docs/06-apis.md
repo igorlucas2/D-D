@@ -72,7 +72,16 @@ Base URL: `http://localhost:3001/api`
 |---|---|---|
 | GET | /catalog/monsters, /catalog/items, /catalog/spells, /catalog/rules | Catálogos ordenados por nome; `take` opcional (1..500, padrão 500) |
 | CRUD | /world/continents, /kingdoms, /factions, /religions, /languages | Sistema de mundo |
-| POST | /ai-master/generate | `{ type: 'npc'|'city'|'tavern'|'quest'|'monster'|'treasure'|'encounter', prompt }` |
+
+## Mestre IA local (Ollama)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | /campaigns/:campaignId/ai-master/state | Modo, pausa, cena, personagens, últimas narrações públicas e status do modelo |
+| PATCH | /campaigns/:campaignId/ai-master/settings | Só mestre: `{ mode: 'OFF'|'COPILOT'|'AUTONOMOUS', paused, expectedRevision }` |
+| POST | /campaigns/:campaignId/ai-master/act | `{ requestKey, action, characterId?, expectedRevision }`; narra e grava um evento público |
+
+O modelo local só produz narração; não aplica dano, PV, item, tempo ou movimento. Detalhes e critérios de aceite em `docs/24-mestre-ia-local.md`.
 
 ## SRD 5e Integration
 | Método | Rota | Descrição |

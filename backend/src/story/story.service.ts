@@ -121,6 +121,77 @@ export class StoryService {
       return { initialized: true, alreadyInitialized: lore.storySequence > 0 };
     });
   }
+
+  /**
+   * Entrada de memória produzida pelo mestre IA. Não passa pela autorização de
+   * mestre porque a ação do jogador já foi validada; o evento é sempre público
+   * e o payload guarda a narração e a memória do turno.
+   */
+  async appendAiTurn(
+    campaignId: string,
+    input: {
+      requestKey: string;
+      summary: string;
+      payload: Record<string, unknown>;
+    },
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT id FROM Campaign WHERE id = ${campaignId} FOR UPDATE`;
+        const lore = await tx.campaignLore.findUnique({
+          where: { campaignId },
+        });
+        if (!lore || lore.storySequence < 1)
+          throw new ConflictException(
+            'Inicie a memória do cenário antes de jogar com o mestre IA.',
+          );
+
+        let audience = await tx.storyAudience.findFirst({
+          where: { campaignId, scope: 'PUBLIC' },
+          select: { id: true },
+        });
+        if (!audience) {
+          audience = await tx.storyAudience.create({
+            data: { campaignId, scope: 'PUBLIC' },
+            select: { id: true },
+          });
+        }
+
+        const calendar = await tx.campaignCalendar.findUniqueOrThrow({
+          where: { campaignId },
+        });
+        const event = await tx.storyEvent.create({
+          data: {
+            campaignId,
+            sequence: lore.storySequence + 1,
+            kind: 'NOTE',
+            gameMinute: calendar.totalMinutes,
+            actorKind: 'AI',
+            actorName: 'Mestre IA',
+            requestKey: input.requestKey,
+            audienceId: audience.id,
+            summary: input.summary.slice(0, 2000),
+            payload: JSON.stringify(input.payload),
+          },
+        });
+        await tx.campaignLore.update({
+          where: { campaignId },
+          data: {
+            storySequence: { increment: 1 },
+            revision: { increment: 1 },
+          },
+        });
+        await enqueueStory(tx, campaignId, event.id);
+
+        return {
+          eventId: event.id,
+          sequence: event.sequence,
+          gameMinute: event.gameMinute,
+        };
+      },
+      { isolationLevel: 'Serializable', timeout: 30_000, maxWait: 10_000 },
+    );
+  }
   private async entities(tx: Tx, campaignId: string, ids: string[]) {
     const unique = [...new Set(ids)];
     const rows = await tx.campaignEntity.findMany({

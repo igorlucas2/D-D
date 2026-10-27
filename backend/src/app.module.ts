@@ -35,6 +35,7 @@ import { StoryModule } from './story/story.module';
 import { GameActionsModule } from './game-actions/game-actions.module';
 import { GameMasterModule } from './game-master/game-master.module';
 import { ConsequencesModule } from './consequences/consequences.module';
+import { AiMasterModule } from './ai-master/ai-master.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
     GameActionsModule,
     GameMasterModule,
     ConsequencesModule,
+    AiMasterModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

@@ -1700,6 +1700,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/ai-master/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AiMasterController_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ai-master/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AiMasterController_settings"];
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ai-master/act": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AiMasterController_act"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2034,6 +2082,19 @@ export interface components {
         ScheduleDto: Record<string, never>;
         PresetDto: Record<string, never>;
         PostponeDto: Record<string, never>;
+        AiSettingsDto: {
+            /** @enum {string} */
+            mode: "OFF" | "COPILOT" | "AUTONOMOUS";
+            paused: boolean;
+            expectedRevision: number;
+        };
+        AiActDto: {
+            /** Format: uuid */
+            requestKey: string;
+            action: string;
+            characterId?: string;
+            expectedRevision: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -5136,6 +5197,75 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AiMasterController_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AiMasterController_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiSettingsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AiMasterController_act: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiActDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };

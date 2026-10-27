@@ -4639,6 +4639,109 @@
           "Consequences"
         ]
       }
+    },
+    "/api/campaigns/{campaignId}/ai-master/state": {
+      "get": {
+        "operationId": "AiMasterController_state",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AiMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ai-master/settings": {
+      "patch": {
+        "operationId": "AiMasterController_settings",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiMaster"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ai-master/act": {
+      "post": {
+        "operationId": "AiMasterController_act",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiActDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AiMaster"
+        ]
+      }
     }
   },
   "info": {
@@ -6057,6 +6160,58 @@
       "PostponeDto": {
         "type": "object",
         "properties": {}
+      },
+      "AiSettingsDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "OFF",
+              "COPILOT",
+              "AUTONOMOUS"
+            ]
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "mode",
+          "paused",
+          "expectedRevision"
+        ]
+      },
+      "AiActDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "\\S"
+          },
+          "characterId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "requestKey",
+          "action",
+          "expectedRevision"
+        ]
       }
     }
   }

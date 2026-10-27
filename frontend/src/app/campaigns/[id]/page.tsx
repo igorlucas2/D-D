@@ -26,7 +26,7 @@ import { SessionWorkspace } from "@/components/campaigns/session-workspace";
 import { api, ApiError } from "@/lib/api";
 import type { Campaign, CharacterExplorationState } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
-import { ArrowLeft, BookOpen, Check, Compass, Copy, Crown, Link2, Map, Maximize2, Minimize2, Swords, Users, X } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, Compass, Copy, Crown, Link2, Map, Maximize2, Minimize2, Sparkles, Swords, Users, X } from "lucide-react";
 
 function CampaignDetailContent() {
   const params = useParams<{ id: string }>();
@@ -189,6 +189,9 @@ function CampaignDetailContent() {
           </Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/story`} />}>
             <BookOpen className="size-4" aria-hidden="true" /> Memórias
+          </Button>
+          <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/play`} />}>
+            <Sparkles className="size-4" aria-hidden="true" /> Mestre IA
           </Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/actions`} />}>Comandos</Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/intents`} />}>Intenções</Button>

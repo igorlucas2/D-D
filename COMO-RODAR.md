@@ -68,6 +68,32 @@ Para mais de um domínio, separe por vírgula. Sem isso, o Next bloqueia os pró
 - Com túnel, o `backend\.env` também precisa de `ELDORIA_PUBLIC_HOSTS=seu-dominio` (ou `ELDORIA_ALLOWED_ORIGINS=https://seu-dominio`); sem isso o CORS e o Socket.IO recusam a origem pública. `TRUST_PROXY=loopback` já basta quando o Next está na mesma máquina; use `1` apenas se o backend ficar atrás de outro proxy (nginx, balanceador).
 - O backend responde com cabeçalhos de segurança (`helmet`) e o Next envia CSP, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` e `Permissions-Policy`. Payloads JSON são limitados a 1 MB.
 
+## Mestre IA local (Ollama)
+
+O modo `AUTONOMOUS` usa um modelo local para narrar as ações dos jogadores. A mecânica continua manual: o modelo não altera PV, itens, tempo, posição nem fatos canônicos.
+
+1. Instale o [Ollama](https://ollama.com/) e baixe um modelo. Para português, `qwen2.5:14b-instruct` é uma boa escolha; `gemma2:9b` é o padrão atual e serve para hardware menor.
+
+   ```powershell
+   ollama pull qwen2.5:14b-instruct
+   ```
+
+2. No `backend/.env`:
+
+   ```
+   GAME_MASTER_OLLAMA_URL=http://127.0.0.1:11434
+   GAME_MASTER_MODEL=qwen2.5:14b-instruct
+   GAME_MASTER_TIMEOUT_MS=90000
+   ```
+
+3. Reinicie o backend. A página da campanha passa a mostrar **Mestre IA**.
+
+4. Na campanha: instale um cenário, inicie a memória do cenário e tenha um personagem. O mestre abre **Mestre IA**, liga o modo autônomo e o grupo envia ações.
+
+5. Cada ação vira uma narração pública na memória da campanha. Se o modelo estiver indisponível ou devolver algo inválido, a tela mostra o erro e a mesa continua funcionando manualmente.
+
+A spec completa (contexto, validação, memória e fases seguintes) está em `docs/24-mestre-ia-local.md`.
+
 ## Testes automatizados
 
 ### Backend
