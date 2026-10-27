@@ -3,7 +3,7 @@
 import { BookOpen, ChevronDown, ScrollText, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ResolutionCard } from "@/components/table/resolution-card";
-import type { CombatActionResult } from "@/lib/table-types";
+import type { TableActionResult } from "@/lib/table-types";
 
 export interface ChronicleEvent {
   eventId: string;
@@ -25,8 +25,8 @@ export function Chronicle({
   pending,
 }: {
   events: ChronicleEvent[];
-  actions: CombatActionResult[];
-  latestAction: CombatActionResult | null;
+  actions: TableActionResult[];
+  latestAction: TableActionResult | null;
   sceneName: string | null;
   pending: boolean;
 }) {

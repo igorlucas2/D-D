@@ -231,6 +231,10 @@ permissões, idempotência, histórico, HUD, composer de ação e crônica
 central. Testes manuais contra o banco: dano com PV temporário, cura, replay
 de `requestKey`, condição em participante e sincronização ficha ↔ combate.
 
+## 9.1 Fase B
+
+Itens consumíveis usam o mesmo ledger e a mesma transação; a spec está em `docs/26-itens.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

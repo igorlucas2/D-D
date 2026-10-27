@@ -47,6 +47,16 @@ export interface AiTurnState {
     tempHp: number;
     armorClass: number;
     conditions: string[];
+    items: Array<{
+      inventoryItemId: string;
+      itemId: string;
+      name: string;
+      quantity: number;
+      category: string;
+      properties: string | null;
+      description: string | null;
+      effectKind: 'HEAL' | 'TEMP_HP' | 'DAMAGE' | null;
+    }>;
   }>;
   events: Array<{
     eventId: string;

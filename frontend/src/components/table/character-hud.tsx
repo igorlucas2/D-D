@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   ExternalLink,
+  FlaskConical,
   HeartPulse,
   Shield,
   ShieldPlus,
@@ -60,6 +61,7 @@ export function CharacterHud({
   isMaster,
   busy,
   onAction,
+  onUseItem,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -68,6 +70,7 @@ export function CharacterHud({
   isMaster: boolean;
   busy: boolean;
   onAction: (kind: CombatActionKind) => void;
+  onUseItem: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -210,6 +213,21 @@ export function CharacterHud({
                 );
               })}
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 h-10 w-full justify-start gap-2 border-primary/25 bg-primary/8 text-xs hover:bg-primary/15"
+              onClick={onUseItem}
+              disabled={busy}
+            >
+              <FlaskConical className="size-3.5" aria-hidden="true" />
+              Usar item
+              {character.items.filter((item) => item.effectKind && item.quantity > 0).length > 0 ? (
+                <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                  {character.items.filter((item) => item.effectKind && item.quantity > 0).length}
+                </span>
+              ) : null}
+            </Button>
           </div>
         ) : (
           <p className="p-4 text-sm text-muted-foreground">

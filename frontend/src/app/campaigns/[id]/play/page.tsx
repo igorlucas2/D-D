@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, Send, Sparkles } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CharacterHud } from "@/components/table/character-hud";
 import { Chronicle, type ChronicleEvent } from "@/components/table/chronicle";
+import { ItemUseDialog } from "@/components/table/item-use-dialog";
 import { MechanicalActionDialog } from "@/components/table/mechanical-action-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,9 @@ import type {
   CombatActionKind,
   CombatActionResult,
   HudCharacter,
+  ItemUseResult,
   MechanicalActionInput,
+  TableActionResult,
 } from "@/lib/table-types";
 import { useStoryUpdates } from "@/lib/use-story-updates";
 import { useAuthStore } from "@/stores/auth-store";
@@ -60,7 +63,7 @@ function AiMasterContent() {
   const token = useAuthStore((store) => store.token);
   const [state, setState] = useState<AiState | null>(null);
   const [combat, setCombat] = useState<CombatEncounter | null>(null);
-  const [actions, setActions] = useState<CombatActionResult[]>([]);
+  const [actions, setActions] = useState<TableActionResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -70,7 +73,9 @@ function AiMasterContent() {
   const [mechanicalBusy, setMechanicalBusy] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<CombatActionKind>("DAMAGE");
-  const [lastResult, setLastResult] = useState<CombatActionResult | null>(null);
+  const [itemDialogOpen, setItemDialogOpen] = useState(false);
+  const [itemBusy, setItemBusy] = useState(false);
+  const [lastResult, setLastResult] = useState<TableActionResult | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -81,7 +86,7 @@ function AiMasterContent() {
           .get<CombatEncounter | null>(`/campaigns/${params.id}/combat`, token)
           .catch(() => null),
         api
-          .get<CombatActionResult[]>(
+          .get<TableActionResult[]>(
             `/campaigns/${params.id}/combat/actions?take=12`,
             token,
           )
@@ -265,6 +270,36 @@ function AiMasterContent() {
       await load();
     } finally {
       setMechanicalBusy(false);
+    }
+  }
+
+  async function submitItemUse(inventoryItemId: string) {
+    if (!token || !state || !selectedCharacter) return;
+    setItemBusy(true);
+    setError(null);
+    try {
+      const result = await api.post<ItemUseResult>(
+        `/campaigns/${params.id}/combat/items/use`,
+        {
+          requestKey: crypto.randomUUID(),
+          inventoryItemId,
+          characterId: selectedCharacter.characterId,
+          expectedRevision: combat?.revision,
+        },
+        token,
+      );
+      setLastResult(result);
+      setItemDialogOpen(false);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível usar o item.",
+      );
+      await load();
+    } finally {
+      setItemBusy(false);
     }
   }
 
@@ -466,8 +501,9 @@ function AiMasterContent() {
             onSelect={setSelectedId}
             combat={combat}
             isMaster={Boolean(state?.isMaster)}
-            busy={mechanicalBusy || busy}
+            busy={mechanicalBusy || itemBusy || busy}
             onAction={openAction}
+            onUseItem={() => setItemDialogOpen(true)}
           />
         </div>
       </div>
@@ -481,6 +517,16 @@ function AiMasterContent() {
           busy={mechanicalBusy}
           onOpenChange={setDialogOpen}
           onSubmit={submitMechanical}
+        />
+      ) : null}
+
+      {itemDialogOpen && selectedCharacter ? (
+        <ItemUseDialog
+          items={selectedCharacter.items}
+          characterName={selectedCharacter.name}
+          busy={itemBusy}
+          onOpenChange={setItemDialogOpen}
+          onUse={submitItemUse}
         />
       ) : null}
     </div>

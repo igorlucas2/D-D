@@ -1,8 +1,8 @@
 "use client";
 
-import { HeartPulse, Shield, Sparkles, Swords } from "lucide-react";
+import { FlaskConical, HeartPulse, Shield, Sparkles, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { CombatActionResult } from "@/lib/table-types";
+import type { TableActionResult } from "@/lib/table-types";
 import { ACTION_LABELS, DAMAGE_TYPE_LABELS } from "@/lib/table-types";
 
 function formatNumber(value: number) {
@@ -23,15 +23,25 @@ const TONES = {
   CONDITION: "border-[#9b7b49]/35 bg-[#9b7b49]/8 text-[#ead6ae]",
 } as const;
 
+const EFFECT_LABELS = {
+  DAMAGE: "dano",
+  HEAL: "cura",
+  TEMP_HP: "PV temporário",
+  CONDITION: "condição",
+} as const;
+
 export function ResolutionCard({
   result,
   compact = false,
 }: {
-  result: CombatActionResult;
+  result: TableActionResult;
   compact?: boolean;
 }) {
-  const Icon = ICONS[result.kind];
-  const tone = TONES[result.kind];
+  const effectKind =
+    result.kind === "USE_ITEM" ? result.effectKind : result.kind;
+  const Icon =
+    result.kind === "USE_ITEM" ? FlaskConical : ICONS[result.kind];
+  const tone = TONES[effectKind];
 
   if (result.kind === "CONDITION") {
     return (
@@ -57,26 +67,33 @@ export function ResolutionCard({
   }
 
   const after = result.hpAfter;
+  const title =
+    result.kind === "USE_ITEM"
+      ? `${result.item.name} · ${result.target.name}`
+      : `${result.target.name} · ${ACTION_LABELS[result.kind]}`;
   return (
     <article
       className={`rounded-xl border p-3 ${tone}`}
-      aria-label={`${ACTION_LABELS[result.kind]} em ${result.target.name}`}
+      aria-label={`${result.kind === "USE_ITEM" ? result.item.name : ACTION_LABELS[result.kind]} em ${result.target.name}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground">
-              {result.target.name} · {ACTION_LABELS[result.kind]}
+              {title}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {result.kind === "HEAL" ? "+" : ""}
-              {formatNumber(result.applied)}
-              {result.kind === "DAMAGE" && result.damageType
-                ? ` ${DAMAGE_TYPE_LABELS[result.damageType as keyof typeof DAMAGE_TYPE_LABELS] ?? result.damageType}`
+              {effectKind === "HEAL" ? "+" : ""}
+              {formatNumber(result.applied)} {EFFECT_LABELS[effectKind]}
+              {effectKind === "DAMAGE" && result.damageType
+                ? ` · ${DAMAGE_TYPE_LABELS[result.damageType as keyof typeof DAMAGE_TYPE_LABELS] ?? result.damageType}`
                 : ""}
               {result.absorbedByTempHp
                 ? ` · ${formatNumber(result.absorbedByTempHp)} absorvido por PV temporário`
+                : ""}
+              {result.kind === "USE_ITEM"
+                ? ` · ${result.item.quantityAfter} restante${result.item.quantityAfter === 1 ? "" : "s"}`
                 : ""}
             </p>
           </div>

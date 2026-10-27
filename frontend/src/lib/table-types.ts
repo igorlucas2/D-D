@@ -40,6 +40,17 @@ export interface MechanicalActionInput {
   source?: string;
 }
 
+export interface HudItem {
+  inventoryItemId: string;
+  itemId: string;
+  name: string;
+  quantity: number;
+  category: string;
+  properties: string | null;
+  description: string | null;
+  effectKind: "HEAL" | "TEMP_HP" | "DAMAGE" | null;
+}
+
 export interface HudCharacter {
   id: string;
   characterId: string;
@@ -50,6 +61,7 @@ export interface HudCharacter {
   tempHp: number;
   armorClass: number;
   conditions: string[];
+  items: HudItem[];
 }
 
 export interface CombatActionResult {
@@ -75,6 +87,38 @@ export interface CombatActionResult {
   alreadyApplied: boolean;
   createdAt: string;
 }
+
+export interface ItemUseResult {
+  actionId: string;
+  requestKey: string;
+  kind: "USE_ITEM";
+  effectKind: "HEAL" | "TEMP_HP" | "DAMAGE";
+  target: {
+    kind: "CHARACTER";
+    id: string;
+    name: string;
+    characterId: string;
+  };
+  amount: number;
+  breakdown: DiceRollBreakdown | null;
+  damageType: string;
+  hpBefore: { current: number; max: number; temp: number };
+  hpAfter: { current: number; max: number; temp: number };
+  applied: number;
+  absorbedByTempHp: number;
+  item: {
+    inventoryItemId: string;
+    itemId: string;
+    name: string;
+    quantityBefore: number;
+    quantityAfter: number;
+  };
+  source: string;
+  alreadyApplied: boolean;
+  createdAt: string;
+}
+
+export type TableActionResult = CombatActionResult | ItemUseResult;
 
 export const ACTION_LABELS: Record<CombatActionKind, string> = {
   DAMAGE: "Dano",

@@ -17,7 +17,9 @@ import { Audit } from '../audit/audit.decorator';
 import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { CombatService } from './combat.service';
 import { CombatActionsService } from './combat-actions.service';
+import { ItemUseService } from './item-use.service';
 import { CombatActionDto } from './combat-action.dto';
+import { UseItemDto } from './item-use.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -29,7 +31,21 @@ export class CombatController {
   constructor(
     private readonly combatService: CombatService,
     private readonly actions: CombatActionsService,
+    private readonly items: ItemUseService,
   ) {}
+
+  @CampaignChanged()
+  @Audit('item.use', 'item')
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Post('items/use')
+  @HttpCode(200)
+  useItem(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: UseItemDto,
+  ) {
+    return this.items.use(campaignId, user.userId, dto);
+  }
 
   @Get('actions')
   actionHistory(

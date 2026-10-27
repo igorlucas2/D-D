@@ -8,6 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseStringArray } from '../common/json';
+import { parseItemEffect } from '../combat/item-use.types';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { AiTurnContextBuilder } from './ai-master.context';
@@ -75,7 +76,13 @@ export class AiMasterService {
       this.prisma.campaignCalendar.findUnique({ where: { campaignId } }),
       this.prisma.campaignCharacter.findMany({
         where: { campaignId },
-        include: { character: true },
+        include: {
+          character: {
+            include: {
+              inventory: { include: { item: true }, orderBy: { id: 'asc' } },
+            },
+          },
+        },
         orderBy: { joinedAt: 'asc' },
       }),
       this.prisma.storyEvent.findMany({
@@ -139,6 +146,16 @@ export class AiMasterService {
         tempHp: row.character.tempHp,
         armorClass: row.character.armorClass,
         conditions: conditionsByCharacter.get(row.characterId) ?? [],
+        items: row.character.inventory.map((entry) => ({
+          inventoryItemId: entry.id,
+          itemId: entry.itemId,
+          name: entry.item.name,
+          quantity: entry.quantity,
+          category: entry.item.category,
+          properties: entry.item.properties,
+          description: entry.item.description,
+          effectKind: parseItemEffect(entry.item.properties)?.kind ?? null,
+        })),
       })),
       events: events.map((event) => ({
         eventId: event.id,
