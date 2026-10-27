@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
@@ -203,53 +204,32 @@ function Review({
   );
 }
 function Copilot({ id, token }: { id: string; token: string }) {
-  const [state, setState] = useState<State | null>(null),
-    [error, setError] = useState(""),
-    [notice, setNotice] = useState(""),
+  const [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [kind, setKind] = useState("PLAN");
-  const active = useRef(true),
-    seq = useRef(0),
-    pending = useRef<{
-      signature: string;
-      body: Record<string, unknown>;
-    } | null>(null);
-  const load = useCallback(async () => {
-    const n = ++seq.current;
-    try {
-      const s = await api.get<State>(
-        `/campaigns/${id}/game-master/state`,
-        token,
-      );
-      if (active.current && n === seq.current) {
-        setState(s);
-        setError("");
-      }
-    } catch (e) {
-      if (active.current && n === seq.current) {
-        setError(e instanceof Error ? e.message : "Falha ao carregar.");
-        if (e instanceof ApiError && [401, 403, 404, 409].includes(e.status))
-          setState(null);
-      }
-    }
-  }, [id, token]);
-  useEffect(() => {
-    active.current = true;
-    void Promise.resolve().then(load);
-    const refresh = () => {
-      if (document.visibilityState === "visible") void load();
-    };
-    const timer = setInterval(refresh, 3000);
-    window.addEventListener("online", refresh);
-    window.addEventListener("focus", refresh);
-    return () => {
-      active.current = false;
-      clearInterval(timer);
-      window.removeEventListener("online", refresh);
-      window.removeEventListener("focus", refresh);
-    };
-  }, [load]);
-  useStoryUpdates(id, token, load);
+  const userId = useAuthStore((state) => state.user?.id);
+  const pending = useRef<{
+    signature: string;
+    body: Record<string, unknown>;
+  } | null>(null);
+  const query = useQuery({
+    queryKey: ["copilot", userId, id],
+    queryFn: ({ signal }) =>
+      api.get<State>(`/campaigns/${id}/game-master/state`, token, signal),
+    enabled: Boolean(token),
+    // O socket invalida a cada evento de história; 60 s é só a rede de segurança.
+    refetchInterval: 60_000,
+  });
+  const state = query.data ?? null;
+  const error =
+    query.error instanceof ApiError
+      ? query.error.message
+      : query.error
+        ? "Falha ao carregar o copiloto."
+        : "";
+  useStoryUpdates(id, token, () => {
+    void query.refetch();
+  });
   async function settings(mode: "OFF" | "COPILOT", paused: boolean) {
     if (!state) return;
     setBusy(true);
@@ -260,10 +240,10 @@ function Copilot({ id, token }: { id: string; token: string }) {
         token,
       );
       setNotice("Controles atualizados. Pedidos anteriores foram cancelados.");
-      await load();
+      await query.refetch();
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Falha ao configurar.");
-      await load();
+      await query.refetch();
     } finally {
       setBusy(false);
     }
@@ -298,12 +278,12 @@ function Copilot({ id, token }: { id: string; token: string }) {
       setNotice(
         "Pedido salvo. Você pode pausar ou cancelar enquanto o modelo consulta a memória.",
       );
-      await load();
+      await query.refetch();
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Falha ao consultar.");
       if (e instanceof ApiError && e.status === 409) {
         pending.current = null;
-        await load();
+        await query.refetch();
       }
     } finally {
       setBusy(false);
@@ -332,10 +312,10 @@ function Copilot({ id, token }: { id: string; token: string }) {
           ? "Proposta aprovada e registrada uma única vez."
           : "Pedido cancelado.",
       );
-      await load();
+      await query.refetch();
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Falha ao resolver.");
-      await load();
+      await query.refetch();
     } finally {
       setBusy(false);
     }

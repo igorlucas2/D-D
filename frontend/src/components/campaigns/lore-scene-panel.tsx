@@ -54,7 +54,7 @@ export function LoreScenePanel({ campaignId }: { campaignId: string }) {
     void Promise.resolve().then(refresh);
     const timer = setInterval(() => {
       if (document.visibilityState === "visible") void refresh();
-    }, 10000);
+    }, 60_000);
     return () => {
       active.current = false;
       clearInterval(timer);

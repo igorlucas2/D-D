@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { InventoryTab } from "@/components/character/inventory-tab";
@@ -72,61 +73,30 @@ function CharacterSheetContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const token = useAuthStore((state) => state.token);
-  const [character, setCharacter] = useState<Character | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const userId = useAuthStore((state) => state.user?.id);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!token || !params.id) return;
-    let cancelled = false;
-    api
-      .get<Character>(`/characters/${params.id}`, token)
-      .then((data) => {
-        if (!cancelled) setCharacter(data);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Não foi possível carregar o personagem.");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [token, params.id]);
+  const query = useQuery({
+    queryKey: ["character", userId, params.id],
+    queryFn: ({ signal }) =>
+      api.get<Character>(`/characters/${params.id}`, token, signal),
+    enabled: Boolean(token && params.id),
+    // O mestre pode mudar o PV no combate enquanto a ficha está aberta. O
+    // socket da mesa não cobre esta tela, então fica uma leitura de segurança.
+    refetchInterval: 30_000,
+  });
 
-  // O mestre pode mudar o PV no combate enquanto a ficha está aberta:
-  // refaz a leitura do PV com a aba visível, sem mexer no resto da ficha.
-  useEffect(() => {
-    if (!token || !params.id) return;
-    let cancelled = false;
-    const refreshHp = () => {
-      if (document.visibilityState !== "visible") return;
-      api
-        .get<Character>(`/characters/${params.id}`, token)
-        .then((data) => {
-          if (cancelled) return;
-          setCharacter((current) =>
-            current &&
-            (current.currentHp !== data.currentHp || current.maxHp !== data.maxHp || current.tempHp !== data.tempHp)
-              ? { ...current, currentHp: data.currentHp, maxHp: data.maxHp, tempHp: data.tempHp }
-              : current,
-          );
-        })
-        .catch(() => {});
-    };
-    const interval = window.setInterval(refreshHp, 4000);
-    document.addEventListener("visibilitychange", refreshHp);
-    window.addEventListener("focus", refreshHp);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", refreshHp);
-      window.removeEventListener("focus", refreshHp);
-    };
-  }, [token, params.id]);
+  const character = query.data ?? null;
+  const updateCharacter = (updated: Character) => {
+    queryClient.setQueryData(["character", userId, params.id], updated);
+  };
+  const loading = query.isLoading;
+  const error =
+    query.error instanceof ApiError
+      ? query.error.message
+      : query.error
+        ? "Não foi possível carregar o personagem."
+        : null;
 
   async function adjustResource(field: "currentHp" | "tempHp", delta: number) {
     if (!token || !character) return;
@@ -138,7 +108,7 @@ function CharacterSheetContent() {
       { [field]: next },
       token,
     );
-    setCharacter(updated);
+    queryClient.setQueryData(["character", userId, params.id], updated);
   }
 
   async function handleDelete() {
@@ -311,13 +281,13 @@ function CharacterSheetContent() {
 
         <TabsContent value="inventory" className="pt-4">
           <FadeIn>
-            <InventoryTab character={character} onChange={setCharacter} />
+            <InventoryTab character={character} onChange={updateCharacter} />
           </FadeIn>
         </TabsContent>
 
         <TabsContent value="spells" className="pt-4">
           <FadeIn>
-            <SpellsTab character={character} onChange={setCharacter} />
+            <SpellsTab character={character} onChange={updateCharacter} />
           </FadeIn>
         </TabsContent>
 

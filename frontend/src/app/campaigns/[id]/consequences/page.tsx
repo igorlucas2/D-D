@@ -455,7 +455,7 @@ function Consequences({ id, token }: { id: string; token: string }) {
     const refresh = () => {
       if (document.visibilityState === "visible") void load();
     };
-    const timer = setInterval(refresh, 5000);
+    const timer = setInterval(refresh, 60_000);
     window.addEventListener("online", refresh);
     window.addEventListener("focus", refresh);
     return () => {

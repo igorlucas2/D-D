@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, EB_Garamond } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -29,8 +30,10 @@ export default function RootLayout({
       className={`dark ${cinzel.variable} ${ebGaramond.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background-pattern">
-        <SiteHeader />
-        <main className="flex flex-1 flex-col">{children}</main>
+        <Providers>
+          <SiteHeader />
+          <main className="flex flex-1 flex-col">{children}</main>
+        </Providers>
       </body>
     </html>
   );
