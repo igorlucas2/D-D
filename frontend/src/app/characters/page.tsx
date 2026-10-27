@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/auth/require-auth";
+import { PageSkeleton } from "@/components/layout/page-skeleton";
 import { AmbientParticles } from "@/components/ornamental/ambient-particles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { api } from "@/lib/api";
+import { ErrorState } from "@/components/ui/error-state";
+import { api, ApiError } from "@/lib/api";
 import { formatModifier } from "@/lib/character-rules";
 import type { Character } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
@@ -22,6 +24,8 @@ function CharactersContent() {
   const token = useAuthStore((state) => state.token);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!token) return;
@@ -31,13 +35,22 @@ function CharactersContent() {
       .then((data) => {
         if (!cancelled) setCharacters(data);
       })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(
+            err instanceof ApiError
+              ? err.message
+              : "Não foi possível carregar os personagens.",
+          );
+        }
+      })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, reloadKey]);
 
   return (
     <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
@@ -54,7 +67,17 @@ function CharactersContent() {
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground">Carregando...</p>
+        <PageSkeleton cards={6} withHeader={false} />
+      ) : error ? (
+        <ErrorState
+          title="Não foi possível carregar os personagens"
+          message={error}
+          onRetry={() => {
+            setError(null);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
       ) : characters.length === 0 ? (
         <Card className="parchment frame-ornate">
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">

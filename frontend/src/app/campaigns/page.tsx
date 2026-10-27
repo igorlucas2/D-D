@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { PublicLorePack } from "@/lib/lore-types";
 import { ArrowUpRight, BookOpen, Crown, Map, Plus, Ticket, Users } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
+import { PageSkeleton } from "@/components/layout/page-skeleton";
 import { AmbientParticles } from "@/components/ornamental/ambient-particles";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ErrorState } from "@/components/ui/error-state";
 import { api, ApiError } from "@/lib/api";
 import type { Campaign } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
@@ -45,6 +47,8 @@ function CampaignsContent() {
   const userId = useAuthStore((state) => state.user?.id);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState("");
@@ -83,6 +87,14 @@ function CampaignsContent() {
       try {
         const data = await api.get<Campaign[]>("/campaigns", token);
         if (!cancelled) setCampaigns(data);
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof ApiError
+              ? err.message
+              : "Não foi possível carregar suas campanhas.",
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -93,7 +105,7 @@ function CampaignsContent() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, reloadKey]);
 
   async function handleCreate() {
     if (!token) return;
@@ -232,7 +244,17 @@ function CampaignsContent() {
       </div>
 
       {loading ? (
-        <p role="status" className="text-muted-foreground">Carregando campanhas...</p>
+        <PageSkeleton cards={4} withHeader={false} />
+      ) : error ? (
+        <ErrorState
+          title="Não foi possível carregar suas campanhas"
+          message={error}
+          onRetry={() => {
+            setError(null);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
       ) : campaigns.length === 0 ? (
         <Card className="parchment frame-ornate">
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">

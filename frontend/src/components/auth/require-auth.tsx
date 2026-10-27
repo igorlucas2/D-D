@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -10,16 +10,26 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((state) => state.token);
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const sessionExpired = useAuthStore((state) => state.sessionExpired);
+  const [hydrationTimedOut, setHydrationTimedOut] = useState(false);
+
+  // Storage ilegível não pode deixar a tela em "Carregando..." para sempre.
+  useEffect(() => {
+    if (isHydrated) return;
+    const timer = window.setTimeout(() => setHydrationTimedOut(true), 2_000);
+    return () => window.clearTimeout(timer);
+  }, [isHydrated]);
+
+  const ready = isHydrated || hydrationTimedOut;
 
   // Volta para a mesma página depois de entrar de novo.
   useEffect(() => {
-    if (isHydrated && !token) {
+    if (ready && !token) {
       const next = encodeURIComponent(pathname + window.location.search);
       router.replace(`/login?next=${next}${sessionExpired ? "&sessao=expirada" : ""}`);
     }
-  }, [isHydrated, token, router, pathname, sessionExpired]);
+  }, [ready, token, router, pathname, sessionExpired]);
 
-  if (!isHydrated || !token) {
+  if (!ready || !token) {
     return (
       <div className="flex flex-1 items-center justify-center py-24 text-muted-foreground">
         Carregando...

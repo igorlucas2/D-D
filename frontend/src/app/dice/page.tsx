@@ -45,8 +45,26 @@ function DiceContent() {
 
   useEffect(() => {
     if (!token) return;
-    api.get<Character[]>("/characters", token).then(setCharacters);
-    api.get<DiceRoll[]>("/dice/history", token).then(setHistory);
+    api
+      .get<Character[]>("/characters", token)
+      .then(setCharacters)
+      .catch((err) =>
+        setError((current) =>
+          current ??
+          (err instanceof ApiError
+            ? err.message
+            : "Não foi possível carregar os personagens."),
+        ),
+      );
+    api
+      .get<DiceRoll[]>("/dice/history", token)
+      .then(setHistory)
+      .catch(() =>
+        setError(
+          (current) =>
+            current ?? "Não foi possível carregar o histórico de rolagens.",
+        ),
+      );
   }, [token]);
 
   const formula = `${diceCount}d${diceSides}${modifier !== 0 ? (modifier > 0 ? `+${modifier}` : `${modifier}`) : ""}`;

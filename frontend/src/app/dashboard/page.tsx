@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, BookOpen, Compass, Crown, Shield, Sparkles, Swords } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
+import { PageSkeleton } from "@/components/layout/page-skeleton";
 import { AmbientParticles } from "@/components/ornamental/ambient-particles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ErrorState } from "@/components/ui/error-state";
 import { Progress } from "@/components/ui/progress";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import type { Achievement, Character, UserProfile } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -28,6 +30,8 @@ function DashboardContent() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!token) return;
@@ -47,6 +51,14 @@ function DashboardContent() {
           setCharacters(charactersData);
           setAchievements(achievementsData);
         }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof ApiError
+              ? err.message
+              : "Não foi possível carregar seu painel.",
+          );
+        }
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -59,12 +71,24 @@ function DashboardContent() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, reloadKey]);
 
-  if (loading || !profile) {
+  if (loading) {
+    return <PageSkeleton cards={3} />;
+  }
+
+  if (error || !profile) {
     return (
-      <div className="flex flex-1 items-center justify-center py-24 text-muted-foreground">
-        Carregando...
+      <div className="mx-auto w-full max-w-6xl px-4 py-10">
+        <ErrorState
+          title="Não foi possível carregar o painel"
+          message={error ?? "O servidor não devolveu seu perfil."}
+          onRetry={() => {
+            setError(null);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
       </div>
     );
   }

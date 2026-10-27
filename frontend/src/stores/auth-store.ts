@@ -62,7 +62,20 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'rpg-auth',
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          // Storage corrompido: descarta a sessão salva e libera a interface.
+          // O RequireAuth também tem um limite de espera como rede de segurança.
+          if (typeof window !== 'undefined') {
+            try {
+              window.localStorage.removeItem('rpg-auth');
+            } catch {
+              // sem acesso ao storage: segue deslogado
+            }
+          }
+          state?.setHydrated();
+          return;
+        }
         // Token salvo já vencido: sai antes de qualquer requisição falhar.
         if (state?.token && isTokenExpired(state.token)) state.expireSession();
         state?.setHydrated();
