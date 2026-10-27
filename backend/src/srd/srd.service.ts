@@ -1,0 +1,58 @@
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class SrdService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async listEndpoints() {
+    const groups = await this.prisma.srdResource.groupBy({
+      by: ['endpoint'],
+      _count: { endpoint: true },
+      orderBy: { endpoint: 'asc' },
+    });
+
+    return groups.map((group) => ({
+      endpoint: group.endpoint,
+      count: group._count.endpoint,
+    }));
+  }
+
+  async listResources(endpoint?: string, search?: string) {
+    const where: Prisma.SrdResourceWhereInput = {};
+    if (endpoint) where.endpoint = endpoint;
+    if (search) {
+      where.name = { contains: search };
+    }
+
+    return this.prisma.srdResource.findMany({
+      where,
+      orderBy: [{ endpoint: 'asc' }, { name: 'asc' }],
+      take: 500,
+      select: {
+        id: true,
+        endpoint: true,
+        index: true,
+        name: true,
+        url: true,
+        source: true,
+        srdUpdatedAt: true,
+        importedAt: true,
+      },
+    });
+  }
+
+  async getResource(endpoint: string, index: string) {
+    const resource = await this.prisma.srdResource.findUnique({
+      where: { endpoint_index: { endpoint, index } },
+    });
+
+    if (!resource) return null;
+
+    return {
+      ...resource,
+      data: JSON.parse(resource.data) as unknown,
+    };
+  }
+}

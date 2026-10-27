@@ -1,0 +1,62 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Builds e artefatos
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Ambiente e segredos (nunca versionar)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bancos e dados locais
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Backups, logs e artefatos de ensaio
+backend/backups/
+backend/generated/
+logs/
+*.rar
+*.7z
+*.zip
+*.tar
+*.tar.gz
+*.log
+
+# Caches gerados por scripts
+backend/scripts/.translation-cache.json
+**/.cache/
+
+# Ferramentas e sistemas operacionais
+.codex-run/
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testes e navegador
+playwright-report/
+test-results/
+blob-report/

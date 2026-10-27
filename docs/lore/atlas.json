@@ -1,0 +1,54 @@
+{
+  "packId": "eldoria-tres-sinos",
+  "version": "1.0.0",
+  "status": "SPEC_NOT_IMPORTED",
+  "coordinateSystem": "zero-based grid; origin top-left; north up",
+  "maps": [
+    { "id": "vale", "name": "Vale do Lume", "kind": "REGION", "parentId": null, "width": 30, "height": 20, "gridSize": 1, "asset": "mapas/vale-do-lume.svg", "texture": "mapas/vale-do-lume.png", "visibility": "PUBLIC_AT_START", "scale": "schematic; use routes for travel time" },
+    { "id": "porto", "name": "Porto das Cinzas", "kind": "SETTLEMENT", "parentId": "vale", "width": 24, "height": 18, "gridSize": 1, "asset": "mapas/porto-das-cinzas.svg", "texture": "mapas/porto-das-cinzas.png", "visibility": "PUBLIC_AT_START", "scale": "schematic; use local actions for travel time" },
+    { "id": "abadia", "name": "Abadia do Terceiro Sino", "kind": "INTERIOR", "parentId": "vale", "width": 24, "height": 18, "gridSize": 1, "asset": "mapas/abadia-do-terceiro-sino.svg", "texture": "mapas/abadia-do-terceiro-sino.png", "visibility": "KNOWN_PLAN_ON_DISCOVERY", "scale": "one cell = one game distance unit; gridSize 1" }
+  ],
+  "places": [
+    { "id": "porto", "name": "Porto das Cinzas", "mapId": "vale", "x": 14, "y": 13, "targetMapId": "porto" },
+    { "id": "ponte", "name": "Ponte Velha", "mapId": "vale", "x": 15, "y": 8, "targetMapId": null },
+    { "id": "mata", "name": "Mata do Cervo", "mapId": "vale", "x": 7, "y": 6, "targetMapId": null },
+    { "id": "mina", "name": "Mina da Vigília", "mapId": "vale", "x": 22, "y": 5, "targetMapId": null },
+    { "id": "abadia", "name": "Abadia do Terceiro Sino", "mapId": "vale", "x": 24, "y": 13, "targetMapId": "abadia" },
+    { "id": "brejo", "name": "Brejo das Lanternas", "mapId": "vale", "x": 8, "y": 16, "targetMapId": null },
+    { "id": "taverna", "name": "Taverna da Última Brasa", "mapId": "porto", "x": 6, "y": 10, "targetMapId": null },
+    { "id": "mercado", "name": "Mercado das Cordas", "mapId": "porto", "x": 12, "y": 9, "targetMapId": null },
+    { "id": "guarda", "name": "Casa da Guarda", "mapId": "porto", "x": 16, "y": 6, "targetMapId": null },
+    { "id": "capela", "name": "Capela do Junco", "mapId": "porto", "x": 8, "y": 4, "targetMapId": null },
+    { "id": "cais", "name": "Cais do Lume", "mapId": "porto", "x": 18, "y": 13, "targetMapId": null },
+    { "id": "vau", "name": "Torre do Vau", "mapId": "porto", "x": 12, "y": 4, "targetMapId": null }
+  ],
+  "routes": [
+    { "from": "porto", "to": "ponte", "minutes": 60, "bidirectional": true },
+    { "from": "ponte", "to": "mata", "minutes": 90, "bidirectional": true },
+    { "from": "ponte", "to": "mina", "minutes": 120, "bidirectional": true },
+    { "from": "porto", "to": "abadia", "minutes": 120, "bidirectional": true },
+    { "from": "porto", "to": "brejo", "minutes": 90, "bidirectional": true },
+    { "from": "brejo", "to": "mata", "minutes": 120, "bidirectional": true },
+    { "from": "mina", "to": "abadia", "minutes": 90, "bidirectional": true }
+  ],
+  "rooms": [
+    { "id": "A1", "mapId": "abadia", "name": "Pátio", "x": 2, "y": 11, "width": 8, "height": 5 },
+    { "id": "A2", "mapId": "abadia", "name": "Arquivo", "x": 2, "y": 3, "width": 7, "height": 6 },
+    { "id": "A3", "mapId": "abadia", "name": "Claustro", "x": 11, "y": 3, "width": 6, "height": 6 },
+    { "id": "A4", "mapId": "abadia", "name": "Campanário", "x": 19, "y": 3, "width": 3, "height": 6 },
+    { "id": "A5", "mapId": "abadia", "name": "Oficina", "x": 12, "y": 11, "width": 10, "height": 5 }
+  ],
+  "npcBindings": [
+    { "id": "nara", "source": "dnd5eapi-2014", "srdIndex": "commoner" },
+    { "id": "iria", "source": "dnd5eapi-2014", "srdIndex": "guard" },
+    { "id": "dalia", "source": "dnd5eapi-2014", "srdIndex": "acolyte" },
+    { "id": "teo", "source": "dnd5eapi-2014", "srdIndex": "scout" },
+    { "id": "oren", "source": "dnd5eapi-2014", "srdIndex": "noble" },
+    { "id": "mara", "source": "dnd5eapi-2014", "srdIndex": "bandit-captain" },
+    { "id": "sava", "source": "dnd5eapi-2014", "srdIndex": "goblin" },
+    { "id": "bento", "source": "dnd5eapi-2014", "srdIndex": "commoner" }
+  ],
+  "creatureBindings": ["wolf", "bandit", "giant-rat", "skeleton", "zombie", "giant-spider", "specter", "dire-wolf"],
+  "creatureSource": "dnd5eapi-2014",
+  "notes": "Atlas de especificação, não payload das APIs atuais. Fatos, segredos, conhecimento e fios estão na lore; converter para seed validado na fase MI-01."
+}

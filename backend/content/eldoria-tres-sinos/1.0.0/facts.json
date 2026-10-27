@@ -1,0 +1,378 @@
+{
+  "facts": [
+    {
+      "id": "C01",
+      "text": "O Vale do Lume fica na Marca de Véspera; Porto das Cinzas é sua principal comunidade fluvial.",
+      "mutability": "FIXED",
+      "audience": "PUBLIC",
+      "subjects": [
+        "porto"
+      ]
+    },
+    {
+      "id": "C02",
+      "text": "Existem exatamente três sinos do Pacto: Vau, em Porto; Vigia, na Ponte Velha; Guarda, na abadia.",
+      "mutability": "INITIAL_STATE",
+      "audience": "PUBLIC",
+      "subjects": [
+        "sino-vau",
+        "sino-vigia",
+        "sino-guarda"
+      ]
+    },
+    {
+      "id": "C03",
+      "text": "Os sinos combinam mecanismos hidráulicos e encantamentos antigos que estabilizam a Galeria Funda. Não controlam todo o clima da região.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "galeria"
+      ]
+    },
+    {
+      "id": "C04",
+      "text": "O sino Vigia está sem badajo desde dois dias antes da chegada do grupo. Vau e Guarda estão intactos no início.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "sino-vigia"
+      ]
+    },
+    {
+      "id": "C05",
+      "text": "Mara Ferrugem retirou o badajo por encomenda de Oren Vilar.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "mara",
+        "oren",
+        "badajo"
+      ]
+    },
+    {
+      "id": "C06",
+      "text": "Oren queria recuperar metal valioso para pagar dívidas comerciais; sabia que o trabalho era irregular, mas desconhecia o risco para a galeria.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "oren"
+      ]
+    },
+    {
+      "id": "C07",
+      "text": "O badajo está num caixote marcado com três traços, na Mina da Vigília, no início da campanha.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "badajo",
+        "caixote",
+        "mina"
+      ]
+    },
+    {
+      "id": "C08",
+      "text": "Bento Reis está vivo, preso no abrigo de ferramentas da mina. Tem água para dois dias; sua sobrevivência posterior depende dos eventos registrados.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "bento",
+        "mina"
+      ]
+    },
+    {
+      "id": "C09",
+      "text": "Sava e sua comunidade não roubaram o badajo. As acusações contra eles são rumores.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "sava",
+        "margem"
+      ]
+    },
+    {
+      "id": "C10",
+      "text": "Os mortos-vivos da abadia são antigos vigias despertados pela instabilidade da galeria. Não obedecem automaticamente a Oren ou a Mara.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "abadia"
+      ]
+    },
+    {
+      "id": "C11",
+      "text": "A história da região não é apagada por magia neste arco. Falhas da IA nunca se tornam “amnésia do mundo”.",
+      "mutability": "FIXED",
+      "audience": "PUBLIC",
+      "subjects": []
+    },
+    {
+      "id": "C12",
+      "text": "Espécie não determina lealdade ou moralidade; uma ficha de goblin, humano ou orc não torna uma pessoa inimiga.",
+      "mutability": "FIXED",
+      "audience": "PUBLIC",
+      "subjects": []
+    },
+    {
+      "id": "C13",
+      "text": "A balsa vazia da abertura se soltou por desgaste da amarra durante a oscilação da água. O saco da Liga era carga comum; ninguém foi sequestrado nessa embarcação.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "cais"
+      ]
+    },
+    {
+      "id": "C14",
+      "text": "A manutenção exige recolocar o badajo do Vigia e regular os três mecanismos conforme as marcas do Pacto. Não exige sacrifício, artefato secreto adicional ou ordem especial de badaladas.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "sino-vigia",
+        "sino-vau",
+        "sino-guarda"
+      ]
+    },
+    {
+      "id": "F01",
+      "text": "Nara viu uma carroça da Liga sair à noite.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "nara",
+        "liga"
+      ]
+    },
+    {
+      "id": "F02",
+      "text": "O Vigia está mudo e Bento está desaparecido.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "sino-vigia",
+        "bento"
+      ]
+    },
+    {
+      "id": "F03",
+      "text": "Téo reconhece marcas das rodas da Companhia Ferrugem na ponte.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "teo",
+        "ferrugem",
+        "ponte"
+      ]
+    },
+    {
+      "id": "F04",
+      "text": "Sava viu tecido da Liga perto da ponte.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "sava",
+        "liga",
+        "ponte"
+      ]
+    },
+    {
+      "id": "F05",
+      "text": "Bento viu Mara mover o caixote de três listras para a mina.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "bento",
+        "mara",
+        "caixote",
+        "mina"
+      ]
+    },
+    {
+      "id": "F06",
+      "text": "Oren está pagando bem por metal.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "oren"
+      ]
+    },
+    {
+      "id": "F07",
+      "text": "Há mortos andando na abadia; o relato não identifica quantidade ou comportamento.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "abadia"
+      ]
+    },
+    {
+      "id": "F08",
+      "text": "Bento está vivo e preso no abrigo de ferramentas da mina.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "bento",
+        "mina"
+      ]
+    },
+    {
+      "id": "F09",
+      "text": "A Companhia Ferrugem retirou a peça do Vigia.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "ferrugem",
+        "badajo"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "R01",
+      "text": "Sava roubou o sino.",
+      "truth": "FALSE",
+      "factIds": [
+        "C09"
+      ]
+    },
+    {
+      "id": "R02",
+      "text": "Há mortos andando na abadia.",
+      "truth": "TRUE_IMPRECISE",
+      "factIds": [
+        "F07"
+      ]
+    },
+    {
+      "id": "R03",
+      "text": "Oren está pagando bem por metal.",
+      "truth": "TRUE",
+      "factIds": [
+        "F06"
+      ]
+    },
+    {
+      "id": "R04",
+      "text": "O metal já saiu do vale.",
+      "truth": "FALSE",
+      "factIds": [
+        "C07"
+      ]
+    },
+    {
+      "id": "R05",
+      "text": "Uma peça foi removida do mecanismo do Vigia.",
+      "truth": "TRUE",
+      "factIds": [
+        "C04"
+      ]
+    }
+  ],
+  "knowledge": [
+    {
+      "npcId": "nara",
+      "targetId": "F01",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "iria",
+      "targetId": "F02",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "dalia",
+      "targetId": "C03",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "dalia",
+      "targetId": "C14",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "teo",
+      "targetId": "F03",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "oren",
+      "targetId": "C05",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "oren",
+      "targetId": "C06",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "mara",
+      "targetId": "C05",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "mara",
+      "targetId": "C07",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "sava",
+      "targetId": "C09",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "sava",
+      "targetId": "F04",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "bento",
+      "targetId": "F05",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "bento",
+      "targetId": "F08",
+      "stance": "KNOWS",
+      "source": "Conhecimento inicial definido na lore editorial."
+    },
+    {
+      "npcId": "iria",
+      "targetId": "R01",
+      "stance": "BELIEVES",
+      "source": "Crença inicial; não equivale a descoberta."
+    },
+    {
+      "npcId": "oren",
+      "targetId": "R04",
+      "stance": "BELIEVES",
+      "source": "Crença inicial; não equivale a descoberta."
+    },
+    {
+      "npcId": "dalia",
+      "targetId": "R05",
+      "stance": "SUSPECTS",
+      "source": "Crença inicial; não equivale a descoberta."
+    }
+  ],
+  "improvisation": {
+    "allowed": [
+      "Cheiros, roupas e detalhes decorativos compatíveis.",
+      "Falas compatíveis com objetivo e conhecimento do ator."
+    ],
+    "requiresValidatedEvent": [
+      "Parentes, salas, tesouros, poderes, mortes, promessas e soluções mecânicas.",
+      "Correção administrativa de fato fixo, preservando o histórico."
+    ]
+  }
+}

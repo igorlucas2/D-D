@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">Porto das Cinzas</title>
+<desc id="desc">Mapa original esquemático do Pacto dos Três Sinos. Vale do Lume · lugares públicos · planta esquemática da vila</desc>
+<defs>
+  <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#273f40" stroke-opacity=".10" stroke-width="1"/></pattern>
+  <pattern id="stone" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="#dfd7c2"/><path d="M0 0H50V50H0Z" fill="none" stroke="#b8b09b" stroke-width="1"/></pattern>
+</defs>
+<rect width="100%" height="100%" fill="#eee4cb"/>
+
+<path d="M965 -10C930 165 1030 310 1000 475S900 640 900 730S1030 820 990 920H1230V-10Z" fill="#a8c4c1" stroke="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M965 -10C930 165 1030 310 1000 475S900 640 900 730S1030 820 990 920" fill="none" stroke="#769b98" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M0 475H900" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M0 475H900" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M625 0V775" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M625 0V775" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M325 475V900" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M325 475V900" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M425 225H825V475" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M425 225H825V475" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M625 475L925 675" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M625 475L925 675" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M325 525H625" fill="none" stroke="#c7b998" stroke-width="32" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M325 525H625" fill="none" stroke="#e4d5b5" stroke-width="26" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="119" y="220" width="80" height="70" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="115" y="215" width="80" height="70" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M155.0 215V285" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="166.2" y="220" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="234" y="205" width="65" height="110" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="230" y="200" width="65" height="110" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M262.5 200V310" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="271.6" y="205" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="104" y="355" width="110" height="70" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="100" y="350" width="110" height="70" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M155.0 350V420" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="170.4" y="355" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="279" y="345" width="80" height="65" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="275" y="340" width="80" height="65" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M315.0 340V405" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="326.2" y="345" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="494" y="335" width="70" height="75" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="490" y="330" width="70" height="75" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M525.0 330V405" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="534.8" y="335" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="704" y="330" width="65" height="80" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="700" y="325" width="65" height="80" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M732.5 325V405" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="741.6" y="330" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="729" y="575" width="80" height="65" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="725" y="570" width="80" height="65" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M765.0 570V635" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="776.2" y="575" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="154" y="645" width="95" height="80" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="150" y="640" width="95" height="80" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M197.5 640V720" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="210.8" y="645" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="424" y="655" width="80" height="75" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="420" y="650" width="80" height="75" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M460.0 650V725" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="471.2" y="655" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="544" y="775" width="110" height="70" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="540" y="770" width="110" height="70" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M595.0 770V840" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="610.4" y="775" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="704" y="765" width="75" height="65" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="700" y="760" width="75" height="65" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M737.5 760V825" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="748.0" y="765" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="99" y="775" width="90" height="65" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="95" y="770" width="90" height="65" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M140.0 770V835" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="152.6" y="775" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="814" y="150" width="70" height="85" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="810" y="145" width="70" height="85" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M845.0 145V230" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="854.8" y="150" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="704" y="135" width="75" height="70" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="700" y="130" width="75" height="70" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M737.5 130V200" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="748.0" y="135" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="184" y="140" width="80" height="40" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="180" y="135" width="80" height="40" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M220.0 135V175" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="231.2" y="140" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="784" y="460" width="80" height="70" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="780" y="455" width="80" height="70" fill="#ad8d68" stroke="#715f4e" stroke-width="2" />
+<path d="M820.0 455V525" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="831.2" y="460" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="279" y="500" width="100" height="80" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="275" y="495" width="100" height="80" fill="#9d7455" stroke="#715f4e" stroke-width="2" />
+<path d="M325.0 495V575" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="339.0" y="500" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="384" y="180" width="90" height="95" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="380" y="175" width="90" height="95" fill="#82927e" stroke="#715f4e" stroke-width="2" />
+<path d="M425.0 175V270" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="437.6" y="180" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<rect x="779" y="285" width="100" height="90" fill="#c6b998" stroke="none" stroke-width="1" />
+<rect x="775" y="280" width="100" height="90" fill="#7f8d83" stroke="#715f4e" stroke-width="2" />
+<path d="M825.0 280V370" fill="none" stroke="#cdb798" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="839.0" y="285" width="9" height="12" fill="#5f6260" stroke="none" stroke-width="1" />
+<circle cx="625" cy="225" r="36" fill="#d6cfb8" stroke="#273f40" stroke-width="3"/>
+<circle cx="625" cy="225" r="23" fill="#ab9471" stroke="#273f40" stroke-width="1"/>
+<rect x="550" y="420" width="150" height="120" fill="#ded1ac" stroke="#b19b72" stroke-width="2" />
+<rect x="560" y="430" width="38" height="25" fill="#9b5e46" stroke="#75563f" stroke-width="1" />
+<path d="M579 430V455" fill="none" stroke="#dbc5a2" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="650" y="430" width="38" height="25" fill="#9b5e46" stroke="#75563f" stroke-width="1" />
+<path d="M669 430V455" fill="none" stroke="#dbc5a2" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="560" y="500" width="38" height="25" fill="#9b5e46" stroke="#75563f" stroke-width="1" />
+<path d="M579 500V525" fill="none" stroke="#dbc5a2" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="650" y="500" width="38" height="25" fill="#9b5e46" stroke="#75563f" stroke-width="1" />
+<path d="M669 500V525" fill="none" stroke="#dbc5a2" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="860" y="650" width="170" height="50" fill="#aa8a5b" stroke="#786648" stroke-width="3" />
+<path d="M870 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M885 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M900 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M915 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M930 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M945 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M960 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M975 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M990 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1005 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1020 652V698" fill="none" stroke="#806c4f" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1060 505Q1020 540 1060 575Q1100 540 1060 505Z" fill="#8d7654" stroke="#5e6255" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1045 540H1075" fill="none" stroke="#d8c8a4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1040 710Q1000 745 1040 780Q1080 745 1040 710Z" fill="#8d7654" stroke="#5e6255" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M1025 745H1055" fill="none" stroke="#d8c8a4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M90 545.6V561.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M90 509.6L74.4 548.0H105.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M200 585.6V601.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M200 549.6L184.4 588.0H215.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M500 615.6V631.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M500 579.6L484.4 618.0H515.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M750 125.6V141.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M750 89.6L734.4 128.0H765.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M100 145.6V161.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M100 109.6L84.4 148.0H115.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M440 815.6V831.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M440 779.6L424.4 818.0H455.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M870 815.6V831.2" fill="none" stroke="#687252" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M870 779.6L854.4 818.0H885.6Z" fill="#84956a" stroke="#657757" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="0" y="0" width="1200" height="900" fill="url(#grid)" stroke="none" stroke-width="1" />
+<circle cx="325.0" cy="525.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="325.0" y="531.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >1</text>
+<text x="275.0" y="598.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Última Brasa</text>
+<circle cx="625.0" cy="475.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="625.0" y="481.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >2</text>
+<text x="625.0" y="574.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Mercado das Cordas</text>
+<circle cx="825.0" cy="325.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="825.0" y="331.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >3</text>
+<text x="825.0" y="400.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Casa da Guarda</text>
+<circle cx="425.0" cy="225.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="425.0" y="231.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >4</text>
+<text x="395.0" y="302.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Capela do Junco</text>
+<circle cx="925.0" cy="675.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="925.0" y="681.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >5</text>
+<text x="900.0" y="745.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Cais do Lume</text>
+<circle cx="625.0" cy="225.0" r="18" fill="#eee4cb" stroke="#273f40" stroke-width="2"/>
+<text x="625.0" y="231.0" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" >6</text>
+<text x="625.0" y="289.0" fill="#273f40" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Torre do Vau</text>
+<text x="1080" y="450" fill="#416c70" font-family="Georgia, serif" font-size="24" font-weight="normal" text-anchor="middle" >Rio</text>
+<text x="1080" y="480" fill="#416c70" font-family="Georgia, serif" font-size="24" font-weight="normal" text-anchor="middle" >Lume</text>
+<text x="45" y="60" fill="#273f40" font-family="Georgia, serif" font-size="34" font-weight="bold" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Porto das Cinzas</text>
+<text x="47" y="91" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Vale do Lume · lugares públicos · planta esquemática da vila</text>
+<path d="M45 108H340" fill="none" stroke="#a37239" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<text x="1135" y="42" fill="#273f40" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" >N</text>
+<path d="M1135 56L1124 90L1135 82L1146 90Z" fill="#273f40" stroke="#273f40" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<text x="45" y="863" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="start" >O PACTO DOS TRÊS SINOS</text>
+<text x="1155" y="863" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="end" >Pontos numerados = locais de cena · norte para cima</text>
+</svg>

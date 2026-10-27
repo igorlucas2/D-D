@@ -1,0 +1,866 @@
+// Historical MI-DB source schema; only for the migration reader.
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../../generated/sqlite-migration"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../dev.db"
+}
+
+// =====================================================================
+// Modulo 1 - Usuarios
+// =====================================================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  bio          String?
+  accountLevel Int      @default(1)
+  accountXp    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  characters             Character[]
+  diceRolls              DiceRoll[]
+  achievements           UserAchievement[]
+  campaignsMastered      Campaign[]              @relation("CampaignMaster")
+  campaignMembers        CampaignMember[]
+  journalEntries         CampaignJournalEntry[]
+  captureTargets         CaptureTarget[]
+  captureJobs            CaptureJob[]
+  journalEntryRecipients JournalEntryRecipient[]
+  chatMessages           ChatMessage[]           @relation("ChatAuthor")
+  chatMessageRecipients  ChatMessageRecipient[]  @relation("ChatRecipient")
+}
+
+model Achievement {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  name        String
+  description String
+  icon        String?
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+// =====================================================================
+// Modulo 2 e 3 - Personagens e Ficha
+// =====================================================================
+
+model Character {
+  id          String  @id @default(cuid())
+  userId      String
+  name        String
+  race        String
+  class       String
+  subclass    String?
+  background  String?
+  alignment   String?
+  deity       String?
+  appearance  String?
+  backstory   String?
+  portraitUrl String?
+
+  level Int @default(1)
+  xp    Int @default(0)
+
+  // Atributos base
+  strength     Int @default(10)
+  dexterity    Int @default(10)
+  constitution Int @default(10)
+  intelligence Int @default(10)
+  wisdom       Int @default(10)
+  charisma     Int @default(10)
+
+  // Campos calculados (recalculados pelo backend)
+  maxHp            Int @default(0)
+  currentHp        Int @default(0)
+  tempHp           Int @default(0)
+  armorClass       Int @default(10)
+  initiative       Int @default(0)
+  proficiencyBonus Int @default(2)
+  speed            Int @default(9)
+  maxMana          Int @default(0)
+  currentMana      Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user               User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resistances        CharacterResistance[]
+  inventory          InventoryItem[]
+  spells             CharacterSpell[]
+  spellSlots         CharacterSpellSlot[]
+  diceRolls          DiceRoll[]
+  combatParticipants CombatParticipant[]
+  vttTokens          VttToken[]
+  languages          CharacterLanguage[]
+  chatMessages       ChatMessage[]
+  explorationState   CharacterExplorationState?
+}
+
+enum ResistanceType {
+  RESISTANCE
+  IMMUNITY
+  VULNERABILITY
+}
+
+model CharacterResistance {
+  id          String         @id @default(cuid())
+  characterId String
+  damageType  String
+  type        ResistanceType
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, damageType, type])
+}
+
+// =====================================================================
+// Modulo 8 - Inventario / Itens
+// =====================================================================
+
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  VERY_RARE
+  LEGENDARY
+  ARTIFACT
+}
+
+enum EquipmentSlot {
+  HEAD
+  CHEST
+  LEGS
+  FEET
+  HANDS
+  MAIN_HAND
+  OFF_HAND
+  RING
+  AMULET
+  CLOAK
+  NONE
+}
+
+model Item {
+  id           String        @id @default(cuid())
+  srdIndex     String?
+  sourceUrl    String?
+  source       String?
+  srdUpdatedAt DateTime?
+  name         String
+  description  String?
+  weight       Float         @default(0)
+  value        Int           @default(0)
+  rarity       ItemRarity    @default(COMMON)
+  category     String
+  slot         EquipmentSlot @default(NONE)
+  properties   String? // JSON serializado
+  imageUrl     String?
+
+  inventoryEntries InventoryItem[]
+}
+
+model InventoryItem {
+  id          String  @id @default(cuid())
+  characterId String
+  itemId      String
+  quantity    Int     @default(1)
+  equipped    Boolean @default(false)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  item      Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+// =====================================================================
+// Modulo 9 - Magias
+// =====================================================================
+
+model Spell {
+  id            String    @id @default(cuid())
+  srdIndex      String?
+  sourceUrl     String?
+  source        String?
+  srdUpdatedAt  DateTime?
+  name          String
+  school        String
+  level         Int
+  range         String
+  duration      String
+  concentration Boolean   @default(false)
+  description   String?
+  classes       String? // JSON serializado (lista de classes)
+
+  characters CharacterSpell[]
+}
+
+model CharacterSpell {
+  id          String  @id @default(cuid())
+  characterId String
+  spellId     String
+  prepared    Boolean @default(false)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  spell     Spell     @relation(fields: [spellId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, spellId])
+}
+
+model CharacterSpellSlot {
+  id          String @id @default(cuid())
+  characterId String
+  level       Int
+  total       Int    @default(0)
+  used        Int    @default(0)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, level])
+}
+
+// =====================================================================
+// Modulo 4 - Dados
+// =====================================================================
+
+// Quem ve uma rolagem feita na mesa (IM-04). Rolagens fora de campanha sao
+// sempre PRIVATE.
+enum DiceVisibility {
+  PUBLIC
+  MASTER
+  PRIVATE
+}
+
+model DiceRoll {
+  id          String         @id @default(cuid())
+  userId      String
+  characterId String?
+  campaignId  String?
+  visibility  DiceVisibility @default(PRIVATE)
+  formula     String
+  result      Int
+  breakdown   String // JSON serializado
+  createdAt   DateTime       @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  character Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  campaign  Campaign?  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt])
+}
+
+// =====================================================================
+// Modulo 5 - Campanhas (estrutura inicial p/ v1.0)
+// =====================================================================
+
+model Campaign {
+  id                    String          @id @default(cuid())
+  name                  String
+  description           String?
+  masterId              String
+  inviteCode            String          @unique @default(cuid())
+  // Modo de PV dos inimigos lembrado para o proximo combate (decisao 4).
+  combatHpDisplay       CombatHpDisplay @default(DESCRIPTIVE)
+  // Assistente do mestre (IM-12): desligado ate o mestre ligar; limite de
+  // pedidos por mes para controlar o custo.
+  assistantEnabled      Boolean         @default(false)
+  assistantMonthlyLimit Int             @default(30)
+  createdAt             DateTime        @default(now())
+
+  master            User                        @relation("CampaignMaster", fields: [masterId], references: [id], onDelete: Cascade)
+  members           CampaignMember[]
+  combatEncounter   CombatEncounter?
+  journalEntries    CampaignJournalEntry[]
+  vttMaps           VttMap[]
+  worldEntries      CampaignWorldEntry[]
+  worldCalendar     CampaignCalendar?
+  explorationStates CharacterExplorationState[]
+  worldEvents       CampaignWorldEvent[]
+  diceRolls         DiceRoll[]
+  narrationDrafts   NarrationDraft[]
+  chatMessages      ChatMessage[]
+  assistantRequests AssistantRequest[]
+}
+
+enum CampaignRole {
+  MASTER
+  PLAYER
+}
+
+model CampaignMember {
+  id                  String       @id @default(cuid())
+  campaignId          String
+  userId              String
+  role                CampaignRole @default(PLAYER)
+  joinedAt            DateTime     @default(now())
+  // Resumo de retorno (IM-10): quando a pessoa esteve na mesa pela ultima vez
+  // e o relogio do mundo naquele momento.
+  lastSeenAt          DateTime?
+  lastSeenGameMinutes Int?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+}
+
+// =====================================================================
+// Modulo 7 - Combate (iniciativa/turnos por campanha)
+// =====================================================================
+
+model CombatEncounter {
+  id         String          @id @default(cuid())
+  campaignId String          @unique
+  name       String          @default("Combate")
+  round      Int             @default(1)
+  turnIndex  Int             @default(0)
+  hpDisplay  CombatHpDisplay @default(DESCRIPTIVE)
+  createdAt  DateTime        @default(now())
+
+  campaign     Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  participants CombatParticipant[]
+}
+
+// Como o jogador ve o PV de inimigos: DESCRIPTIVE envia so o estado
+// (Ileso, Ferido...), NUMERIC envia currentHp/maxHp. O mestre sempre ve numeros.
+enum CombatHpDisplay {
+  DESCRIPTIVE
+  NUMERIC
+}
+
+model CombatParticipant {
+  id          String  @id @default(cuid())
+  encounterId String
+  characterId String?
+  name        String
+  initiative  Int     @default(0)
+  maxHp       Int     @default(1)
+  currentHp   Int     @default(1)
+  conditions  String? // JSON serializado (lista de strings)
+  isAlly      Boolean @default(true)
+
+  encounter CombatEncounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  character Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)
+}
+
+// =====================================================================
+// Modulo 6 - Mesa Virtual (mapas, tokens e fog of war)
+// =====================================================================
+
+enum VttMapKind {
+  WORLD
+  REGION
+  SETTLEMENT
+  BUILDING
+  INTERIOR
+  OTHER
+}
+
+// Como a fase do dia (relogio do mundo) ilumina o mapa. AUTO decide pelo kind:
+// mapas externos seguem o relogio; BUILDING/INTERIOR usam luz interior.
+enum VttVisionMode {
+  OFF
+  LIT
+  DARK
+}
+
+enum VttLightingMode {
+  AUTO
+  INDOOR
+  FIXED_DAY
+  FIXED_NIGHT
+}
+
+model VttMap {
+  id             String          @id @default(cuid())
+  campaignId     String
+  parentMapId    String?
+  kind           VttMapKind      @default(OTHER)
+  name           String
+  width          Int             @default(24)
+  height         Int             @default(16)
+  gridSize       Int             @default(1)
+  gridColor      String          @default("#94a3b8")
+  imageUrl       String?
+  fogOfWarData   String? // JSON serializado (lista de celulas "x:y")
+  published      Boolean         @default(false)
+  lightingMode   VttLightingMode @default(AUTO)
+  // Visao dinamica (IM-13): OFF = so a nevoa manual; LIT = linha de visao
+  // bloqueada por paredes; DARK = so o que luz ou visao no escuro alcancam.
+  vision         VttVisionMode   @default(OFF)
+  // JSON: lista de { x1, y1, x2, y2, door? } nas bordas das celulas.
+  wallsData      String?
+  ambiencePreset String? // som ambiente (IM-02); null = padrao pelo kind
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  campaign      Campaign                    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  parentMap     VttMap?                     @relation("MapHierarchy", fields: [parentMapId], references: [id], onDelete: SetNull)
+  childMaps     VttMap[]                    @relation("MapHierarchy")
+  hotspots      VttMapHotspot[]             @relation("MapHotspots")
+  parentHotspot VttMapHotspot?              @relation("HotspotTarget")
+  tokens        VttToken[]
+  markers       VttMarker[]
+  explorers     CharacterExplorationState[]
+  narrations    NarrationDraft[]
+
+  @@index([parentMapId])
+}
+
+// Area clicavel desenhada sobre um mapa que leva a outro mapa (hierarquia
+// mundo > regiao > cidade > local).
+model VttMapHotspot {
+  id                     String           @id @default(cuid())
+  mapId                  String
+  x                      Int              @default(0)
+  y                      Int              @default(0)
+  width                  Int              @default(1)
+  height                 Int              @default(1)
+  label                  String
+  icon                   String           @default("map-pin")
+  color                  String           @default("#38bdf8")
+  targetMapId            String?          @unique
+  visibleToPlayers       Boolean          @default(true)
+  travelActionCost       Int              @default(1) // pontos de acao gastos ao viajar para este local
+  travelMinutes          Int              @default(30) // minutos de jogo gastos ao viajar para este local
+  eventNote              String? // anotacoes do mestre sobre o local, nao exibidas em destaque para jogadores
+  triggerJournalCategory JournalCategory? // categoria usada para criar uma entrada de diario na primeira visita
+  firstVisitedAt         DateTime? // marcado quando um jogador viaja para este local pela primeira vez
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  map       VttMap  @relation("MapHotspots", fields: [mapId], references: [id], onDelete: Cascade)
+  targetMap VttMap? @relation("HotspotTarget", fields: [targetMapId], references: [id], onDelete: SetNull)
+
+  @@index([mapId])
+}
+
+model VttToken {
+  id           String  @id @default(cuid())
+  mapId        String
+  characterId  String?
+  name         String
+  x            Int     @default(0)
+  y            Int     @default(0)
+  size         Int     @default(1)
+  color        String  @default("#f59e0b")
+  imageUrl     String?
+  visible      Boolean @default(true)
+  lightRadius  Int     @default(0) // luz que o token emite (ex.: tocha = 4), em celulas
+  visionRadius Int     @default(0) // visao no escuro, em celulas
+
+  map       VttMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  character Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+}
+
+model VttMarker {
+  id    String  @id @default(cuid())
+  mapId String
+  x     Int     @default(0)
+  y     Int     @default(0)
+  label String
+  color String  @default("#38bdf8")
+  note  String?
+
+  map VttMap @relation(fields: [mapId], references: [id], onDelete: Cascade)
+}
+
+// =====================================================================
+// Modulo 11 - Diario da Campanha
+// =====================================================================
+
+enum JournalCategory {
+  SESSAO
+  EVENTO
+  MORTE
+  LOOT
+  DECISAO
+  OUTRO
+}
+
+model CampaignJournalEntry {
+  id          String          @id @default(cuid())
+  campaignId  String
+  authorId    String
+  title       String
+  content     String
+  category    JournalCategory @default(SESSAO)
+  sessionDate DateTime?
+  // true = so autor, mestre e `recipients` veem a entrada (revelacoes, IM-06).
+  restricted  Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  campaign   Campaign                @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  author     User                    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  recipients JournalEntryRecipient[]
+}
+
+model JournalEntryRecipient {
+  entryId String
+  userId  String
+
+  entry CampaignJournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, userId])
+  @@index([userId])
+}
+
+// Narracao preparada pelo mestre (IM-06). Com `mapId`, e sugerida quando um
+// jogador chega a esse mapa.
+model NarrationDraft {
+  id         String   @id @default(cuid())
+  campaignId String
+  mapId      String?
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  map      VttMap?  @relation(fields: [mapId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@index([mapId])
+}
+
+// =====================================================================
+// Modulo 12 - Biblioteca (bestiario de monstros e NPCs)
+// =====================================================================
+
+model Monster {
+  id              String    @id @default(cuid())
+  srdIndex        String?
+  sourceUrl       String?
+  source          String?
+  srdUpdatedAt    DateTime?
+  name            String
+  type            String
+  size            String
+  armorClass      Int
+  maxHp           Int
+  speed           Int       @default(9)
+  strength        Int       @default(10)
+  dexterity       Int       @default(10)
+  constitution    Int       @default(10)
+  intelligence    Int       @default(10)
+  wisdom          Int       @default(10)
+  charisma        Int       @default(10)
+  challengeRating String
+  xp              Int       @default(0)
+  traits          String? // JSON serializado (lista de {name, description})
+  actions         String? // JSON serializado (lista de {name, description})
+  description     String?
+  imageUrl        String?
+  isNpc           Boolean   @default(false)
+}
+
+model RuleSection {
+  id           String    @id @default(cuid())
+  srdIndex     String?   @unique
+  sourceUrl    String?
+  source       String?
+  srdUpdatedAt DateTime?
+  name         String
+  description  String?
+}
+
+// =====================================================================
+// Integracao SRD 5e - cache generico de recursos da API publica
+// =====================================================================
+
+model SrdResource {
+  id           String    @id @default(cuid())
+  endpoint     String
+  index        String
+  name         String
+  url          String
+  source       String    @default("dnd5eapi-2014")
+  data         String // JSON serializado
+  srdUpdatedAt DateTime?
+  importedAt   DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([endpoint, index])
+  @@index([endpoint])
+  @@index([name])
+}
+
+// =====================================================================
+// Monitoramento SIP/SIPS via PCAP
+// =====================================================================
+
+enum CaptureProviderType {
+  LINUX_SSH
+  WINDOWS_LOCAL
+  MANUAL_UPLOAD
+}
+
+enum CaptureProfile {
+  SIP_BASIC
+  SIPS_BASIC
+  SIP_SIPS
+  IP_FULL
+  SIP_RTP
+}
+
+enum CaptureJobStatus {
+  READY
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model CaptureTarget {
+  id               String              @id @default(cuid())
+  userId           String
+  name             String
+  providerType     CaptureProviderType
+  osLabel          String
+  host             String?
+  sshPort          Int?
+  sshUser          String?
+  defaultInterface String?
+  defaultOutputDir String
+  notes            String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs CaptureJob[]
+
+  @@index([userId])
+}
+
+model CaptureJob {
+  id              String              @id @default(cuid())
+  userId          String
+  targetId        String?
+  providerType    CaptureProviderType
+  profile         CaptureProfile
+  status          CaptureJobStatus    @default(READY)
+  label           String
+  monitoredIp     String
+  interfaceName   String?
+  durationSeconds Int
+  maxFileMb       Int
+  outputDirectory String
+  fileName        String
+  bpfFilter       String?
+  commandDialect  String
+  commandPreview  String?
+  localPath       String?
+  notes           String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  exitCode        Int?
+  executionLog    String?
+  analysisSummary String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  target CaptureTarget? @relation(fields: [targetId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([targetId])
+}
+
+// =====================================================================
+// Modulo 13 - Sistema de Mundo
+// =====================================================================
+
+enum WorldEntryType {
+  CONTINENTE
+  REINO
+  FACCAO
+  RELIGIAO
+  IDIOMA
+  OUTRO
+}
+
+model CampaignWorldEntry {
+  id          String         @id @default(cuid())
+  campaignId  String
+  parentId    String?
+  type        WorldEntryType
+  name        String
+  summary     String?
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  campaign Campaign             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  parent   CampaignWorldEntry?  @relation("WorldEntryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children CampaignWorldEntry[] @relation("WorldEntryHierarchy")
+
+  speakers     CharacterLanguage[]
+  chatMessages ChatMessage[]
+
+  @@index([campaignId])
+  @@index([parentId])
+}
+
+model CampaignCalendar {
+  id                 String   @id @default(cuid())
+  campaignId         String   @unique
+  monthNames         String // JSON: lista de nomes dos meses
+  daysPerMonth       String // JSON: lista com a quantidade de dias de cada mes
+  weekdayNames       String // JSON: lista de nomes dos dias da semana
+  totalMinutes       Int      @default(0) // contador absoluto, fonte da verdade do relogio
+  currentDay         Int      @default(1) // cache derivado de totalMinutes
+  currentMonth       Int      @default(1) // cache derivado de totalMinutes
+  currentYear        Int      @default(1) // cache derivado de totalMinutes
+  currentHour        Int      @default(8) // cache derivado de totalMinutes
+  currentMinute      Int      @default(0) // cache derivado de totalMinutes
+  notes              String?
+  realMinutesPerTick Int      @default(0) // 0 = avanco automatico desligado
+  gameMinutesPerTick Int      @default(60) // minutos de jogo somados a cada tick
+  eventChancePercent Int      @default(0) // 0-100: chance de sortear um evento da tabela a cada tick automatico
+  weather            String   @default("clear") // clima global da campanha (IM-08)
+  updatedAt          DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+}
+
+// =====================================================================
+// Modulo 15 - Mundo Vivo (Fase 5: tabela de eventos aleatorios do tick)
+// =====================================================================
+
+model CampaignWorldEvent {
+  id            String          @id @default(cuid())
+  campaignId    String
+  title         String
+  content       String
+  category      JournalCategory @default(EVENTO)
+  weight        Int             @default(1) // peso relativo no sorteio (maior = mais provavel)
+  weatherEffect String? // se sorteado, muda o clima da campanha (IM-08)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+}
+
+// =====================================================================
+// Modulo 15 - Mundo Vivo (Fase 3: economia de acoes/descanso)
+// =====================================================================
+
+model CharacterExplorationState {
+  id                String   @id @default(cuid())
+  characterId       String   @unique
+  campaignId        String
+  currentMapId      String?
+  actionPoints      Int      @default(6)
+  maxActionPoints   Int      @default(6)
+  fatigue           Int      @default(0)
+  lastRestAtMinutes Int      @default(0) // referencia ao totalMinutes do relogio do mundo
+  updatedAt         DateTime @updatedAt
+
+  character  Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  currentMap VttMap?   @relation(fields: [currentMapId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@index([currentMapId])
+}
+
+// =====================================================================
+// IM-11 - Conversa da mesa e idiomas do mundo
+// =====================================================================
+
+// Idioma (entrada IDIOMA do modulo Mundo) que um personagem conhece. Ensinado
+// pelo mestre.
+model CharacterLanguage {
+  characterId String
+  languageId  String
+  createdAt   DateTime @default(now())
+
+  character Character          @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  language  CampaignWorldEntry @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@id([characterId, languageId])
+  @@index([languageId])
+}
+
+enum ChatKind {
+  IC // em personagem
+  OOC // fora do personagem
+  EMOTE // acao (/me)
+  WHISPER // sussurro: destinatarios e mestre
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  campaignId  String
+  authorId    String
+  characterId String?
+  kind        ChatKind @default(IC)
+  content     String
+  // Fala em um idioma do mundo: quem nao conhece recebe o texto embaralhado.
+  languageId  String?
+  createdAt   DateTime @default(now())
+
+  campaign   Campaign               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  author     User                   @relation("ChatAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  character  Character?             @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  language   CampaignWorldEntry?    @relation(fields: [languageId], references: [id], onDelete: SetNull)
+  recipients ChatMessageRecipient[]
+
+  @@index([campaignId, createdAt])
+}
+
+model ChatMessageRecipient {
+  messageId String
+  userId    String
+
+  message ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User        @relation("ChatRecipient", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
+  @@index([userId])
+}
+
+// =====================================================================
+// IM-12 - Assistente do mestre (Claude)
+// =====================================================================
+
+// Cada pedido ao assistente, para limite mensal e transparencia de custo.
+model AssistantRequest {
+  id           String   @id @default(cuid())
+  campaignId   String
+  userId       String
+  kind         String
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  refused      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt])
+}

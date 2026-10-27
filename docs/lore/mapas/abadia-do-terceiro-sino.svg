@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">Abadia do Terceiro Sino</title>
+<desc id="desc">Mapa original esquemático do Pacto dos Três Sinos. Vale do Lume · planta conhecida · 1 célula = 1 unidade de distância do jogo</desc>
+<defs>
+  <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#273f40" stroke-opacity=".10" stroke-width="1"/></pattern>
+  <pattern id="stone" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="#dfd7c2"/><path d="M0 0H50V50H0Z" fill="none" stroke="#b8b09b" stroke-width="1"/></pattern>
+</defs>
+<rect width="100%" height="100%" fill="#eee4cb"/>
+
+<rect x="60" y="130" width="1080" height="700" fill="#d6cfba" stroke="none" stroke-width="1" rx="16"/>
+<rect x="250" y="440" width="50" height="120" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="440" y="275" width="120" height="50" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="840" y="275" width="120" height="50" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="675" y="440" width="50" height="120" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="490" y="650" width="120" height="50" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="250" y="790" width="50" height="110" fill="url(#stone)" stroke="#6f7769" stroke-width="8" />
+<rect x="100" y="550" width="400" height="250" fill="url(#stone)" stroke="#626e62" stroke-width="12" />
+<rect x="100" y="150" width="350" height="300" fill="url(#stone)" stroke="#626e62" stroke-width="12" />
+<rect x="550" y="150" width="300" height="300" fill="url(#stone)" stroke="#626e62" stroke-width="12" />
+<rect x="950" y="150" width="150" height="300" fill="url(#stone)" stroke="#626e62" stroke-width="12" />
+<rect x="600" y="550" width="500" height="250" fill="url(#stone)" stroke="#626e62" stroke-width="12" />
+<rect x="250" y="443" width="50" height="14" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M250 442v16m50 -16v16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="250" y="543" width="50" height="14" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M250 542v16m50 -16v16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="443" y="275" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M442 275h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="543" y="275" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M542 275h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="843" y="275" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M842 275h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="943" y="275" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M942 275h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="675" y="443" width="50" height="14" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M675 442v16m50 -16v16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="675" y="543" width="50" height="14" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M675 542v16m50 -16v16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="493" y="650" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M492 650h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="593" y="650" width="14" height="50" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M592 650h16m-16 50h16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="250" y="793" width="50" height="14" fill="#dfd7c2" stroke="none" stroke-width="1" />
+<path d="M250 792v16m50 -16v16" fill="none" stroke="#987b4e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="130" y="180" width="45" height="210" fill="#a58e64" stroke="#716a51" stroke-width="2" />
+<path d="M136 190h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 210h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 230h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 250h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 270h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 290h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 310h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 330h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 350h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 370h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="370" y="180" width="45" height="210" fill="#a58e64" stroke="#716a51" stroke-width="2" />
+<path d="M376 190h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 210h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 230h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 250h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 270h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 290h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 310h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 330h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 350h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M376 370h32" fill="none" stroke="#dac6a0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="590" cy="200" r="15" fill="#b4b59f" stroke="#77816f" stroke-width="3"/>
+<circle cx="810" cy="200" r="15" fill="#b4b59f" stroke="#77816f" stroke-width="3"/>
+<circle cx="590" cy="400" r="15" fill="#b4b59f" stroke="#77816f" stroke-width="3"/>
+<circle cx="810" cy="400" r="15" fill="#b4b59f" stroke="#77816f" stroke-width="3"/>
+<rect x="650" y="240" width="100" height="110" fill="#b6c4a6" stroke="#84967e" stroke-width="2" />
+<circle cx="1025" cy="350" r="34" fill="#b7a06c" stroke="#766344" stroke-width="3"/>
+<circle cx="1025" cy="350" r="19" fill="none" stroke="#766344" stroke-width="2"/>
+<path d="M1006 350H1044M1025 331V369" fill="none" stroke="#766344" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="645" y="710" width="120" height="42" fill="#a58e64" stroke="#716a51" stroke-width="3" />
+<path d="M661 720v23m20 -23v23m20 -23v23" fill="none" stroke="#6c7365" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<rect x="920" y="710" width="120" height="42" fill="#a58e64" stroke="#716a51" stroke-width="3" />
+<path d="M936 720v23m20 -23v23m20 -23v23" fill="none" stroke="#6c7365" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="300" cy="695" r="37" fill="#b4b69f" stroke="#727d6c" stroke-width="4"/>
+<circle cx="300" cy="695" r="23" fill="#90aaa5" stroke="#727d6c" stroke-width="2"/>
+<rect x="0" y="0" width="1200" height="900" fill="url(#grid)" stroke="none" stroke-width="1" />
+<text x="300" y="595" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">A1</text>
+<text x="300" y="625" fill="#273f40" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Pátio</text>
+<text x="275" y="235" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">A2</text>
+<text x="275" y="265" fill="#273f40" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Arquivo</text>
+<text x="700" y="195" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">A3</text>
+<text x="700" y="225" fill="#273f40" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Claustro</text>
+<text x="1025" y="200" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">A4</text>
+<text x="1025" y="230" fill="#273f40" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Campanário</text>
+<text x="850" y="600" fill="#273f40" font-family="Arial, sans-serif" font-size="17" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">A5</text>
+<text x="850" y="630" fill="#273f40" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Oficina</text>
+<text x="1025" y="423" fill="#273f40" font-family="Arial, sans-serif" font-size="15" font-weight="normal" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Sino Guarda</text>
+<text x="300" y="760" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="middle" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">aberto ao céu</text>
+<text x="45" y="60" fill="#273f40" font-family="Georgia, serif" font-size="34" font-weight="bold" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Abadia do Terceiro Sino</text>
+<text x="47" y="91" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="start" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Vale do Lume · planta conhecida · 1 célula = 1 unidade de distância do jogo</text>
+<path d="M45 108H340" fill="none" stroke="#a37239" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+<text x="1135" y="42" fill="#273f40" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" >N</text>
+<path d="M1135 56L1124 90L1135 82L1146 90Z" fill="#273f40" stroke="#273f40" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+<text x="230" y="869" fill="#273f40" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="end" stroke="#eee4cb" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Entrada</text>
+<text x="1155" y="861" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="end" >Paredes e passagens: referência visual</text>
+<text x="1155" y="883" fill="#273f40" font-family="Arial, sans-serif" font-size="14" font-weight="normal" text-anchor="end" >Encontros e descobertas são dados separados</text>
+</svg>
