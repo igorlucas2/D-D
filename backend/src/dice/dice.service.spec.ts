@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { DiceService } from './dice.service';
+import type { CampaignAccessService } from '../campaigns/campaign-access.service';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { VttGateway } from '../vtt/vtt.gateway';
 
@@ -9,6 +10,7 @@ function serviceFor() {
   };
   const service = new DiceService(
     prisma as unknown as PrismaService,
+    {} as CampaignAccessService,
     {} as VttGateway,
   );
   return { prisma, service };

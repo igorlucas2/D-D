@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CampaignAccessService } from './campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { deleteCampaignLore } from '../lore/delete-lore';
 import { VttGateway } from '../vtt/vtt.gateway';
@@ -29,6 +30,7 @@ const CAMPAIGN_INCLUDE = {
 export class CampaignsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly vttGateway: VttGateway,
     private readonly worldGateway: WorldGateway,
   ) {}
@@ -178,15 +180,9 @@ export class CampaignsService {
   }
 
   private async assertIsMaster(id: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({ where: { id } });
-
-    if (!campaign) {
-      throw new NotFoundException('Campanha não encontrada.');
-    }
-    if (campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre pode realizar esta ação.');
-    }
-
-    return campaign;
+    return this.access.master(id, userId, {
+      forbidden: 'Apenas o mestre pode realizar esta ação.',
+      master: 'Apenas o mestre pode realizar esta ação.',
+    });
   }
 }

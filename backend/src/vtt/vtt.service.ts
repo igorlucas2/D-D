@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { parseJson } from '../common/json';
+import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVttMapDto } from './dto/create-vtt-map.dto';
 import { UpdateVttMapDto } from './dto/update-vtt-map.dto';
@@ -40,6 +41,7 @@ type VttMapWithTokens = Prisma.VttMapGetPayload<{
 export class VttService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly vttGateway: VttGateway,
   ) {}
 
@@ -1034,30 +1036,10 @@ export class VttService {
   }
 
   private async assertIsMember(campaignId: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { id: campaignId },
-      include: { members: { select: { userId: true } } },
-    });
-
-    if (!campaign) {
-      throw new NotFoundException('Campanha nao encontrada.');
-    }
-
-    const isMember =
-      campaign.masterId === userId ||
-      campaign.members.some((member) => member.userId === userId);
-    if (!isMember) {
-      throw new ForbiddenException('Voce nao tem acesso a esta campanha.');
-    }
-
-    return campaign;
+    return this.access.member(campaignId, userId);
   }
 
   private async assertIsMaster(campaignId: string, userId: string) {
-    const campaign = await this.assertIsMember(campaignId, userId);
-    if (campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre pode realizar esta acao.');
-    }
-    return campaign;
+    return this.access.master(campaignId, userId);
   }
 }

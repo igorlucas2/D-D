@@ -1887,7 +1887,7 @@ export interface components {
             characterId?: string;
             campaignId?: string;
             /** @enum {string} */
-            visibility?: "PUBLIC" | "MASTER" | "PRIVATE";
+            visibility?: "MASTER" | "PUBLIC" | "PRIVATE";
         };
         CreateCampaignDto: {
             name: string;

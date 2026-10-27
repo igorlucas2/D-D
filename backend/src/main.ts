@@ -2,10 +2,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
+import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { allowedOrigins } from './config/cors';
+import { RequestContextService } from './common/request-context.service';
 import { setupOpenApi } from './openapi';
 
 /** Loopback em IPv4, IPv6 e no formato mapeado que o Node entrega. */
@@ -20,6 +22,13 @@ async function bootstrap() {
     bodyParser: false,
   });
   app.useLogger(app.get(PinoLogger));
+
+  // O contexto abaixo é herdado por todo o restante da requisição: serviços
+  // podem memorizar a checagem de campanha sem virar request-scoped.
+  const requestContext = app.get(RequestContextService);
+  app.use((_request: Request, _response: Response, next: NextFunction) => {
+    requestContext.run(next);
+  });
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(

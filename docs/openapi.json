@@ -5433,8 +5433,8 @@
           "visibility": {
             "type": "string",
             "enum": [
-              "PUBLIC",
               "MASTER",
+              "PUBLIC",
               "PRIVATE"
             ]
           }

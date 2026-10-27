@@ -17,6 +17,7 @@ import { CharactersModule } from './characters/characters.module';
 import { DiceModule } from './dice/dice.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
+import { AccessModule } from './campaigns/access.module';
 import { CombatModule } from './combat/combat.module';
 import { JournalModule } from './journal/journal.module';
 import { VttModule } from './vtt/vtt.module';
@@ -42,6 +43,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 300 }]),
     ScheduleModule.forRoot(),
     PrismaModule,
+    AccessModule,
     AuthModule,
     UsersModule,
     CharactersModule,

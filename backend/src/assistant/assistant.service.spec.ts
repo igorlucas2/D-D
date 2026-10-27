@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { HttpException } from '@nestjs/common';
+import { ForbiddenException, HttpException } from '@nestjs/common';
 import {
   ASSISTANT_MODEL,
   AssistantService,
@@ -7,6 +7,7 @@ import {
 } from './assistant.service';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { WorldService } from '../world/world.service';
+import type { CampaignAccessService } from '../campaigns/campaign-access.service';
 
 // O cliente da API é simulado: nenhum teste faz chamada real nem gera custo.
 
@@ -92,8 +93,20 @@ function setup(
       }),
     ),
   };
+  const access = {
+    master: jest.fn((_campaignId: string, userId: string) => {
+      const row = { ...campaign, ...overrides.campaign };
+      return row.masterId === userId
+        ? Promise.resolve(row)
+        : Promise.reject(new ForbiddenException('Apenas o mestre.'));
+    }),
+    member: jest.fn(() =>
+      Promise.resolve({ ...campaign, ...overrides.campaign }),
+    ),
+  } as unknown as CampaignAccessService;
   const service = new AssistantService(
     prisma as unknown as PrismaService,
+    access,
     world as unknown as WorldService,
     client,
   );

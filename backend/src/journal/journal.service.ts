@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorldService } from '../world/world.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
@@ -21,6 +22,7 @@ const AUTHOR_SELECT = {
 export class JournalService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly worldService: WorldService,
   ) {}
 
@@ -202,22 +204,6 @@ export class JournalService {
   }
 
   private async assertIsMember(campaignId: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { id: campaignId },
-      include: { members: { select: { userId: true } } },
-    });
-
-    if (!campaign) {
-      throw new NotFoundException('Campanha não encontrada.');
-    }
-
-    const isMember =
-      campaign.masterId === userId ||
-      campaign.members.some((member) => member.userId === userId);
-    if (!isMember) {
-      throw new ForbiddenException('Você não tem acesso a esta campanha.');
-    }
-
-    return campaign;
+    return this.access.member(campaignId, userId);
   }
 }

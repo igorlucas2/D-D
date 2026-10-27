@@ -11,6 +11,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import Anthropic from '@anthropic-ai/sdk';
+import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorldService } from '../world/world.service';
 import { AskAssistantDto, type AssistantKind } from './dto/assistant.dto';
@@ -66,6 +67,7 @@ export class AssistantService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly worldService: WorldService,
     @Inject(ANTHROPIC_CLIENT) private readonly client: AssistantClient,
   ) {}
@@ -298,13 +300,9 @@ export class AssistantService {
   }
 
   private async assertIsMaster(campaignId: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { id: campaignId },
+    return this.access.master(campaignId, userId, {
+      forbidden: 'Apenas o mestre usa o assistente.',
+      master: 'Apenas o mestre usa o assistente.',
     });
-    if (!campaign) throw new NotFoundException('Campanha não encontrada.');
-    if (campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre usa o assistente.');
-    }
-    return campaign;
   }
 }

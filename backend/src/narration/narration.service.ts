@@ -1,10 +1,10 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { VttGateway } from '../vtt/vtt.gateway';
 import { SaveNarrationDraftDto, SendNarrationDto } from './dto/narration.dto';
@@ -16,11 +16,25 @@ import { SaveNarrationDraftDto, SendNarrationDto } from './dto/narration.dto';
 export class NarrationService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly vttGateway: VttGateway,
   ) {}
 
   async send(campaignId: string, userId: string, dto: SendNarrationDto) {
-    const campaign = await this.assertIsMaster(campaignId, userId);
+    await this.assertIsMaster(campaignId, userId);
+    const campaign = await this.prisma.campaign.findUniqueOrThrow({
+      where: { id: campaignId },
+      select: {
+        masterId: true,
+        master: { select: { displayName: true } },
+        members: {
+          select: {
+            userId: true,
+            user: { select: { id: true, displayName: true } },
+          },
+        },
+      },
+    });
     const content = dto.content.trim();
     if (!content) throw new BadRequestException('Escreva a narração.');
     const title = dto.title?.trim() || null;
@@ -172,22 +186,8 @@ export class NarrationService {
   }
 
   private async assertIsMaster(campaignId: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { id: campaignId },
-      include: {
-        master: { select: { displayName: true } },
-        members: {
-          select: {
-            userId: true,
-            user: { select: { id: true, displayName: true } },
-          },
-        },
-      },
+    return this.access.master(campaignId, userId, {
+      master: 'Apenas o mestre pode narrar.',
     });
-    if (!campaign) throw new NotFoundException('Campanha não encontrada.');
-    if (campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre pode narrar.');
-    }
-    return campaign;
   }
 }

@@ -1,12 +1,12 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { parseStringArray } from '../common/json';
+import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { VttGateway } from '../vtt/vtt.gateway';
 import { StartEncounterDto } from './dto/start-encounter.dto';
@@ -60,6 +60,7 @@ export function hpStatus(currentHp: number, maxHp: number): HpStatus {
 export class CombatService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly access: CampaignAccessService,
     private readonly vttGateway: VttGateway,
   ) {}
 
@@ -473,30 +474,10 @@ export class CombatService {
   }
 
   private async assertIsMember(campaignId: string, userId: string) {
-    const campaign = await this.prisma.campaign.findUnique({
-      where: { id: campaignId },
-      include: { members: { select: { userId: true } } },
-    });
-
-    if (!campaign) {
-      throw new NotFoundException('Campanha não encontrada.');
-    }
-
-    const isMember =
-      campaign.masterId === userId ||
-      campaign.members.some((member) => member.userId === userId);
-    if (!isMember) {
-      throw new ForbiddenException('Você não tem acesso a esta campanha.');
-    }
-
-    return campaign;
+    return this.access.member(campaignId, userId);
   }
 
   private async assertIsMaster(campaignId: string, userId: string) {
-    const campaign = await this.assertIsMember(campaignId, userId);
-    if (campaign.masterId !== userId) {
-      throw new ForbiddenException('Apenas o mestre pode realizar esta ação.');
-    }
-    return campaign;
+    return this.access.master(campaignId, userId);
   }
 }
