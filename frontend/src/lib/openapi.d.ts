@@ -340,6 +340,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/combat/spells/cast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CombatController_castSpell"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/combat/items/use": {
         parameters: {
             query?: never;
@@ -1842,6 +1858,19 @@ export interface components {
         CastCharacterSpellDto: {
             slotLevel?: number;
         };
+        SpellTargetDto: {
+            /** @enum {string} */
+            kind: "CHARACTER" | "PARTICIPANT";
+            id: string;
+        };
+        CastSpellDto: {
+            /** Format: uuid */
+            requestKey: string;
+            expectedRevision?: number;
+            characterSpellId: string;
+            slotLevel?: number;
+            targets: components["schemas"]["SpellTargetDto"][];
+        };
         UseItemDto: {
             /** Format: uuid */
             requestKey: string;
@@ -2738,6 +2767,31 @@ export interface operations {
         requestBody?: never;
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CombatController_castSpell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CastSpellDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

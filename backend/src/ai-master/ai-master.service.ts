@@ -9,6 +9,7 @@ import { Prisma } from '@prisma/client';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseStringArray } from '../common/json';
 import { parseItemEffect } from '../combat/item-use.types';
+import { spellToHud, type SpellHud } from '../combat/spell-cast.types';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { AiTurnContextBuilder } from './ai-master.context';
@@ -80,6 +81,11 @@ export class AiMasterService {
           character: {
             include: {
               inventory: { include: { item: true }, orderBy: { id: 'asc' } },
+              spells: { include: { spell: true } },
+              spellSlots: {
+                where: { total: { gt: 0 } },
+                orderBy: { level: 'asc' },
+              },
             },
           },
         },
@@ -155,6 +161,14 @@ export class AiMasterService {
           properties: entry.item.properties,
           description: entry.item.description,
           effectKind: parseItemEffect(entry.item.properties)?.kind ?? null,
+        })),
+        spells: row.character.spells
+          .map((entry) => spellToHud(entry.id, entry.spell))
+          .filter((entry): entry is SpellHud => Boolean(entry)),
+        spellSlots: row.character.spellSlots.map((slot) => ({
+          level: slot.level,
+          total: slot.total,
+          used: slot.used,
         })),
       })),
       events: events.map((event) => ({

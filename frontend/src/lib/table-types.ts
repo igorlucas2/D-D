@@ -51,6 +51,28 @@ export interface HudItem {
   effectKind: "HEAL" | "TEMP_HP" | "DAMAGE" | null;
 }
 
+export interface HudSpell {
+  characterSpellId: string;
+  spellId: string;
+  name: string;
+  level: number;
+  school: string;
+  concentration: boolean;
+  description: string | null;
+  effectKind: "HEAL" | "DAMAGE";
+  saveAbility: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA" | null;
+  halfOnSuccess: boolean;
+  targetMode: "SINGLE" | "MULTIPLE";
+  formula: string;
+  upcastFormula: string | null;
+}
+
+export interface HudSpellSlot {
+  level: number;
+  total: number;
+  used: number;
+}
+
 export interface HudCharacter {
   id: string;
   characterId: string;
@@ -62,6 +84,8 @@ export interface HudCharacter {
   armorClass: number;
   conditions: string[];
   items: HudItem[];
+  spells: HudSpell[];
+  spellSlots: HudSpellSlot[];
 }
 
 export interface CombatActionResult {
@@ -118,7 +142,48 @@ export interface ItemUseResult {
   createdAt: string;
 }
 
-export type TableActionResult = CombatActionResult | ItemUseResult;
+export interface SpellCastResult {
+  actionId: string;
+  requestKey: string;
+  kind: "CAST_SPELL";
+  spell: {
+    characterSpellId: string;
+    spellId: string;
+    name: string;
+    level: number;
+    school: string;
+    castLevel: number;
+  };
+  slot: { level: number; usedBefore: number; usedAfter: number } | null;
+  targets: Array<{
+    kind: "CHARACTER" | "PARTICIPANT";
+    id: string;
+    name: string;
+    characterId: string | null;
+    hpBefore: { current: number; max: number; temp: number } | null;
+    hpAfter: { current: number; max: number; temp: number } | null;
+    save: {
+      ability: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+      roll: number;
+      modifier: number;
+      total: number;
+      dc: number;
+      success: boolean;
+    } | null;
+    amount: number;
+    applied: number;
+    absorbedByTempHp: number;
+  }>;
+  damageType: string | null;
+  source: string;
+  alreadyApplied: boolean;
+  createdAt: string;
+}
+
+export type TableActionResult =
+  | CombatActionResult
+  | ItemUseResult
+  | SpellCastResult;
 
 export const ACTION_LABELS: Record<CombatActionKind, string> = {
   DAMAGE: "Dano",

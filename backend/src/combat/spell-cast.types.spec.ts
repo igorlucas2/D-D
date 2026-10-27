@@ -1,0 +1,79 @@
+import {
+  abilityModifier,
+  resolveSpellMechanics,
+  spellSaveDc,
+  spellToHud,
+  spellcastingAbility,
+  spellcastingModifier,
+} from './spell-cast.types';
+
+describe('spell mechanics', () => {
+  it('resolve a cura de Curar Ferimentos pelo fallback', () => {
+    expect(resolveSpellMechanics({ name: 'Curar Ferimentos' })).toMatchObject({
+      kind: 'HEAL',
+      formula: '1d8',
+      addSpellcastingModifier: true,
+      targets: 'SINGLE',
+    });
+  });
+
+  it('resolve Bola de Fogo com save de Destreza e metade no sucesso', () => {
+    expect(resolveSpellMechanics({ name: 'Bola de Fogo' })).toMatchObject({
+      kind: 'DAMAGE',
+      formula: '8d6',
+      damageType: 'fire',
+      save: { ability: 'DEX', halfOnSuccess: true },
+      targets: 'MULTIPLE',
+    });
+  });
+
+  it('dá prioridade ao mechanics estruturado', () => {
+    expect(
+      resolveSpellMechanics({
+        name: 'Curar Ferimentos',
+        mechanics: JSON.stringify({
+          kind: 'HEAL',
+          formula: '2d8',
+          addSpellcastingModifier: true,
+          targets: 'SINGLE',
+        }),
+      }),
+    ).toMatchObject({ formula: '2d8' });
+  });
+
+  it('ignora magia sem mecânica conhecida', () => {
+    expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
+  });
+
+  it('calcula modificador, ability e DC', () => {
+    expect(abilityModifier(15)).toBe(2);
+    expect(spellcastingAbility('Mago')).toBe('INT');
+    expect(
+      spellcastingModifier({
+        class: 'Mago',
+        intelligence: 15,
+        wisdom: 10,
+        charisma: 8,
+      }),
+    ).toBe(2);
+    expect(spellSaveDc(2, 2)).toBe(12);
+  });
+
+  it('monta o HUD com metadados da magia', () => {
+    expect(
+      spellToHud('cs1', {
+        id: 's1',
+        name: 'Bola de Fogo',
+        level: 3,
+        school: 'Evocação',
+        concentration: false,
+        description: null,
+      }),
+    ).toMatchObject({
+      characterSpellId: 'cs1',
+      effectKind: 'DAMAGE',
+      saveAbility: 'DEX',
+      targetMode: 'MULTIPLE',
+    });
+  });
+});

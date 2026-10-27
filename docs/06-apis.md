@@ -53,6 +53,7 @@ Base URL: `http://localhost:3001/api`
 | GET | /campaigns/:id/combat/actions | Histórico do ledger de dano/cura/PV/condição |
 | POST | /campaigns/:id/combat/actions | Aplica dano/cura/PV temporário/condição com alvo, fórmula, idempotência e revisão |
 | POST | /campaigns/:id/combat/items/use | Consome um item do inventário e aplica cura/PV temporário/dano no próprio personagem |
+| POST | /campaigns/:id/combat/spells/cast | Consome espaço e resolve cura/dano, save, alvos e upcast no servidor |
 
 ## Mesa Virtual / VTT (v1.0)
 | Método | Rota | Descrição |

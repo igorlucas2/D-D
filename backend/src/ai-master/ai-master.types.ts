@@ -1,3 +1,5 @@
+import type { SpellHud, SpellSlotHud } from '../combat/spell-cast.types';
+
 export interface AiTurnCharacter {
   entityId: string;
   name: string;
@@ -57,6 +59,8 @@ export interface AiTurnState {
       description: string | null;
       effectKind: 'HEAL' | 'TEMP_HP' | 'DAMAGE' | null;
     }>;
+    spells: SpellHud[];
+    spellSlots: SpellSlotHud[];
   }>;
   events: Array<{
     eventId: string;

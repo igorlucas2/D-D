@@ -796,6 +796,46 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/spells/cast": {
+      "post": {
+        "operationId": "CombatController_castSpell",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CastSpellDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat/items/use": {
       "post": {
         "operationId": "CombatController_useItem",
@@ -5121,6 +5161,61 @@
             "maximum": 9
           }
         }
+      },
+      "SpellTargetDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "CHARACTER",
+              "PARTICIPANT"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 191
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ]
+      },
+      "CastSpellDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "characterSpellId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "slotLevel": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 9
+          },
+          "targets": {
+            "minItems": 1,
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpellTargetDto"
+            }
+          }
+        },
+        "required": [
+          "requestKey",
+          "characterSpellId",
+          "targets"
+        ]
       },
       "UseItemDto": {
         "type": "object",

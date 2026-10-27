@@ -9,6 +9,7 @@ import { CharacterHud } from "@/components/table/character-hud";
 import { Chronicle, type ChronicleEvent } from "@/components/table/chronicle";
 import { ItemUseDialog } from "@/components/table/item-use-dialog";
 import { MechanicalActionDialog } from "@/components/table/mechanical-action-dialog";
+import { SpellDialog, type SpellCastInput } from "@/components/table/spell-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
@@ -20,6 +21,7 @@ import type {
   HudCharacter,
   ItemUseResult,
   MechanicalActionInput,
+  SpellCastResult,
   TableActionResult,
 } from "@/lib/table-types";
 import { useStoryUpdates } from "@/lib/use-story-updates";
@@ -75,6 +77,8 @@ function AiMasterContent() {
   const [dialogKind, setDialogKind] = useState<CombatActionKind>("DAMAGE");
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [itemBusy, setItemBusy] = useState(false);
+  const [spellDialogOpen, setSpellDialogOpen] = useState(false);
+  const [spellBusy, setSpellBusy] = useState(false);
   const [lastResult, setLastResult] = useState<TableActionResult | null>(null);
 
   const load = useCallback(async () => {
@@ -173,6 +177,38 @@ function AiMasterContent() {
     )?.id ??
     targets[0]?.id ??
     "";
+
+  const spellTargets = useMemo<ActionTarget[]>(() => {
+    if (!state) return [];
+    const result: ActionTarget[] = [];
+    const seenCharacters = new Set<string>();
+    if (combat) {
+      for (const participant of combat.participants) {
+        if (participant.characterId) seenCharacters.add(participant.characterId);
+        result.push({
+          kind: "PARTICIPANT",
+          id: participant.id,
+          name: participant.name,
+          characterId: participant.characterId,
+          currentHp: participant.currentHp,
+          maxHp: participant.maxHp,
+          isAlly: participant.isAlly,
+        });
+      }
+    }
+    for (const character of state.characters) {
+      if (seenCharacters.has(character.characterId)) continue;
+      result.push({
+        kind: "CHARACTER",
+        id: character.characterId,
+        name: character.name,
+        characterId: character.characterId,
+        currentHp: character.currentHp,
+        maxHp: character.maxHp,
+      });
+    }
+    return result;
+  }, [state, combat]);
 
   const active =
     Boolean(state?.storyReady) &&
@@ -300,6 +336,35 @@ function AiMasterContent() {
       await load();
     } finally {
       setItemBusy(false);
+    }
+  }
+
+  async function submitSpellCast(input: SpellCastInput) {
+    if (!token || !state) return;
+    setSpellBusy(true);
+    setError(null);
+    try {
+      const result = await api.post<SpellCastResult>(
+        `/campaigns/${params.id}/combat/spells/cast`,
+        {
+          ...input,
+          requestKey: crypto.randomUUID(),
+          expectedRevision: combat?.revision,
+        },
+        token,
+      );
+      setLastResult(result);
+      setSpellDialogOpen(false);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível conjurar a magia.",
+      );
+      await load();
+    } finally {
+      setSpellBusy(false);
     }
   }
 
@@ -501,9 +566,10 @@ function AiMasterContent() {
             onSelect={setSelectedId}
             combat={combat}
             isMaster={Boolean(state?.isMaster)}
-            busy={mechanicalBusy || itemBusy || busy}
+            busy={mechanicalBusy || itemBusy || spellBusy || busy}
             onAction={openAction}
             onUseItem={() => setItemDialogOpen(true)}
+            onCastSpell={() => setSpellDialogOpen(true)}
           />
         </div>
       </div>
@@ -527,6 +593,16 @@ function AiMasterContent() {
           busy={itemBusy}
           onOpenChange={setItemDialogOpen}
           onUse={submitItemUse}
+        />
+      ) : null}
+
+      {spellDialogOpen && selectedCharacter ? (
+        <SpellDialog
+          character={selectedCharacter}
+          targets={spellTargets}
+          busy={spellBusy}
+          onOpenChange={setSpellDialogOpen}
+          onCast={submitSpellCast}
         />
       ) : null}
     </div>

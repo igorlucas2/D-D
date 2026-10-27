@@ -223,6 +223,7 @@ model Spell {
   concentration Boolean   @default(false)
   description   String? @db.LongText
   classes       String? @db.LongText // JSON serializado (lista de classes)
+  mechanics     String? @db.LongText // JSON: dano/cura/save/upcast
 
   characters CharacterSpell[]
 

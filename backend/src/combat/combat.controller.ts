@@ -18,8 +18,10 @@ import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { CombatService } from './combat.service';
 import { CombatActionsService } from './combat-actions.service';
 import { ItemUseService } from './item-use.service';
+import { SpellCastService } from './spell-cast.service';
 import { CombatActionDto } from './combat-action.dto';
 import { UseItemDto } from './item-use.dto';
+import { CastSpellDto } from './spell-cast.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -32,7 +34,21 @@ export class CombatController {
     private readonly combatService: CombatService,
     private readonly actions: CombatActionsService,
     private readonly items: ItemUseService,
+    private readonly spells: SpellCastService,
   ) {}
+
+  @CampaignChanged()
+  @Audit('spell.cast', 'spell')
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Post('spells/cast')
+  @HttpCode(200)
+  castSpell(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: CastSpellDto,
+  ) {
+    return this.spells.cast(campaignId, user.userId, dto);
+  }
 
   @CampaignChanged()
   @Audit('item.use', 'item')

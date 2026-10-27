@@ -62,6 +62,7 @@ export function CharacterHud({
   busy,
   onAction,
   onUseItem,
+  onCastSpell,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -71,6 +72,7 @@ export function CharacterHud({
   busy: boolean;
   onAction: (kind: CombatActionKind) => void;
   onUseItem: () => void;
+  onCastSpell: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -228,6 +230,32 @@ export function CharacterHud({
                 </span>
               ) : null}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 h-10 w-full justify-start gap-2 border-[#6f5a8f]/30 bg-[#6f5a8f]/10 text-xs hover:bg-[#6f5a8f]/20"
+              onClick={onCastSpell}
+              disabled={busy || character.spells.length === 0}
+            >
+              <Sparkles className="size-3.5" aria-hidden="true" />
+              Conjurar
+              <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                {character.spells.length}
+              </span>
+            </Button>
+            {character.spellSlots.length > 0 ? (
+              <div className="mt-3 flex flex-wrap gap-1">
+                {character.spellSlots.map((slot) => (
+                  <Badge
+                    key={slot.level}
+                    variant="outline"
+                    className="font-mono text-[10px] text-muted-foreground"
+                  >
+                    Nv {slot.level}: {slot.total - slot.used}/{slot.total}
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : (
           <p className="p-4 text-sm text-muted-foreground">

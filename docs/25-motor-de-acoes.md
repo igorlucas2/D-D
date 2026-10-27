@@ -235,6 +235,10 @@ de `requestKey`, condição em participante e sincronização ficha ↔ combate.
 
 Itens consumíveis usam o mesmo ledger e a mesma transação; a spec está em `docs/26-itens.md`.
 
+## 9.2 Fase C
+
+Magias usam slot, save e upcast no mesmo pipeline; a spec está em `docs/27-magias.md`.
+
 ## 10. Testes e aceite
 
 Unitários:
