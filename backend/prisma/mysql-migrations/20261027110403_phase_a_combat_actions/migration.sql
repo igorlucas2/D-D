@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE `combatparticipant` ADD COLUMN `tempHp` INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE `CombatParticipant` ADD COLUMN `tempHp` INTEGER NOT NULL DEFAULT 0;
 
 -- CreateTable
 CREATE TABLE `CombatAction` (
