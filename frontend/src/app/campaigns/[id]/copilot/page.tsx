@@ -217,8 +217,6 @@ function Copilot({ id, token }: { id: string; token: string }) {
     queryFn: ({ signal }) =>
       api.get<State>(`/campaigns/${id}/game-master/state`, token, signal),
     enabled: Boolean(token),
-    // O socket invalida a cada evento de história; 60 s é só a rede de segurança.
-    refetchInterval: 60_000,
   });
   const state = query.data ?? null;
   const error =

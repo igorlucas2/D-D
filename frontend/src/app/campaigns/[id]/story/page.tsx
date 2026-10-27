@@ -83,13 +83,11 @@ function Memory({ id, token }: { id: string; token: string }) {
       if (document.visibilityState === "visible") void reload();
     };
     void Promise.resolve().then(reload);
-    const timer = setInterval(refresh, 60_000);
     window.addEventListener("online", refresh);
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {
       active.current = false;
-      clearInterval(timer);
       window.removeEventListener("online", refresh);
       window.removeEventListener("focus", refresh);
       document.removeEventListener("visibilitychange", refresh);

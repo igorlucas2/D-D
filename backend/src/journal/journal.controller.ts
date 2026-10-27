@@ -6,10 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { JournalService } from './journal.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { UpdateJournalEntryDto } from './dto/update-journal-entry.dto';
@@ -23,8 +25,15 @@ export class JournalController {
   findAll(
     @Param('campaignId') campaignId: string,
     @CurrentUser() user: { userId: string },
+    @Query('take') take?: string,
+    @Query('cursor') cursor?: string,
   ) {
-    return this.journalService.findAll(campaignId, user.userId);
+    const parsed = take ? Number.parseInt(take, 10) : undefined;
+    return this.journalService.findAll(campaignId, user.userId, {
+      take:
+        parsed !== undefined && Number.isFinite(parsed) ? parsed : undefined,
+      cursor: cursor || undefined,
+    });
   }
 
   @Get('since-last-visit')
@@ -43,6 +52,7 @@ export class JournalController {
     return this.journalService.markVisit(campaignId, user.userId);
   }
 
+  @CampaignChanged()
   @Post()
   create(
     @Param('campaignId') campaignId: string,
@@ -52,6 +62,7 @@ export class JournalController {
     return this.journalService.create(campaignId, user.userId, dto);
   }
 
+  @CampaignChanged()
   @Patch(':entryId')
   update(
     @Param('campaignId') campaignId: string,
@@ -62,6 +73,7 @@ export class JournalController {
     return this.journalService.update(campaignId, entryId, user.userId, dto);
   }
 
+  @CampaignChanged()
   @Delete(':entryId')
   remove(
     @Param('campaignId') campaignId: string,

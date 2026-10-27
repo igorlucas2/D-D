@@ -79,6 +79,7 @@ interface ClientToServerEvents {
 
 interface ServerToClientEvents {
   'story:updated': (payload: { campaignId: string; eventId: string }) => void;
+  'table:state': (payload: { campaignId: string }) => void;
   'vtt:joined': (payload: { campaignId: string }) => void;
   'vtt:map:created': (map: SerializedVttMap) => void;
   'vtt:map:updated': (map: SerializedVttMap) => void;
@@ -470,6 +471,13 @@ export class VttGateway
       }
       socket.emit('story:updated', { campaignId, eventId });
     }
+  }
+
+  /** Invalidação para telas de estado (copiloto, intenções, comandos, prazos). */
+  emitCampaignUpdated(campaignId: string) {
+    this.server
+      .to([this.masterRoom(campaignId), this.playersRoom(campaignId)])
+      .emit('table:state', { campaignId });
   }
 
   /** Combate (MV-09): cada papel recebe a sua projeção já pronta. */

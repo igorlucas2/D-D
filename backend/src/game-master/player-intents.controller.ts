@@ -20,6 +20,7 @@ import {
 } from 'class-validator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { PlayerIntentsService } from './player-intents.service';
 class IntentDto {
   @IsUUID() requestKey: string;
@@ -52,6 +53,7 @@ export class PlayerIntentsController {
   state(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.service.state(id, user.userId);
   }
+  @CampaignChanged()
   @Post()
   @HttpCode(202)
   @Header('Cache-Control', 'no-store')
@@ -62,6 +64,7 @@ export class PlayerIntentsController {
   ) {
     return this.service.submit(id, user.userId, dto);
   }
+  @CampaignChanged()
   @Post(':turnId/respond')
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')
@@ -73,6 +76,7 @@ export class PlayerIntentsController {
   ) {
     return this.service.respond(id, user.userId, turnId, dto);
   }
+  @CampaignChanged()
   @Post(':turnId/cancel')
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')

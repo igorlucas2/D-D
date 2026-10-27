@@ -23,6 +23,7 @@ import {
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Audit } from '../audit/audit.decorator';
+import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { ConsequencesService } from './consequences.service';
 class RevisionDto {
   @IsInt() @Min(1) expectedRevision: number;
@@ -60,6 +61,7 @@ export class ConsequencesController {
   state(@Param('id') id: string, @CurrentUser() u: { userId: string }) {
     return this.service.state(id, u.userId);
   }
+  @CampaignChanged()
   @Audit('consequences.policy', 'consequences')
   @Patch('policy')
   @Header('Cache-Control', 'no-store')
@@ -70,6 +72,7 @@ export class ConsequencesController {
   ) {
     return this.service.policy(id, u.userId, b);
   }
+  @CampaignChanged()
   @Audit('consequences.schedule', 'consequence')
   @Post()
   @HttpCode(200)
@@ -81,6 +84,7 @@ export class ConsequencesController {
   ) {
     return this.service.schedule(id, u.userId, b);
   }
+  @CampaignChanged()
   @Audit('consequences.preset', 'consequences')
   @Post('preset')
   @HttpCode(200)
@@ -92,6 +96,7 @@ export class ConsequencesController {
   ) {
     return this.service.preset(id, u.userId, b);
   }
+  @CampaignChanged()
   @Audit('consequences.resolve', 'consequence')
   @Post(':itemId/resolve')
   @HttpCode(200)
@@ -104,6 +109,7 @@ export class ConsequencesController {
   ) {
     return this.service.resolve(id, u.userId, item, b);
   }
+  @CampaignChanged()
   @Audit('consequences.postpone', 'consequence')
   @Post(':itemId/postpone')
   @HttpCode(200)

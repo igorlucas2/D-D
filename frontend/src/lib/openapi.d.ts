@@ -3835,7 +3835,10 @@ export interface operations {
     };
     JournalController_findAll: {
         parameters: {
-            query?: never;
+            query?: {
+                take?: string;
+                cursor?: string;
+            };
             header?: never;
             path: {
                 campaignId: string;

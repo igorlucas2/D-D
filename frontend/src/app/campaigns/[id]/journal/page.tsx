@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api, ApiError } from "@/lib/api";
+import { useStoryUpdates } from "@/lib/use-story-updates";
 import {
   JOURNAL_CATEGORIES,
   JOURNAL_CATEGORY_LABELS,
@@ -57,6 +58,8 @@ const EMPTY_FORM: EntryFormState = {
   sessionDate: new Date().toISOString().slice(0, 10),
 };
 
+const JOURNAL_PAGE_SIZE = 30;
+
 function JournalContent() {
   const params = useParams<{ id: string }>();
   const token = useAuthStore((state) => state.token);
@@ -66,6 +69,8 @@ function JournalContent() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
@@ -77,10 +82,14 @@ function JournalContent() {
     if (!token) return;
     const [campaignData, entriesData] = await Promise.all([
       api.get<Campaign>(`/campaigns/${params.id}`, token),
-      api.get<JournalEntry[]>(`/campaigns/${params.id}/journal`, token),
+      api.get<JournalEntry[]>(
+        `/campaigns/${params.id}/journal?take=${JOURNAL_PAGE_SIZE}`,
+        token,
+      ),
     ]);
     setCampaign(campaignData);
     setEntries(entriesData);
+    setHasMore(entriesData.length === JOURNAL_PAGE_SIZE);
   }
 
   useEffect(() => {
@@ -92,11 +101,15 @@ function JournalContent() {
       try {
         const [campaignData, entriesData] = await Promise.all([
           api.get<Campaign>(`/campaigns/${params.id}`, token),
-          api.get<JournalEntry[]>(`/campaigns/${params.id}/journal`, token),
+          api.get<JournalEntry[]>(
+            `/campaigns/${params.id}/journal?take=${JOURNAL_PAGE_SIZE}`,
+            token,
+          ),
         ]);
         if (cancelled) return;
         setCampaign(campaignData);
         setEntries(entriesData);
+        setHasMore(entriesData.length === JOURNAL_PAGE_SIZE);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof ApiError ? err.message : "Erro ao carregar diário.");
@@ -112,6 +125,10 @@ function JournalContent() {
       cancelled = true;
     };
   }, [token, params.id]);
+
+  useStoryUpdates(params.id, token, () => {
+    void refresh();
+  });
 
   function openCreateDialog() {
     setEditingEntry(null);
@@ -161,6 +178,25 @@ function JournalContent() {
     if (!token) return;
     await api.delete(`/campaigns/${params.id}/journal/${entryId}`, token);
     await refresh();
+  }
+
+  async function loadMore() {
+    if (!token || loadingMore || !hasMore || entries.length === 0) return;
+    setLoadingMore(true);
+    try {
+      const next = await api.get<JournalEntry[]>(
+        `/campaigns/${params.id}/journal?take=${JOURNAL_PAGE_SIZE}&cursor=${entries[entries.length - 1].id}`,
+        token,
+      );
+      setEntries((current) => [...current, ...next]);
+      setHasMore(next.length === JOURNAL_PAGE_SIZE);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Erro ao carregar mais entradas.",
+      );
+    } finally {
+      setLoadingMore(false);
+    }
   }
 
   if (loading) {
@@ -327,6 +363,17 @@ function JournalContent() {
               </Card>
             );
           })}
+          {hasMore ? (
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                onClick={loadMore}
+                disabled={loadingMore}
+              >
+                {loadingMore ? "Carregando..." : "Carregar mais"}
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
     </div>

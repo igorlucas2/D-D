@@ -30,10 +30,23 @@ export class JournalService {
    * Entradas restritas (revelações) só aparecem para o autor, o mestre e os
    * destinatários. A lista de destinatários só é enviada ao mestre.
    */
-  async findAll(campaignId: string, userId: string) {
+  async findAll(
+    campaignId: string,
+    userId: string,
+    options: { take?: number; cursor?: string } = {},
+  ) {
     const campaign = await this.assertIsMember(campaignId, userId);
     const isMaster = campaign.masterId === userId;
 
+    const take = Math.min(
+      Math.max(
+        Number.isFinite(options.take ?? 50)
+          ? Math.trunc(options.take ?? 50)
+          : 50,
+        1,
+      ),
+      100,
+    );
     const entries = await this.prisma.campaignJournalEntry.findMany({
       where: { campaignId, ...this.visibleTo(isMaster, userId) },
       include: {
@@ -42,7 +55,9 @@ export class JournalService {
           select: { user: { select: { id: true, displayName: true } } },
         },
       },
-      orderBy: [{ sessionDate: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [{ sessionDate: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+      take,
+      ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
     });
 
     return entries.map(({ recipients, ...entry }) => ({

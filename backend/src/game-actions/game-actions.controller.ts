@@ -20,6 +20,7 @@ import {
 } from 'class-validator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import type { GameOperation } from './game-action.types';
 import { GameActionsService } from './game-actions.service';
 class RequestActionDto {
@@ -45,12 +46,14 @@ export class GameActionsController {
   state(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.actions.state(id, user.userId);
   }
+  @CampaignChanged()
   @Post('initialize')
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')
   initialize(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.actions.initialize(id, { kind: 'USER', userId: user.userId });
   }
+  @CampaignChanged()
   @Post()
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')
@@ -65,6 +68,7 @@ export class GameActionsController {
       input,
     );
   }
+  @CampaignChanged()
   @Post(':actionId/resolve')
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')

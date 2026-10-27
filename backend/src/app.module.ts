@@ -7,6 +7,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from './observability/all-exceptions.filter';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { AuditModule } from './audit/audit.module';
+import { CampaignChangedInterceptor } from './realtime/campaign-changed.interceptor';
 import { LoggingModule } from './observability/logging';
 import { ObservabilityModule } from './observability/observability.module';
 import { AppController } from './app.controller';
@@ -73,6 +74,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: CampaignChangedInterceptor },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
