@@ -22,6 +22,7 @@ import {
 } from 'class-validator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Audit } from '../audit/audit.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { GameMasterService } from './game-master.service';
 import type { TurnKind } from './proposal';
@@ -60,6 +61,7 @@ export class GameMasterController {
   ) {
     return this.service.detail(id, u.userId, turnId);
   }
+  @Audit('game-master.settings', 'game-master')
   @Patch('settings')
   @Header('Cache-Control', 'no-store')
   settings(
@@ -69,6 +71,7 @@ export class GameMasterController {
   ) {
     return this.service.settings(id, u.userId, dto);
   }
+  @Audit('game-master.action', 'game-master-turn')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('actions')
   @HttpCode(202)
@@ -80,6 +83,7 @@ export class GameMasterController {
   ) {
     return this.service.request(id, u.userId, dto);
   }
+  @Audit('game-master.resolve', 'game-master-turn')
   @Post('turns/:turnId/resolve')
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')

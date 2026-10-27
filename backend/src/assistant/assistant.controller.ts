@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { AssistantService } from './assistant.service';
 import {
@@ -29,6 +30,7 @@ export class AssistantController {
     return this.assistantService.status(campaignId, user.userId);
   }
 
+  @Audit('assistant.settings', 'assistant')
   @Patch()
   updateSettings(
     @Param('campaignId') campaignId: string,
@@ -38,6 +40,7 @@ export class AssistantController {
     return this.assistantService.updateSettings(campaignId, user.userId, dto);
   }
 
+  @Audit('assistant.ask', 'assistant')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post()
   ask(

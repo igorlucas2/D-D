@@ -10,6 +10,7 @@ test.beforeAll(async ({ request }) => {
 
 test("cadastro leva ao painel e permite criar e abrir uma campanha", async ({
   page,
+  request,
 }) => {
   const stamp = Date.now();
   const email = `e2e-${stamp}@example.com`;
@@ -44,4 +45,39 @@ test("cadastro leva ao painel e permite criar e abrir uma campanha", async ({
     page.getByRole("heading", { name: campaignName, exact: true }),
   ).toBeVisible({ timeout: 20_000 });
   await expect(page.getByText("Mesa", { exact: true }).first()).toBeVisible();
+
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("rpg-auth");
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const state = (parsed as { state?: unknown }).state;
+    if (!state || typeof state !== "object") return null;
+    const value = (state as { token?: unknown }).token;
+    return typeof value === "string" ? value : null;
+  });
+  expect(token).toBeTruthy();
+
+  const campaignId = page.url().split("/").pop();
+  expect(campaignId).toBeTruthy();
+  const auth = { Authorization: `Bearer ${token}` };
+  const patchResponse = await request.patch(`/api/campaigns/${campaignId}`, {
+    headers: auth,
+    data: { name: `${campaignName} editada` },
+  });
+  expect(patchResponse.status()).toBe(200);
+
+  await expect
+    .poll(async () => {
+      const response = await request.get(
+        `/api/campaigns/${campaignId}/audit`,
+        { headers: auth },
+      );
+      if (!response.ok()) return `status ${response.status()}`;
+      const body = (await response.json()) as {
+        items?: { action?: string }[];
+      };
+      return body.items?.[0]?.action ?? null;
+    })
+    .toBe("campaign.update");
 });

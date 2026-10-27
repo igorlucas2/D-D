@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { WorldService } from './world.service';
 import { CreateWorldEntryDto } from './dto/create-world-entry.dto';
 import { UpdateWorldEntryDto } from './dto/update-world-entry.dto';
@@ -33,6 +34,7 @@ export class WorldController {
     return this.worldService.findEntries(campaignId, user.userId);
   }
 
+  @Audit('world.entry.create', 'world-entry')
   @Post('entries')
   createEntry(
     @Param('campaignId') campaignId: string,
@@ -42,6 +44,7 @@ export class WorldController {
     return this.worldService.createEntry(campaignId, user.userId, dto);
   }
 
+  @Audit('world.entry.update', 'world-entry')
   @Patch('entries/:entryId')
   updateEntry(
     @Param('campaignId') campaignId: string,
@@ -52,6 +55,7 @@ export class WorldController {
     return this.worldService.updateEntry(campaignId, entryId, user.userId, dto);
   }
 
+  @Audit('world.entry.delete', 'world-entry')
   @Delete('entries/:entryId')
   removeEntry(
     @Param('campaignId') campaignId: string,
@@ -69,6 +73,7 @@ export class WorldController {
     return this.worldService.getCalendar(campaignId, user.userId);
   }
 
+  @Audit('world.calendar.update', 'calendar')
   @Put('calendar')
   updateCalendar(
     @Param('campaignId') campaignId: string,
@@ -78,6 +83,7 @@ export class WorldController {
     return this.worldService.updateCalendar(campaignId, user.userId, dto);
   }
 
+  @Audit('world.weather.set', 'calendar')
   @Post('weather')
   setWeather(
     @Param('campaignId') campaignId: string,
@@ -87,6 +93,7 @@ export class WorldController {
     return this.worldService.setWeather(campaignId, user.userId, dto.weather);
   }
 
+  @Audit('world.clock.advance', 'calendar')
   @Post('clock/advance')
   advanceClock(
     @Param('campaignId') campaignId: string,
@@ -104,6 +111,7 @@ export class WorldController {
     return this.worldService.findEvents(campaignId, user.userId);
   }
 
+  @Audit('world.event.create', 'world-event')
   @Post('events')
   createEvent(
     @Param('campaignId') campaignId: string,
@@ -113,6 +121,7 @@ export class WorldController {
     return this.worldService.createEvent(campaignId, user.userId, dto);
   }
 
+  @Audit('world.event.update', 'world-event')
   @Patch('events/:eventId')
   updateEvent(
     @Param('campaignId') campaignId: string,
@@ -123,6 +132,7 @@ export class WorldController {
     return this.worldService.updateEvent(campaignId, eventId, user.userId, dto);
   }
 
+  @Audit('world.event.delete', 'world-event')
   @Delete('events/:eventId')
   removeEvent(
     @Param('campaignId') campaignId: string,

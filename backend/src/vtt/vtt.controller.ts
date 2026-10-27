@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { MoveVttTokenDto, ToggleVttDoorDto } from './dto/player-action.dto';
 import { VttService } from './vtt.service';
 import { CreateVttMapDto } from './dto/create-vtt-map.dto';
@@ -34,6 +35,7 @@ export class VttController {
     return this.vttService.findMaps(campaignId, user.userId);
   }
 
+  @Audit('vtt.map.create', 'vtt-map')
   @Post()
   createMap(
     @Param('campaignId') campaignId: string,
@@ -61,6 +63,7 @@ export class VttController {
     return this.vttService.findMap(campaignId, mapId, user.userId);
   }
 
+  @Audit('vtt.map.update', 'vtt-map')
   @Patch(':mapId')
   updateMap(
     @Param('campaignId') campaignId: string,
@@ -71,6 +74,7 @@ export class VttController {
     return this.vttService.updateMap(campaignId, mapId, user.userId, dto);
   }
 
+  @Audit('vtt.map.delete', 'vtt-map')
   @Delete(':mapId')
   removeMap(
     @Param('campaignId') campaignId: string,
@@ -80,6 +84,7 @@ export class VttController {
     return this.vttService.removeMap(campaignId, mapId, user.userId);
   }
 
+  @Audit('vtt.token.create', 'vtt-token')
   @Post(':mapId/tokens')
   createToken(
     @Param('campaignId') campaignId: string,
@@ -90,6 +95,7 @@ export class VttController {
     return this.vttService.createToken(campaignId, mapId, user.userId, dto);
   }
 
+  @Audit('vtt.token.update', 'vtt-token')
   @Patch(':mapId/tokens/:tokenId')
   updateToken(
     @Param('campaignId') campaignId: string,
@@ -134,6 +140,7 @@ export class VttController {
     return this.vttService.toggleDoor(campaignId, mapId, user.userId, dto);
   }
 
+  @Audit('vtt.token.delete', 'vtt-token')
   @Delete(':mapId/tokens/:tokenId')
   removeToken(
     @Param('campaignId') campaignId: string,
@@ -144,6 +151,7 @@ export class VttController {
     return this.vttService.removeToken(campaignId, mapId, tokenId, user.userId);
   }
 
+  @Audit('vtt.marker.create', 'vtt-marker')
   @Post(':mapId/markers')
   createMarker(
     @Param('campaignId') campaignId: string,
@@ -154,6 +162,7 @@ export class VttController {
     return this.vttService.createMarker(campaignId, mapId, user.userId, dto);
   }
 
+  @Audit('vtt.marker.update', 'vtt-marker')
   @Patch(':mapId/markers/:markerId')
   updateMarker(
     @Param('campaignId') campaignId: string,
@@ -171,6 +180,7 @@ export class VttController {
     );
   }
 
+  @Audit('vtt.marker.delete', 'vtt-marker')
   @Delete(':mapId/markers/:markerId')
   removeMarker(
     @Param('campaignId') campaignId: string,
@@ -186,6 +196,7 @@ export class VttController {
     );
   }
 
+  @Audit('vtt.hotspot.create', 'vtt-hotspot')
   @Post(':mapId/hotspots')
   createHotspot(
     @Param('campaignId') campaignId: string,
@@ -196,6 +207,7 @@ export class VttController {
     return this.vttService.createHotspot(campaignId, mapId, user.userId, dto);
   }
 
+  @Audit('vtt.hotspot.update', 'vtt-hotspot')
   @Patch(':mapId/hotspots/:hotspotId')
   updateHotspot(
     @Param('campaignId') campaignId: string,
@@ -213,6 +225,7 @@ export class VttController {
     );
   }
 
+  @Audit('vtt.hotspot.delete', 'vtt-hotspot')
   @Delete(':mapId/hotspots/:hotspotId')
   removeHotspot(
     @Param('campaignId') campaignId: string,
@@ -228,6 +241,7 @@ export class VttController {
     );
   }
 
+  @Audit('vtt.hotspot.target', 'vtt-hotspot')
   @Post(':mapId/hotspots/:hotspotId/target')
   createHotspotTarget(
     @Param('campaignId') campaignId: string,

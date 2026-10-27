@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -43,6 +44,7 @@ export class CampaignsController {
     return this.campaignsService.findOne(id, user.userId);
   }
 
+  @Audit('campaign.update', 'campaign')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -52,6 +54,7 @@ export class CampaignsController {
     return this.campaignsService.update(id, user.userId, dto);
   }
 
+  @Audit('campaign.delete', 'campaign')
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.campaignsService.remove(id, user.userId);
@@ -62,6 +65,7 @@ export class CampaignsController {
     return this.campaignsService.leave(id, user.userId);
   }
 
+  @Audit('campaign.member.remove', 'member')
   @Delete(':id/members/:userId')
   removeMember(
     @Param('id') id: string,

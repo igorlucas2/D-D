@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { NarrationService } from './narration.service';
 import { SaveNarrationDraftDto, SendNarrationDto } from './dto/narration.dto';
 
@@ -18,6 +19,7 @@ import { SaveNarrationDraftDto, SendNarrationDto } from './dto/narration.dto';
 export class NarrationController {
   constructor(private readonly narrationService: NarrationService) {}
 
+  @Audit('narration.send', 'narration')
   @Post()
   send(
     @Param('campaignId') campaignId: string,
@@ -35,6 +37,7 @@ export class NarrationController {
     return this.narrationService.listDrafts(campaignId, user.userId);
   }
 
+  @Audit('narration.draft.create', 'narration-draft')
   @Post('drafts')
   createDraft(
     @Param('campaignId') campaignId: string,
@@ -44,6 +47,7 @@ export class NarrationController {
     return this.narrationService.createDraft(campaignId, user.userId, dto);
   }
 
+  @Audit('narration.draft.update', 'narration-draft')
   @Patch('drafts/:draftId')
   updateDraft(
     @Param('campaignId') campaignId: string,
@@ -59,6 +63,7 @@ export class NarrationController {
     );
   }
 
+  @Audit('narration.draft.delete', 'narration-draft')
   @Delete('drafts/:draftId')
   removeDraft(
     @Param('campaignId') campaignId: string,

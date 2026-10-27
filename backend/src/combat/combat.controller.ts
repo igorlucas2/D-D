@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Audit } from '../audit/audit.decorator';
 import { CombatService } from './combat.service';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
@@ -29,6 +30,7 @@ export class CombatController {
     return this.combatService.getEncounter(campaignId, user.userId);
   }
 
+  @Audit('combat.start', 'encounter')
   @Post()
   startEncounter(
     @Param('campaignId') campaignId: string,
@@ -38,6 +40,7 @@ export class CombatController {
     return this.combatService.startEncounter(campaignId, user.userId, dto);
   }
 
+  @Audit('combat.update', 'encounter')
   @Patch()
   updateEncounter(
     @Param('campaignId') campaignId: string,
@@ -47,6 +50,7 @@ export class CombatController {
     return this.combatService.updateEncounter(campaignId, user.userId, dto);
   }
 
+  @Audit('combat.end', 'encounter')
   @Delete()
   endEncounter(
     @Param('campaignId') campaignId: string,
@@ -55,6 +59,7 @@ export class CombatController {
     return this.combatService.endEncounter(campaignId, user.userId);
   }
 
+  @Audit('combat.participant.add', 'participant')
   @Post('participants')
   addParticipant(
     @Param('campaignId') campaignId: string,
@@ -64,6 +69,7 @@ export class CombatController {
     return this.combatService.addParticipant(campaignId, user.userId, dto);
   }
 
+  @Audit('combat.participant.update', 'participant')
   @Patch('participants/:participantId')
   updateParticipant(
     @Param('campaignId') campaignId: string,
@@ -79,6 +85,7 @@ export class CombatController {
     );
   }
 
+  @Audit('combat.participant.remove', 'participant')
   @Delete('participants/:participantId')
   removeParticipant(
     @Param('campaignId') campaignId: string,
@@ -92,6 +99,7 @@ export class CombatController {
     );
   }
 
+  @Audit('combat.next-turn', 'encounter')
   @Post('next-turn')
   nextTurn(
     @Param('campaignId') campaignId: string,

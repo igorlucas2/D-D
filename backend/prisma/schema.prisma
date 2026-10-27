@@ -46,6 +46,7 @@ model User {
   copilotRequests GameMasterTurn[]
   scheduledConsequences ScheduledConsequence[]
   automationPolicies WorldAutomationPolicy[]
+  auditLogs AuditLog[] @relation("AuditActor")
 }
 
 model Achievement {
@@ -314,6 +315,27 @@ model Campaign {
   narrationDrafts   NarrationDraft[]
   chatMessages      ChatMessage[]
   assistantRequests AssistantRequest[]
+  auditLogs         AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  campaignId String?
+  actorId    String?
+  action     String
+  resource   String
+  resourceId String?
+  summary    String?  @db.Text
+  metadata   Json?
+  requestId  String?
+  createdAt  DateTime @default(now())
+
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  actor    User?     @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
 }
 
 enum CampaignRole {

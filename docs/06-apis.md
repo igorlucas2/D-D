@@ -82,6 +82,14 @@ Base URL: `http://localhost:3001/api`
 | GET | /catalog/srd/resources | Lista paginada: `endpoint`, `search`, `take` (1..100, padrão 50) e `cursor`; devolve `{ items, nextCursor }` |
 | GET | /catalog/srd/resources/:endpoint/:index | Retorna recurso SRD detalhado com JSON original |
 
+## Auditoria
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | /campaigns/:campaignId/audit | Lista paginada das ações de mestre (`take` 1..100, `cursor`); exige ser mestre da campanha |
+
+As ações de mestre em campanha, VTT, combate, mundo, narração, assistente, copiloto e consequências são registradas com ator, campanha, ação, recurso, `requestId` e metadados da rota. O corpo da requisição não é gravado.
+
 ## OpenAPI e tipos do frontend
 
 - `GET /api/docs` — Swagger UI interativa (desenvolvimento/teste; em produção exige `OPENAPI_ENABLED=1`).

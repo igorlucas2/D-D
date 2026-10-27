@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { validateEnv } from './config/env.validation';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from './observability/all-exceptions.filter';
+import { AuditInterceptor } from './audit/audit.interceptor';
+import { AuditModule } from './audit/audit.module';
 import { LoggingModule } from './observability/logging';
 import { ObservabilityModule } from './observability/observability.module';
 import { AppController } from './app.controller';
@@ -44,6 +46,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
     ScheduleModule.forRoot(),
     PrismaModule,
     AccessModule,
+    AuditModule,
     AuthModule,
     UsersModule,
     CharactersModule,
@@ -69,6 +72,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
