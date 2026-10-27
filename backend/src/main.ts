@@ -6,6 +6,12 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { allowedOrigins } from './config/cors';
 
+/** Loopback em IPv4, IPv6 e no formato mapeado que o Node entrega. */
+function isLoopback(address: string): boolean {
+  const value = address.startsWith('::ffff:') ? address.slice(7) : address;
+  return value === '::1' || value === '127.0.0.1' || value.startsWith('127.');
+}
+
 async function bootstrap() {
   // O parser padrão (100 kB) é substituído abaixo por um limite explícito.
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -42,7 +48,15 @@ async function bootstrap() {
 
   app.disable('x-powered-by');
   app.enableShutdownHooks();
-  if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
+  // Atrás do proxy do Next (mesma máquina), confiar só em proxy loopback faz
+  // req.ip refletir o cliente real sem aceitar X-Forwarded-For de fora.
+  // A checagem é explícita porque o Node entrega `::ffff:127.0.0.1`, que não
+  // casa com o preset "loopback" do Express.
+  const trustProxy = process.env.TRUST_PROXY;
+  if (trustProxy === '1') app.set('trust proxy', 1);
+  else if (trustProxy === '0' || trustProxy === 'false')
+    app.set('trust proxy', false);
+  else app.set('trust proxy', (address: string) => isLoopback(address));
 
   await app.listen(process.env.PORT ?? 3001);
 }

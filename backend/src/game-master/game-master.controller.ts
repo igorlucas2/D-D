@@ -22,6 +22,7 @@ import {
 } from 'class-validator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
 import { GameMasterService } from './game-master.service';
 import type { TurnKind } from './proposal';
 class SettingsDto {
@@ -68,6 +69,7 @@ export class GameMasterController {
   ) {
     return this.service.settings(id, u.userId, dto);
   }
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('actions')
   @HttpCode(202)
   @Header('Cache-Control', 'no-store')

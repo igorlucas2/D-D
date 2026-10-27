@@ -60,10 +60,17 @@ class EnvironmentVariables {
   @IsString()
   ELDORIA_PUBLIC_HOSTS?: string;
 
-  /** 1 quando estiver atrás de proxy/túnel confiável. */
+  /** 1 = confia no primeiro proxy; loopback = só proxy local; 0 = não confia. */
+  @IsOptional()
+  @IsIn(['0', '1', 'loopback'], {
+    message: 'TRUST_PROXY deve ser 0, 1 ou loopback.',
+  })
+  TRUST_PROXY?: string;
+
+  /** E-mails (vírgula) autorizados a ações administrativas, como sincronizar SRD. */
   @IsOptional()
   @IsString()
-  TRUST_PROXY?: string;
+  ADMIN_EMAILS?: string;
 
   @IsOptional()
   @IsString()

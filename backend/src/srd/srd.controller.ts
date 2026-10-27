@@ -8,6 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AdminGuard } from '../auth/admin.guard';
+import { Throttle } from '@nestjs/throttler';
 import { SyncSrdDto } from './dto/sync-srd.dto';
 import { SrdService } from './srd.service';
 import { SrdSyncService } from './srd-sync.service';
@@ -20,6 +22,10 @@ export class SrdController {
     private readonly srdSyncService: SrdSyncService,
   ) {}
 
+  // Sincronização é cara (centenas de requisições externas): 2 por 10 minutos
+  // e, quando ADMIN_EMAILS está configurado, apenas administradores.
+  @UseGuards(AdminGuard)
+  @Throttle({ default: { limit: 2, ttl: 600_000 } })
   @Post('sync')
   sync(@Body() dto: SyncSrdDto) {
     return this.srdSyncService.syncAll(dto.endpoints);

@@ -20,6 +20,10 @@ import type {
 const API_ORIGIN = 'https://www.dnd5eapi.co';
 const API_BASE = `${API_ORIGIN}/api`;
 const SOURCE = 'dnd5eapi-2014';
+// Cada requisição tem teto próprio e a sincronização inteira tem um orçamento:
+// sem isso, um endpoint lento prendia a requisição HTTP indefinidamente.
+const FETCH_TIMEOUT_MS = 15_000;
+const SYNC_BUDGET_MS = 120_000;
 const MAPPED_ENDPOINTS = new Set([
   'equipment',
   'magic-items',
@@ -41,15 +45,22 @@ export class SrdSyncService {
       : Object.entries(endpoints);
 
     const results: SrdSyncEndpointResult[] = [];
+    const deadline = Date.now() + SYNC_BUDGET_MS;
 
     for (const [endpoint, url] of selected) {
-      results.push(await this.syncEndpoint(endpoint, url));
+      if (Date.now() >= deadline) break;
+      results.push(await this.syncEndpoint(endpoint, url, deadline));
     }
+
+    const partial = results.length < selected.length;
 
     return {
       source: SOURCE,
       endpoints: results,
       imported: results.reduce((total, result) => total + result.imported, 0),
+      ...(partial
+        ? { partial: true, remaining: selected.length - results.length }
+        : {}),
     };
   }
 
@@ -91,12 +102,17 @@ export class SrdSyncService {
   private async syncEndpoint(
     endpoint: string,
     url: string,
+    deadline: number,
   ): Promise<SrdSyncEndpointResult> {
     const list = await this.fetchJson<SrdListResponse>(this.absoluteUrl(url));
     const resources = list.results ?? [];
+    const total = list.count ?? resources.length;
     let imported = 0;
 
     for (const resource of resources) {
+      if (Date.now() >= deadline) {
+        return { endpoint, total, imported, partial: true };
+      }
       const detail = await this.fetchResource(resource);
       await this.upsertResource(endpoint, resource, detail);
       if (MAPPED_ENDPOINTS.has(endpoint)) {
@@ -105,11 +121,7 @@ export class SrdSyncService {
       imported += 1;
     }
 
-    return {
-      endpoint,
-      total: list.count ?? resources.length,
-      imported,
-    };
+    return { endpoint, total, imported };
   }
 
   private async fetchResource(resource: SrdReference) {
@@ -245,7 +257,10 @@ export class SrdSyncService {
   }
 
   private async fetchJson<T>(url: string): Promise<T> {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
     if (!response.ok) {
       throw new Error(
         `SRD request failed: ${response.status} ${response.statusText} (${url})`,

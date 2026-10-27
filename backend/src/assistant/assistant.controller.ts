@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Throttle } from '@nestjs/throttler';
 import { AssistantService } from './assistant.service';
 import {
   AskAssistantDto,
@@ -37,6 +38,7 @@ export class AssistantController {
     return this.assistantService.updateSettings(campaignId, user.userId, dto);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post()
   ask(
     @Param('campaignId') campaignId: string,
