@@ -4,6 +4,6 @@ export const BUNDLED_PACKS = [
     packId: 'eldoria-tres-sinos',
     version: '1.0.0',
     manifestSha256:
-      '2844f41a3e136f3377104ac7e23555f475678c4320b3de0184921c33a854f17b',
+      '17d0ff3aa39a52d221e3c81a9e3497337b828c86e6cb16385d17917e3e2088e2',
   },
 ];

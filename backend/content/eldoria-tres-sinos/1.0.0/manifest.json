@@ -11,7 +11,7 @@
     },
     {
       "path": "assets/abadia-do-terceiro-sino.svg",
-      "sha256": "3fb5b4fc1be8655cf384dcb5c1fd2238957ba4e8a1e018814dfc56e84b7fa79e",
+      "sha256": "7758a330ae3e38995126df3c90ff9f9da97fe9aa1dc06112dc7c16c7613486d7",
       "audience": "MASTER"
     },
     {
@@ -21,7 +21,7 @@
     },
     {
       "path": "assets/porto-das-cinzas.svg",
-      "sha256": "8b4dcec055f599b132c2b75e86dcd25049d8337765921fc084fd263f7249a4a4",
+      "sha256": "525529220c76abc3650b6cf3e531dfc518c6d3488a42d975c6b66eb5fa82cc99",
       "audience": "MASTER"
     },
     {
@@ -31,42 +31,42 @@
     },
     {
       "path": "assets/vale-do-lume.svg",
-      "sha256": "b7783175fb208754fb5000cfa22fc815008c48fd7a4de96d84f2f20a7ac2d521",
+      "sha256": "12448ba355bd84706ca018a75b33f9dc3a28d3d407e0c4823504ebbe615afa23",
       "audience": "MASTER"
     },
     {
       "path": "atlas.json",
-      "sha256": "ad3798cf8bedc141d1cd273eda32762a0441da1dab6f85a034701459d346415a",
+      "sha256": "b3455ba62708dfe8ea2afd477fc5d937978bd63704968a20f603333bf9a1c896",
       "audience": "MASTER"
     },
     {
       "path": "encounters.json",
-      "sha256": "442da4dfdd0d3088d6cce630febe267f2c77c5e49d10f73f4cb1d17e415c1700",
+      "sha256": "ebdcf2049cfd9ed3a438a60484f9c2a0253763bd8621fe0818e10c3fd715d647",
       "audience": "MASTER"
     },
     {
       "path": "entities.json",
-      "sha256": "b879a42d7bd20e11467694f095e517ff573463c8d9fe6fb358bcf8cdf702f0ee",
+      "sha256": "b5a3c71251d27ffb9c9c40dae0a69e49e09d25fe88488d3d083e92e44d818ba9",
       "audience": "MASTER"
     },
     {
       "path": "facts.json",
-      "sha256": "289f1be75449f0d549b668ed5b0c3fefa06eee57291ac08477b91adfe64b766c",
+      "sha256": "eaf6e16e802b0f48fb13c225cedb18bb062997eb01776c50e3dd0edabf01e1c8",
       "audience": "MASTER"
     },
     {
       "path": "history.json",
-      "sha256": "6c1586cec62a6738366bfa8c9701d91986b87e84ebc940f9717e9b415e87bbd1",
+      "sha256": "1530bb7ad7e1eddb79663dbc0313500f5ed109659a9ef982b2d68a81f28b1537",
       "audience": "MASTER"
     },
     {
       "path": "public.json",
-      "sha256": "37ecba66714aa81bd8d1e38c2d141e05dac40d2dc429658cbe79669f6cc8fcd7",
+      "sha256": "cf9525d05bc67d43fcc6582f95acc10fc7ffa4143b8ac9dbd3d1da2abcbb4be4",
       "audience": "PUBLIC"
     },
     {
       "path": "threads.json",
-      "sha256": "61fe7c847226a5d36fd47f4ff522c64ebc8bbdeea828202246ce98bdefc47351",
+      "sha256": "8a28d4d1e44d218fd91931c20a4abeb3de20a3c7df7ec0d64b76c19083fee850",
       "audience": "MASTER"
     }
   ],
