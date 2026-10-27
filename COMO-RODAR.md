@@ -76,18 +76,18 @@ O **Iniciar Eldoria.cmd** já cuida do Ollama: detecta a instalação, sobe o se
 
 O modo `AUTONOMOUS` usa um modelo local para narrar as ações dos jogadores. A mecânica continua manual: o modelo não altera PV, itens, tempo, posição nem fatos canônicos.
 
-1. Instale o [Ollama](https://ollama.com/) e baixe um modelo. Para português, `qwen2.5:14b-instruct` é uma boa escolha; `gemma2:9b` é o padrão atual e serve para hardware menor.
+1. Instale o [Ollama](https://ollama.com/) e baixe um modelo. Para 8 GB de VRAM (como a RTX 3060), `gemma3:4b` é o melhor equilíbrio; `gemma2:9b` é o padrão e roda em hardware menor. Com mais VRAM, `qwen2.5:14b-instruct` sobe a qualidade — `gemma3:27b` não é prático em 8 GB (passou de 2 min no teste local).
 
    ```powershell
-   ollama pull qwen2.5:14b-instruct
+   ollama pull gemma3:4b
    ```
 
 2. No `backend/.env`:
 
    ```
    GAME_MASTER_OLLAMA_URL=http://127.0.0.1:11434
-   GAME_MASTER_MODEL=qwen2.5:14b-instruct
-   GAME_MASTER_TIMEOUT_MS=90000
+   GAME_MASTER_MODEL=gemma3:4b
+   GAME_MASTER_TIMEOUT_MS=120000
    ```
 
 3. Reinicie o backend. A página da campanha passa a mostrar **Mestre IA**.
