@@ -189,10 +189,51 @@ export interface SpellCastResult {
   createdAt: string;
 }
 
+export interface WeaponAttackResult {
+  actionId: string;
+  requestKey: string;
+  kind: "WEAPON_ATTACK";
+  weapon: {
+    inventoryItemId: string;
+    itemId: string;
+    name: string;
+  };
+  target: {
+    kind: "CHARACTER" | "PARTICIPANT";
+    id: string;
+    name: string;
+    characterId: string | null;
+  };
+  attack: {
+    roll: number;
+    modifier: number;
+    total: number;
+    ac: number;
+    hit: boolean;
+    critical: boolean;
+  };
+  damage: {
+    formula: string | null;
+    fixed: number | null;
+    modifier: number;
+    amount: number;
+    damageType: string;
+    critical: boolean;
+  };
+  hpBefore: { current: number; max: number; temp: number } | null;
+  hpAfter: { current: number; max: number; temp: number } | null;
+  applied: number;
+  absorbedByTempHp: number;
+  source: string;
+  alreadyApplied: boolean;
+  createdAt: string;
+}
+
 export type TableActionResult =
   | CombatActionResult
   | ItemUseResult
-  | SpellCastResult;
+  | SpellCastResult
+  | WeaponAttackResult;
 
 export const ACTION_LABELS: Record<CombatActionKind, string> = {
   DAMAGE: "Dano",

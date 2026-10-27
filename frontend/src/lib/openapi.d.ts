@@ -340,6 +340,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/combat/attacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CombatController_attack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/combat/spells/cast": {
         parameters: {
             query?: never;
@@ -1874,6 +1890,15 @@ export interface components {
         CastCharacterSpellDto: {
             slotLevel?: number;
         };
+        WeaponAttackDto: {
+            /** Format: uuid */
+            requestKey: string;
+            expectedRevision?: number;
+            inventoryItemId: string;
+            /** @enum {string} */
+            targetKind: "CHARACTER" | "PARTICIPANT";
+            targetId: string;
+        };
         SpellTargetDto: {
             /** @enum {string} */
             kind: "CHARACTER" | "PARTICIPANT";
@@ -2788,6 +2813,31 @@ export interface operations {
         requestBody?: never;
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CombatController_attack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WeaponAttackDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -19,9 +19,11 @@ import { CombatService } from './combat.service';
 import { CombatActionsService } from './combat-actions.service';
 import { ItemUseService } from './item-use.service';
 import { SpellCastService } from './spell-cast.service';
+import { WeaponAttackService } from './weapon-attack.service';
 import { CombatActionDto } from './combat-action.dto';
 import { UseItemDto } from './item-use.dto';
 import { CastSpellDto } from './spell-cast.dto';
+import { WeaponAttackDto } from './weapon-attack.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -35,7 +37,21 @@ export class CombatController {
     private readonly actions: CombatActionsService,
     private readonly items: ItemUseService,
     private readonly spells: SpellCastService,
+    private readonly weapons: WeaponAttackService,
   ) {}
+
+  @CampaignChanged()
+  @Audit('combat.attack', 'combat')
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @Post('attacks')
+  @HttpCode(200)
+  attack(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: WeaponAttackDto,
+  ) {
+    return this.weapons.attack(campaignId, user.userId, dto);
+  }
 
   @CampaignChanged()
   @Audit('spell.cast', 'spell')

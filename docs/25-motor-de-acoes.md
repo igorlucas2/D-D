@@ -247,6 +247,10 @@ Ataques mágicos usam CA e crítico no mesmo pipeline de magia; ver `docs/27-mag
 
 A narração de resultados mecânicos está em `docs/28-narracao-mecanica.md`.
 
+## 9.5 Fase F
+
+Ataques com arma estão em `docs/29-armas.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

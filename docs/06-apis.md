@@ -54,6 +54,7 @@ Base URL: `http://localhost:3001/api`
 | POST | /campaigns/:id/combat/actions | Aplica dano/cura/PV temporário/condição com alvo, fórmula, idempotência e revisão |
 | POST | /campaigns/:id/combat/items/use | Consome um item do inventário e aplica cura/PV temporário/dano no próprio personagem |
 | POST | /campaigns/:id/combat/spells/cast | Consome espaço e resolve cura/dano, save, alvos e upcast no servidor |
+| POST | /campaigns/:id/combat/attacks | Ataca com arma do inventário: d20 vs CA, dano, crítico e PV |
 
 ## Mesa Virtual / VTT (v1.0)
 | Método | Rota | Descrição |

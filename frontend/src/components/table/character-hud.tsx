@@ -63,6 +63,7 @@ export function CharacterHud({
   onAction,
   onUseItem,
   onCastSpell,
+  onAttack,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -73,6 +74,7 @@ export function CharacterHud({
   onAction: (kind: CombatActionKind) => void;
   onUseItem: () => void;
   onCastSpell: () => void;
+  onAttack: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -215,6 +217,26 @@ export function CharacterHud({
                 );
               })}
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 h-10 w-full justify-start gap-2 border-[#9d4f52]/35 bg-[#9d4f52]/10 text-xs hover:bg-[#9d4f52]/20"
+              onClick={onAttack}
+              disabled={
+                busy ||
+                character.items.filter((item) => item.category === "Arma").length ===
+                  0
+              }
+            >
+              <Swords className="size-3.5" aria-hidden="true" />
+              Atacar
+              <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                {
+                  character.items.filter((item) => item.category === "Arma")
+                    .length
+                }
+              </span>
+            </Button>
             <Button
               type="button"
               variant="outline"

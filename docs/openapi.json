@@ -796,6 +796,46 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/attacks": {
+      "post": {
+        "operationId": "CombatController_attack",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeaponAttackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat/spells/cast": {
       "post": {
         "operationId": "CombatController_castSpell",
@@ -5194,6 +5234,40 @@
             "maximum": 9
           }
         }
+      },
+      "WeaponAttackDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "inventoryItemId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "targetKind": {
+            "type": "string",
+            "enum": [
+              "CHARACTER",
+              "PARTICIPANT"
+            ]
+          },
+          "targetId": {
+            "type": "string",
+            "maxLength": 191
+          }
+        },
+        "required": [
+          "requestKey",
+          "inventoryItemId",
+          "targetKind",
+          "targetId"
+        ]
       },
       "SpellTargetDto": {
         "type": "object",

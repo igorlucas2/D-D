@@ -10,6 +10,10 @@ import { Chronicle, type ChronicleEvent } from "@/components/table/chronicle";
 import { ItemUseDialog } from "@/components/table/item-use-dialog";
 import { MechanicalActionDialog } from "@/components/table/mechanical-action-dialog";
 import { SpellDialog, type SpellCastInput } from "@/components/table/spell-dialog";
+import {
+  WeaponAttackDialog,
+  type WeaponAttackInput,
+} from "@/components/table/weapon-attack-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
@@ -23,6 +27,7 @@ import type {
   MechanicalActionInput,
   SpellCastResult,
   TableActionResult,
+  WeaponAttackResult,
 } from "@/lib/table-types";
 import { useStoryUpdates } from "@/lib/use-story-updates";
 import { useAuthStore } from "@/stores/auth-store";
@@ -79,6 +84,8 @@ function AiMasterContent() {
   const [itemBusy, setItemBusy] = useState(false);
   const [spellDialogOpen, setSpellDialogOpen] = useState(false);
   const [spellBusy, setSpellBusy] = useState(false);
+  const [attackDialogOpen, setAttackDialogOpen] = useState(false);
+  const [attackBusy, setAttackBusy] = useState(false);
   const [narratingActionId, setNarratingActionId] = useState<string | null>(
     null,
   );
@@ -396,6 +403,35 @@ function AiMasterContent() {
     }
   }
 
+  async function submitWeaponAttack(input: WeaponAttackInput) {
+    if (!token || !state) return;
+    setAttackBusy(true);
+    setError(null);
+    try {
+      const result = await api.post<WeaponAttackResult>(
+        `/campaigns/${params.id}/combat/attacks`,
+        {
+          ...input,
+          requestKey: crypto.randomUUID(),
+          expectedRevision: combat?.revision,
+        },
+        token,
+      );
+      setLastResult(result);
+      setAttackDialogOpen(false);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível atacar.",
+      );
+      await load();
+    } finally {
+      setAttackBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
@@ -597,10 +633,13 @@ function AiMasterContent() {
             onSelect={setSelectedId}
             combat={combat}
             isMaster={Boolean(state?.isMaster)}
-            busy={mechanicalBusy || itemBusy || spellBusy || busy}
+            busy={
+              mechanicalBusy || itemBusy || spellBusy || attackBusy || busy
+            }
             onAction={openAction}
             onUseItem={() => setItemDialogOpen(true)}
             onCastSpell={() => setSpellDialogOpen(true)}
+            onAttack={() => setAttackDialogOpen(true)}
           />
         </div>
       </div>
@@ -634,6 +673,16 @@ function AiMasterContent() {
           busy={spellBusy}
           onOpenChange={setSpellDialogOpen}
           onCast={submitSpellCast}
+        />
+      ) : null}
+
+      {attackDialogOpen && selectedCharacter ? (
+        <WeaponAttackDialog
+          character={selectedCharacter}
+          targets={spellTargets}
+          busy={attackBusy}
+          onOpenChange={setAttackDialogOpen}
+          onAttack={submitWeaponAttack}
         />
       ) : null}
     </div>

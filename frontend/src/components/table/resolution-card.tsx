@@ -121,6 +121,59 @@ function SpellCard({
   );
 }
 
+function WeaponCard({
+  result,
+  compact,
+}: {
+  result: Extract<TableActionResult, { kind: "WEAPON_ATTACK" }>;
+  compact: boolean;
+}) {
+  const after = result.hpAfter;
+  const outcome = result.attack.hit
+    ? result.attack.critical
+      ? "crítico"
+      : "acertou"
+    : "errou";
+  return (
+    <article
+      className={`rounded-xl border p-3 ${TONES.DAMAGE}`}
+      aria-label={`${result.weapon.name} em ${result.target.name}: ${outcome}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          <Swords className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              {result.weapon.name} · {result.target.name}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {outcome} ({result.attack.total} vs CA {result.attack.ac}) ·{" "}
+              {formatNumber(result.applied)} de dano
+              {result.damage.damageType
+                ? ` ${DAMAGE_TYPE_LABELS[result.damage.damageType as keyof typeof DAMAGE_TYPE_LABELS] ?? result.damage.damageType}`
+                : ""}
+              {result.absorbedByTempHp
+                ? ` · ${formatNumber(result.absorbedByTempHp)} absorvido por PV temporário`
+                : ""}
+            </p>
+          </div>
+        </div>
+        <HpBadge hp={after} />
+      </div>
+      {!compact && after ? (
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-black/25">
+          <div
+            className="h-full rounded-full bg-current opacity-70"
+            style={{
+              width: `${Math.max(0, Math.min(100, (after.current / Math.max(after.max, 1)) * 100))}%`,
+            }}
+          />
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
 export function ResolutionCard({
   result,
   compact = false,
@@ -130,6 +183,10 @@ export function ResolutionCard({
 }) {
   if (result.kind === "CAST_SPELL") {
     return <SpellCard result={result} compact={compact} />;
+  }
+
+  if (result.kind === "WEAPON_ATTACK") {
+    return <WeaponCard result={result} compact={compact} />;
   }
 
   if (result.kind === "CONDITION") {
