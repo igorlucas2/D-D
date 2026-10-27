@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { io } from "socket.io-client";
-import { getSocketUrl } from "./realtime";
+import { acquireVtt } from "./realtime-client";
+
+interface StoryListen {
+  "vtt:joined": (payload: { campaignId: string }) => void;
+  "story:updated": (payload: { campaignId: string; eventId: string }) => void;
+  "vtt:error": (payload: { message: string }) => void;
+}
 
 // The socket only invalidates. Authorized HTTP snapshots remain the source of truth.
 export function useStoryUpdates(
@@ -15,25 +20,17 @@ export function useStoryUpdates(
   }, [onUpdate]);
   useEffect(() => {
     if (!token) return;
-    const socket = io(getSocketUrl("/vtt"), { auth: { token } });
+    const channel = acquireVtt<StoryListen, Record<string, never>>(token);
+    channel.join(campaignId);
     const seen = new Set<string>();
-    socket.on("connect", () =>
-      socket.emit("vtt:join", { campaignId, presence: false }),
-    );
-    socket.on("vtt:joined", () => listener.current());
-    socket.on(
-      "story:updated",
-      (event: { campaignId: string; eventId: string }) => {
-        if (event.campaignId !== campaignId || seen.has(event.eventId)) return;
-        seen.add(event.eventId);
-        if (seen.size > 128) seen.delete(seen.values().next().value!);
-        listener.current();
-      },
-    );
-    socket.on("vtt:error", () => listener.current());
-    return () => {
-      socket.emit("vtt:leave", { campaignId });
-      socket.disconnect();
-    };
+    channel.on("vtt:joined", () => listener.current());
+    channel.on("story:updated", (event) => {
+      if (event.campaignId !== campaignId || seen.has(event.eventId)) return;
+      seen.add(event.eventId);
+      if (seen.size > 128) seen.delete(seen.values().next().value!);
+      listener.current();
+    });
+    channel.on("vtt:error", () => listener.current());
+    return () => channel.close();
   }, [campaignId, token]);
 }

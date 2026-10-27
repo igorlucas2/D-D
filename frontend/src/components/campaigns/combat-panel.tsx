@@ -22,8 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api, ApiError } from "@/lib/api";
-import { getSocketUrl } from "@/lib/realtime";
-import { io } from "socket.io-client";
+import { acquireVtt } from "@/lib/realtime-client";
 import { abilityModifier } from "@/lib/character-rules";
 import {
   HP_STATUS_LABELS,
@@ -35,6 +34,15 @@ import {
 } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 import { ChevronRight, Minus, Plus, Swords, X } from "lucide-react";
+
+interface CombatListen {
+  connect: () => void;
+  "table:combat": (payload: { encounter: CombatEncounter | null }) => void;
+}
+
+interface CombatSend {
+  "vtt:join": (payload: { campaignId: string; presence?: boolean }) => void;
+}
 
 function hpBarColor(current: number, max: number) {
   if (max <= 0) return "bg-muted-foreground";
@@ -91,19 +99,17 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
   // quem recebe. Conexão auxiliar, sem contar presença na mesa.
   useEffect(() => {
     if (!token) return;
-    const socket = io(getSocketUrl("/vtt"), { auth: { token } });
+    const channel = acquireVtt<CombatListen, CombatSend>(token);
+    channel.join(campaignId);
     let connectedBefore = false;
-    socket.on("connect", () => {
-      socket.emit("vtt:join", { campaignId, presence: false });
+    channel.on("connect", () => {
       if (connectedBefore) {
         api.get<CombatEncounter | null>(`/campaigns/${campaignId}/combat`, token).then(setEncounter).catch(() => undefined);
       }
       connectedBefore = true;
     });
-    socket.on("table:combat", (payload: { encounter: CombatEncounter | null }) => setEncounter(payload.encounter));
-    return () => {
-      socket.disconnect();
-    };
+    channel.on("table:combat", (payload) => setEncounter(payload.encounter));
+    return () => channel.close();
   }, [token, campaignId]);
 
   useEffect(() => {

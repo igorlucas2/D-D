@@ -2,13 +2,13 @@
 
 import { useEffect } from "react";
 import { create } from "zustand";
-import { io, type Socket } from "socket.io-client";
 import { api, ApiError } from "@/lib/api";
-import { getSocketUrl } from "@/lib/realtime";
+import { acquireWorld } from "@/lib/realtime-client";
 import type { CampaignCalendar, WorldEventTriggered } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 
 interface ServerToClientEvents {
+  connect: () => void;
   "world:joined": (payload: { campaignId: string }) => void;
   "world:clock:updated": (calendar: CampaignCalendar) => void;
   "world:error": (payload: { message: string }) => void;
@@ -71,25 +71,24 @@ function subscribe(campaignId: string, token: string) {
         }
       });
 
-  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(getSocketUrl("/world"), {
-    auth: { token },
-  });
+  const channel = acquireWorld<ServerToClientEvents, ClientToServerEvents>(token);
+  channel.join(campaignId);
   void load();
-  socket.on("connect", () => {
-    socket.emit("world:join", { campaignId });
+  let connectedBefore = false;
+  channel.on("connect", () => {
+    // Avanços ocorridos enquanto desconectado não são reenviados pelo servidor.
+    if (connectedBefore) void load();
+    connectedBefore = true;
   });
-  // Avanços ocorridos enquanto desconectado não são reenviados pelo servidor.
-  socket.io.on("reconnect", () => void load());
-  socket.on("world:clock:updated", (updated) => setCalendar(campaignId, updated));
-  socket.on("world:error", ({ message }) => setError(campaignId, message));
-  socket.on("world:event:triggered", (event) => useWorldCalendarStore.getState().pushEvent(campaignId, event));
+  channel.on("world:clock:updated", (updated) => setCalendar(campaignId, updated));
+  channel.on("world:error", ({ message }) => setError(campaignId, message));
+  channel.on("world:event:triggered", (event) => useWorldCalendarStore.getState().pushEvent(campaignId, event));
 
   subscriptions.set(key, {
     count: 1,
     release: () => {
       cancelled = true;
-      socket.emit("world:leave", { campaignId });
-      socket.disconnect();
+      channel.close();
     },
   });
   return key;

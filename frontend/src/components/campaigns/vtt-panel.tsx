@@ -61,7 +61,6 @@ import {
 } from "@/lib/audio/ambience-presets";
 import { ambienceEngine } from "@/lib/audio/ambience-engine";
 import { DAY_PHASE_STYLES, getDayPhase, INDOOR_STYLE, resolveMapLighting } from "@/lib/day-phase";
-import { getSocketUrl } from "@/lib/realtime";
 import type {
   CharacterExplorationState,
   CombatEncounter,
@@ -120,8 +119,7 @@ import {
   Trash2,
   Building2,
 } from "lucide-react";
-import { io, type Socket } from "socket.io-client";
-
+import { acquireVtt, type CampaignChannel } from "@/lib/realtime-client";
 const VttTable3D = dynamic(
   () => import("./vtt-table-3d").then((mod) => mod.VttTable3D),
   { ssr: false },
@@ -150,6 +148,8 @@ interface DragPayload {
 }
 
 interface ServerToClientEvents {
+  connect: () => void;
+  disconnect: (reason: string) => void;
   "vtt:joined": (payload: { campaignId: string }) => void;
   "vtt:map:created": (map: VttMap) => void;
   "vtt:map:updated": (map: VttMap) => void;
@@ -258,7 +258,7 @@ export function VttPanel({
   const [trayQueue, setTrayQueue] = useState<DiceRoll[]>([]);
   const seenRollIds = useRef(new Set<string>());
   const dismissTray = useCallback(() => setTrayQueue((queue) => queue.slice(1)), []);
-  const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
+  const socketRef = useRef<CampaignChannel<ServerToClientEvents, ClientToServerEvents> | null>(null);
   const [narrationOpen, setNarrationOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [narrations, setNarrations] = useState<TableNarration[]>([]);
@@ -559,15 +559,13 @@ export function VttPanel({
   useEffect(() => {
     if (!token) return;
 
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(getSocketUrl("/vtt"), {
-      auth: { token },
-    });
+    const socket = acquireVtt<ServerToClientEvents, ClientToServerEvents>(token);
 
     socketRef.current = socket;
+    socket.join(campaignId);
     let connectedBefore = false;
     socket.on("connect", () => {
       setConnection("connected");
-      socket.emit("vtt:join", { campaignId });
       // Eventos emitidos durante a desconexão não são reenviados (MV-03).
       if (connectedBefore) {
         void refreshRef.current();
@@ -628,8 +626,7 @@ export function VttPanel({
     });
 
     return () => {
-      socket.emit("vtt:leave", { campaignId });
-      socket.disconnect();
+      socket.close();
       socketRef.current = null;
     };
   }, [token, campaignId, receiveRoll, loadRolls, receivePing, receiveCombat, reloadCombat, receiveChat, loadChat]);
