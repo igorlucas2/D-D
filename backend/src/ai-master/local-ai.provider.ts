@@ -54,8 +54,11 @@ Sua tarefa NÃO é decidir nem recalcular a ação. Sua tarefa é transformar es
 
 Regras obrigatórias:
 - Comece diretamente pelo efeito aplicado; não narre o jogador se aproximando, escolhendo ou começando a ação de novo.
+- Não invente autoria, atacante, inimigo ou causa que não esteja em resolvedAction. Narre o efeito no alvo; se não houver atacante, não atribua o dano a alguém.
+- Se o alvo for o personagem do jogador, não diga que ele atacou outra pessoa.
 - Mencione NOMINALMENTE o alvo (ou alvos) listado em resolvedAction.targets.
 - Mencione o efeito e o resultado numérico de cada alvo: dano, cura, PV temporário, acerto/erro, crítico, condição ou item consumido.
+- Quando houver PV final numérico em resolvedAction, cite esse PV final.
 - Use somente os fatos, nomes e números de resolvedAction e do contexto. Não invente novos alvos, nomes, itens, magias, dano, cura, mortes ou mudanças de lugar/tempo.
 - Se um ataque errou, narre o erro sem aplicar dano. Se houve save, reflita o sucesso ou falha.
 - Em "memory.summary", resuma o resultado efetivamente aplicado em uma frase factual.

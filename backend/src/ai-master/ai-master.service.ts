@@ -435,6 +435,10 @@ export class AiMasterService {
       where: { id: input.actionId, campaignId },
     });
     if (!action) throw new NotFoundException('Ação mecânica não encontrada.');
+    if (action.kind !== 'USE_ITEM' && action.kind !== 'CAST_SPELL')
+      throw new BadRequestException(
+        'Só resultados de item ou magia têm narração automática. Ajustes manuais de PV permanecem como cartões mecânicos.',
+      );
     if (campaign.masterId !== userId && action.actorUserId !== userId)
       throw new ForbiddenException(
         'Você só pode narrar as suas próprias ações.',
@@ -574,6 +578,11 @@ export class AiMasterService {
       issues.push(
         `a narração precisa citar nominalmente o alvo: ${missing.join(', ')}`,
       );
+    const numericFact = facts.targets.some((target) =>
+      /\d/.test(target.result),
+    );
+    if (numericFact && !/\d/.test(text))
+      issues.push('a narração precisa citar o resultado numérico aplicado');
     if (
       ![
         'dano',

@@ -40,6 +40,8 @@ export function Chronicle({
 }) {
   const latest = events[0] ?? null;
   const older = events.slice(1);
+  const canNarrate =
+    latestAction?.kind === 'USE_ITEM' || latestAction?.kind === 'CAST_SPELL';
   const otherActions = actions.filter(
     (action) => action.actionId !== latestAction?.actionId,
   ).slice(0, 4);
@@ -113,6 +115,7 @@ export function Chronicle({
             </p>
             <ResolutionCard result={latestAction} />
             {onNarrate &&
+            canNarrate &&
             narratedActionId !== latestAction.actionId ? (
               <Button
                 type="button"

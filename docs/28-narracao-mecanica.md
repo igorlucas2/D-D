@@ -5,18 +5,18 @@ Status: **implementada**.
 
 ## 1. Objetivo
 
-Fechar o ciclo entre o motor e a crônica: depois de aplicar dano, cura, item ou
-magia, o jogador pode pedir ao mestre para narrar **aquele resultado já
+Fechar o ciclo entre o motor e a crônica: depois de **usar um item ou conjurar
+uma magia**, o jogador pode pedir ao mestre para narrar **aquele resultado já
 aplicado**, sem recalcular nada e sem criar efeitos novos.
 
-O botão **Narrar consequência** aparece no cartão do último resultado. A
+O botão **Narrar consequência** aparece no cartão do último resultado de **item ou magia**. Ajustes manuais de PV não geram narração automática — são cartões mecânicos, não ações de ficção. A
 narração é persistida como evento público e passa a ser a leitura principal da
 crônica.
 
 ## 2. Fluxo
 
 ```text
-Ação mecânica (dano/cura/item/magia)
+Resultado de item/magia (dano/cura/consumo)
   ↓
 CombatAction (ledger) + resultado já aplicado
   ↓
@@ -63,6 +63,7 @@ interface NarratedActionResult {
 Regras:
 
 - exige `AUTONOMOUS`, não pausado e memória iniciada;
+- só aceita `USE_ITEM` e `CAST_SPELL`; dano/cura manual devolve 400;
 - apenas o ator da ação ou o mestre pode pedir a narração;
 - a ação precisa pertencer à campanha;
 - se `requestKey` repetir, devolve o evento anterior sem chamar o modelo;
@@ -82,8 +83,7 @@ Regras:
 ```
 
 Para magia inclui acerto/erro/crítico, save, dano/cura, espaço e PV. Para item
-inclui nome, efeito, quantidade restante e PV. Para condição inclui a lista
-atual.
+inclui nome, efeito, quantidade restante e PV.
 
 ## 5. Prompt e validação
 
@@ -99,14 +99,14 @@ O validador de turno normal proíbe números de mecânica. No modo resultado ele
 chamado com `allowMechanics = true`, porque repetir o dano já aplicado é
 obrigatório.
 
-Além do schema, o serviço exige que a narração cite os nomes dos alvos e
-contenha uma palavra de efeito (dano, cura, PV, acerto, erro, crítico, condição,
+Além do schema, o serviço exige que a narração cite os nomes dos alvos,
+contenha uma palavra de efeito e cite o resultado numérico aplicado (dano, cura, PV, acerto, erro, crítico, condição,
 item, save). Se falhar, tenta um reparo; persistindo, devolve **422** e não grava
 evento.
 
 ## 6. UI
 
-- Cartão do último resultado ganha **Narrar consequência**.
+- Cartão do último resultado de item/magia ganha **Narrar consequência**.
 - Enquanto o modelo responde, o botão fica em “O mestre está narrando…”.
 - Após sucesso, o evento aparece no topo da crônica e o botão desaparece para
   aquele `sourceActionId`.
@@ -116,6 +116,7 @@ evento.
 ## 7. Limites
 
 - A narração de resultado é uma escolha explícita; não é automática.
+- Apenas itens e magias; ajustes manuais de dano/cura/condição não são narrados.
 - Se o modelo local estiver indisponível, o resultado mecânico continua válido.
 - O texto gerado ainda é uma descrição; a fonte da verdade continua sendo o
   ledger.
@@ -127,7 +128,8 @@ evento.
 - fallback para resultado desconhecido;
 - schema permite mecânica no modo resultado e continua rejeitando no turno
   normal;
-- smoke real com `gemma2:9b`: dano 2 aplicado (6→4), narração produzida com
-  “Elfo sofreu 2 de dano e agora tem 4 pontos de vida”, 17,5 s;
+- smoke real com `gemma2:9b`: Poção de Cura em 1/6 PV, cura 5, narração
+  “O elfo se sente revitalizado ao beber a Poção de Cura, recuperando 5 pontos de vida”, 23,4 s;
+- tentativa de narrar dano manual devolve **400**;
 - UI: aplicar dano, clicar em **Narrar consequência** e ver o texto substituir
   a leitura principal.
