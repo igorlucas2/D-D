@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { validateEnv } from './config/env.validation';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { HealthController } from './health/health.controller';
@@ -28,7 +29,7 @@ import { ConsequencesModule } from './consequences/consequences.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,

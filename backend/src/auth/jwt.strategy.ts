@@ -14,8 +14,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey:
-        configService.get<string>('JWT_SECRET') ?? 'dev-super-secret-change-me',
+      // Sem fallback: validateEnv() derruba o boot se o segredo faltar.
+      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
     });
   }
 

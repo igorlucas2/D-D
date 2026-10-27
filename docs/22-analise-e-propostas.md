@@ -607,6 +607,15 @@ IA. O retorno por esforço é muito maior em hardening e processo.
 
 ---
 
+## 9. Andamento das correções
+
+| Data | Item | O que foi feito |
+| --- | --- | --- |
+| 26/10/2026 | P0-1 (parcial) | Repositório Git na raiz, `.gitignore`/`.gitattributes`, `.env` e artefatos grandes fora do versionamento, primeiro commit publicado em https://github.com/igorlucas2/D-D. Pendente: mover o RAR e excluir `.next`/`node_modules` da sincronização do OneDrive. |
+| 26/10/2026 | P0-2 | `validateEnv` com falha no boot; fallback do JWT removido; segredo local rotacionado; CORS por allowlist no HTTP e no handshake do Socket.IO; `helmet`, `compression`, limite de payload de 1 MB, shutdown hooks e `trust proxy` opt-in; CSP e headers de segurança no Next. Verificado com build dos dois lados e smoke test (health, headers, CORS e handshake). |
+
+---
+
 ## Anexo A — Evidências coletadas
 
 - **Git**: raiz sem `.git`; `frontend` em `master` com 1 commit, 19 arquivos

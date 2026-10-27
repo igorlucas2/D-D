@@ -15,8 +15,8 @@ import { UsersModule } from '../users/users.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret:
-          config.get<string>('JWT_SECRET') ?? 'dev-super-secret-change-me',
+        // Sem fallback: validateEnv() já garantiu um segredo forte no boot.
+        secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
           expiresIn: (config.get<string>('JWT_EXPIRES_IN') ??
             '1d') as unknown as number,

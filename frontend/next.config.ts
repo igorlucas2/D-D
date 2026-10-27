@@ -16,10 +16,56 @@ const publicHosts = (process.env.ELDORIA_PUBLIC_HOSTS ?? "")
   .map((host) => host.trim())
   .filter(Boolean);
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// CSP compatível com o App Router: o Next injeta scripts de hidratação inline
+// sem nonce, então 'unsafe-inline' é necessário por enquanto. O ganho está em
+// bloquear script/objeto externo e fixar a origem dos recursos.
+// Se um dia a API for servida em outro domínio, inclua-o em connect-src.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https: http:",
+  "media-src 'self' blob:",
+  "font-src 'self' data:",
+  `connect-src 'self' ws: wss:${isDev ? " http: https:" : ""}`,
+  "worker-src 'self' blob:",
+  "frame-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join("; ");
+
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
+  ...(isDev
+    ? []
+    : [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains",
+        },
+      ]),
+];
+
 const nextConfig: NextConfig = {
   allowedDevOrigins: publicHosts,
+  poweredByHeader: false,
   // O Socket.IO usa "/socket.io/?EIO=…"; o redirecionamento de barra final o quebraria.
   skipTrailingSlashRedirect: true,
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
   async rewrites() {
     // Rotas próprias do Next (ex.: /api/image-proxy) têm prioridade sobre estas.
     return [

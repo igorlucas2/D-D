@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
 import type { JwtPayload } from '../auth/jwt.strategy';
+import { gatewayAllowRequest, gatewayCors } from '../config/cors';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   TablePresence,
@@ -119,7 +120,8 @@ type VttSocket = Socket<
 
 @WebSocketGateway({
   namespace: 'vtt',
-  cors: { origin: '*' },
+  cors: gatewayCors,
+  allowRequest: gatewayAllowRequest,
 })
 export class VttGateway
   implements OnGatewayConnection<VttSocket>, OnGatewayDisconnect<VttSocket>

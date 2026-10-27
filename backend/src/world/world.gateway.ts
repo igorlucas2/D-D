@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
 import type { JwtPayload } from '../auth/jwt.strategy';
+import { gatewayAllowRequest, gatewayCors } from '../config/cors';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SerializedCalendar } from './world.types';
 
@@ -52,7 +53,8 @@ type WorldSocket = Socket<
 
 @WebSocketGateway({
   namespace: 'world',
-  cors: { origin: '*' },
+  cors: gatewayCors,
+  allowRequest: gatewayAllowRequest,
 })
 export class WorldGateway implements OnGatewayConnection<WorldSocket> {
   @WebSocketServer()
