@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { parseJson } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -19,17 +20,24 @@ export class SrdService {
     }));
   }
 
-  async listResources(endpoint?: string, search?: string) {
+  async listResources(
+    endpoint?: string,
+    search?: string,
+    options: { take?: number; cursor?: string } = {},
+  ) {
     const where: Prisma.SrdResourceWhereInput = {};
     if (endpoint) where.endpoint = endpoint;
     if (search) {
       where.name = { contains: search };
     }
 
-    return this.prisma.srdResource.findMany({
+    const take = Math.min(Math.max(options.take ?? 50, 1), 100);
+
+    const rows = await this.prisma.srdResource.findMany({
       where,
-      orderBy: [{ endpoint: 'asc' }, { name: 'asc' }],
-      take: 500,
+      orderBy: [{ endpoint: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+      take: take + 1,
+      ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
       select: {
         id: true,
         endpoint: true,
@@ -41,6 +49,14 @@ export class SrdService {
         importedAt: true,
       },
     });
+
+    const hasMore = rows.length > take;
+    const items = hasMore ? rows.slice(0, take) : rows;
+
+    return {
+      items,
+      nextCursor: hasMore ? (items[items.length - 1]?.id ?? null) : null,
+    };
   }
 
   async getResource(endpoint: string, index: string) {
@@ -52,7 +68,7 @@ export class SrdService {
 
     return {
       ...resource,
-      data: JSON.parse(resource.data) as unknown,
+      data: parseJson(resource.data),
     };
   }
 }

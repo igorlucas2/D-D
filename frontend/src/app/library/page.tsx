@@ -32,6 +32,7 @@ import {
   type RuleSection,
   type Spell,
   type SrdEndpointSummary,
+  type SrdResourcePage,
   type SrdResourceSummary,
   type SrdSyncResult,
 } from "@/lib/types";
@@ -544,9 +545,12 @@ function SrdTab({
   search,
   syncing,
   syncResult,
+  nextCursor,
+  loadingMore,
   onEndpointChange,
   onSearchChange,
   onSync,
+  onLoadMore,
 }: {
   endpoints: SrdEndpointSummary[];
   resources: SrdResourceSummary[];
@@ -554,9 +558,12 @@ function SrdTab({
   search: string;
   syncing: boolean;
   syncResult: SrdSyncResult | null;
+  nextCursor: string | null;
+  loadingMore: boolean;
   onEndpointChange: (value: string) => void;
   onSearchChange: (value: string) => void;
   onSync: () => void;
+  onLoadMore: () => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -638,6 +645,14 @@ function SrdTab({
           ))}
         </div>
       )}
+
+      {nextCursor ? (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={onLoadMore} disabled={loadingMore}>
+            {loadingMore ? "Carregando..." : "Carregar mais"}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -650,6 +665,8 @@ function LibraryContent() {
   const [rules, setRules] = useState<RuleSection[]>([]);
   const [srdEndpoints, setSrdEndpoints] = useState<SrdEndpointSummary[]>([]);
   const [srdResources, setSrdResources] = useState<SrdResourceSummary[]>([]);
+  const [srdNextCursor, setSrdNextCursor] = useState<string | null>(null);
+  const [srdLoadingMore, setSrdLoadingMore] = useState(false);
   const [srdEndpointFilter, setSrdEndpointFilter] = useState("Todos");
   const [srdSearch, setSrdSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -679,16 +696,49 @@ function LibraryContent() {
 
   useEffect(() => {
     if (!token) return;
-    const params = new URLSearchParams();
-    if (srdEndpointFilter !== "Todos") params.set("endpoint", srdEndpointFilter);
-    if (srdSearch.trim()) params.set("search", srdSearch.trim());
-    const query = params.toString();
+    let cancelled = false;
 
-    api
-      .get<SrdResourceSummary[]>(`/catalog/srd/resources${query ? `?${query}` : ""}`, token)
-      .then(setSrdResources)
-      .catch(() => undefined);
+    // Pequena espera para não disparar uma busca por tecla digitada.
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams({ take: "50" });
+      if (srdEndpointFilter !== "Todos") params.set("endpoint", srdEndpointFilter);
+      if (srdSearch.trim()) params.set("search", srdSearch.trim());
+
+      api
+        .get<SrdResourcePage>(`/catalog/srd/resources?${params.toString()}`, token)
+        .then((page) => {
+          if (cancelled) return;
+          setSrdResources(page.items);
+          setSrdNextCursor(page.nextCursor);
+        })
+        .catch(() => undefined);
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [token, srdEndpointFilter, srdSearch]);
+
+  async function loadMoreSrd() {
+    if (!token || !srdNextCursor || srdLoadingMore) return;
+    setSrdLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ take: "50", cursor: srdNextCursor });
+      if (srdEndpointFilter !== "Todos") params.set("endpoint", srdEndpointFilter);
+      if (srdSearch.trim()) params.set("search", srdSearch.trim());
+      const page = await api.get<SrdResourcePage>(
+        `/catalog/srd/resources?${params.toString()}`,
+        token,
+      );
+      setSrdResources((current) => [...current, ...page.items]);
+      setSrdNextCursor(page.nextCursor);
+    } catch {
+      // Mantém a página já carregada; o usuário pode tentar de novo.
+    } finally {
+      setSrdLoadingMore(false);
+    }
+  }
 
   async function handleSyncSrd() {
     if (!token) return;
@@ -696,13 +746,13 @@ function LibraryContent() {
     setError(null);
     try {
       const result = await api.post<SrdSyncResult>("/catalog/srd/sync", {}, token);
-      const [monstersData, itemsData, spellsData, rulesData, endpointData, resourcesData] = await Promise.all([
+      const [monstersData, itemsData, spellsData, rulesData, endpointData, resourcesPage] = await Promise.all([
         api.get<Monster[]>("/catalog/monsters", token),
         api.get<Item[]>("/catalog/items", token),
         api.get<Spell[]>("/catalog/spells", token),
         api.get<RuleSection[]>("/catalog/rules", token),
         api.get<SrdEndpointSummary[]>("/catalog/srd/endpoints", token),
-        api.get<SrdResourceSummary[]>("/catalog/srd/resources", token),
+        api.get<SrdResourcePage>("/catalog/srd/resources?take=50", token),
       ]);
       setSyncResult(result);
       setMonsters(monstersData);
@@ -710,7 +760,8 @@ function LibraryContent() {
       setSpells(spellsData);
       setRules(rulesData);
       setSrdEndpoints(endpointData);
-      setSrdResources(resourcesData);
+      setSrdResources(resourcesPage.items);
+      setSrdNextCursor(resourcesPage.nextCursor);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erro ao sincronizar SRD.");
     } finally {
@@ -774,9 +825,12 @@ function LibraryContent() {
               search={srdSearch}
               syncing={syncing}
               syncResult={syncResult}
+              nextCursor={srdNextCursor}
+              loadingMore={srdLoadingMore}
               onEndpointChange={setSrdEndpointFilter}
               onSearchChange={setSrdSearch}
               onSync={handleSyncSrd}
+              onLoadMore={loadMoreSrd}
             />
           </TabsContent>
         </Tabs>

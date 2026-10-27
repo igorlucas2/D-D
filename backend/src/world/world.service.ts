@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, type CampaignCalendar } from '@prisma/client';
+import { parseJson } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorldEntryDto } from './dto/create-world-entry.dto';
 import { UpdateWorldEntryDto } from './dto/update-world-entry.dto';
@@ -812,27 +813,19 @@ export class WorldService {
   }
 
   private parseStringArray(value: string, fallback: string[]) {
-    try {
-      const parsed: unknown = JSON.parse(value);
-      return Array.isArray(parsed) &&
-        parsed.every((item) => typeof item === 'string')
-        ? parsed
-        : fallback;
-    } catch {
-      return fallback;
-    }
+    const parsed = parseJson(value);
+    return Array.isArray(parsed) &&
+      parsed.every((item) => typeof item === 'string')
+      ? parsed
+      : fallback;
   }
 
   private parseNumberArray(value: string, fallback: number[]) {
-    try {
-      const parsed: unknown = JSON.parse(value);
-      return Array.isArray(parsed) &&
-        parsed.every((item) => typeof item === 'number')
-        ? parsed
-        : fallback;
-    } catch {
-      return fallback;
-    }
+    const parsed = parseJson(value);
+    return Array.isArray(parsed) &&
+      parsed.every((item) => typeof item === 'number')
+      ? parsed
+      : fallback;
   }
 
   private async getOwnedEntry(campaignId: string, entryId: string) {

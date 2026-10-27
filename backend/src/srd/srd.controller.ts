@@ -40,8 +40,15 @@ export class SrdController {
   listResources(
     @Query('endpoint') endpoint?: string,
     @Query('search') search?: string,
+    @Query('take') take?: string,
+    @Query('cursor') cursor?: string,
   ) {
-    return this.srdService.listResources(endpoint, search);
+    const parsed = take ? Number.parseInt(take, 10) : undefined;
+    return this.srdService.listResources(endpoint, search, {
+      take:
+        parsed !== undefined && Number.isFinite(parsed) ? parsed : undefined,
+      cursor: cursor || undefined,
+    });
   }
 
   @Get('resources/:endpoint/:index')

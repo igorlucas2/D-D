@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { parseJson } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVttMapDto } from './dto/create-vtt-map.dto';
 import { UpdateVttMapDto } from './dto/update-vtt-map.dto';
@@ -939,11 +940,7 @@ export class VttService {
 
   private parseWalls(value: string | null, width: number, height: number) {
     if (!value) return [];
-    try {
-      return sanitizeWalls(JSON.parse(value), width, height);
-    } catch {
-      return [];
-    }
+    return sanitizeWalls(parseJson(value), width, height);
   }
 
   /** Mestre: o mapa exatamente como os jogadores o recebem agora. */
@@ -970,14 +967,10 @@ export class VttService {
 
   private parseFogCells(value: string | null) {
     if (!value) return [];
-    try {
-      const parsed: unknown = JSON.parse(value);
-      return Array.isArray(parsed)
-        ? parsed.filter((cell): cell is string => typeof cell === 'string')
-        : [];
-    } catch {
-      return [];
-    }
+    const parsed = parseJson(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((cell): cell is string => typeof cell === 'string')
+      : [];
   }
 
   private sanitizeFogCells(cells: string[], width: number, height: number) {

@@ -522,6 +522,11 @@ export interface SrdResourceSummary {
   importedAt: string;
 }
 
+export interface SrdResourcePage {
+  items: SrdResourceSummary[];
+  nextCursor: string | null;
+}
+
 export interface SrdSyncEndpointResult {
   endpoint: string;
   total: number;

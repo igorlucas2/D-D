@@ -70,7 +70,7 @@ Base URL: `http://localhost:3001/api`
 ## Library / World / AI Master (v1.0)
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | /library/monsters, /items, /spells, /npcs, /rules | Catálogos com busca/paginação |
+| GET | /catalog/monsters, /catalog/items, /catalog/spells, /catalog/rules | Catálogos ordenados por nome; `take` opcional (1..500, padrão 500) |
 | CRUD | /world/continents, /kingdoms, /factions, /religions, /languages | Sistema de mundo |
 | POST | /ai-master/generate | `{ type: 'npc'|'city'|'tavern'|'quest'|'monster'|'treasure'|'encounter', prompt }` |
 
@@ -79,5 +79,5 @@ Base URL: `http://localhost:3001/api`
 |---|---|---|
 | POST | /catalog/srd/sync | Sincroniza endpoints da API `https://www.dnd5eapi.co/api` para cache local |
 | GET | /catalog/srd/endpoints | Lista endpoints SRD importados e contagem local |
-| GET | /catalog/srd/resources | Lista recursos SRD cacheados, com filtros `endpoint` e `search` |
+| GET | /catalog/srd/resources | Lista paginada: `endpoint`, `search`, `take` (1..100, padrão 50) e `cursor`; devolve `{ items, nextCursor }` |
 | GET | /catalog/srd/resources/:endpoint/:index | Retorna recurso SRD detalhado com JSON original |

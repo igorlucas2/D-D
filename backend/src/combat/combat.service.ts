@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { parseStringArray } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { VttGateway } from '../vtt/vtt.gateway';
 import { StartEncounterDto } from './dto/start-encounter.dto';
@@ -457,9 +458,7 @@ export class CombatService {
           currentHp: hidden ? null : participant.currentHp,
           maxHp: hidden ? null : participant.maxHp,
           hpStatus: hpStatus(participant.currentHp, participant.maxHp),
-          conditions: participant.conditions
-            ? (JSON.parse(participant.conditions) as string[])
-            : [],
+          conditions: parseStringArray(participant.conditions),
         };
       }),
     };

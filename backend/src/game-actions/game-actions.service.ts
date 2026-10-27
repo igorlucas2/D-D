@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'node:crypto';
+import { parseNumberArray } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { deriveFieldsFromTotalMinutes } from '../world/world.service';
 import { enqueueStory } from '../story/story-outbox';
@@ -576,7 +577,7 @@ export class GameActionsService {
           const { totalDaysElapsed: _days, ...date } =
             deriveFieldsFromTotalMinutes(
               totalMinutes,
-              JSON.parse(clock.daysPerMonth) as number[],
+              parseNumberArray(clock.daysPerMonth),
             );
           void _days;
           await tx.campaignCalendar.update({

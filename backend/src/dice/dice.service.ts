@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
 import { DiceVisibility, Prisma } from '@prisma/client';
+import { parseJson } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { VttGateway } from '../vtt/vtt.gateway';
 import { RollDiceDto } from './dto/roll-dice.dto';
@@ -16,6 +17,36 @@ export interface RollBreakdown {
   rolls: number[];
   modifier: number;
   total: number;
+}
+
+/** Rolagem antiga ou corrompida não derruba o histórico. */
+function parseBreakdown(raw: string, fallbackTotal: number): RollBreakdown {
+  const value = parseJson(raw);
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {
+      diceCount: 0,
+      diceSides: 0,
+      rolls: [],
+      modifier: 0,
+      total: fallbackTotal,
+    };
+  }
+
+  const candidate = value as Partial<RollBreakdown>;
+  return {
+    diceCount:
+      typeof candidate.diceCount === 'number' ? candidate.diceCount : 0,
+    diceSides:
+      typeof candidate.diceSides === 'number' ? candidate.diceSides : 0,
+    rolls: Array.isArray(candidate.rolls)
+      ? candidate.rolls.filter(
+          (item): item is number => typeof item === 'number',
+        )
+      : [],
+    modifier: typeof candidate.modifier === 'number' ? candidate.modifier : 0,
+    total:
+      typeof candidate.total === 'number' ? candidate.total : fallbackTotal,
+  };
 }
 
 const FORMULA_REGEX = /^(\d+)d(\d+)([+-]\d+)?$/i;
@@ -102,10 +133,15 @@ export class DiceService {
   }
 
   async getHistory(userId: string, take = 50) {
+    const limit = Math.min(
+      Math.max(Number.isFinite(take) ? Math.trunc(take) : 50, 1),
+      100,
+    );
+
     const rolls = await this.prisma.diceRoll.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      take,
+      take: limit,
       include: ROLL_INCLUDE,
     });
 
@@ -137,7 +173,7 @@ export class DiceService {
   private serialize(roll: RollWithAuthor): SerializedDiceRoll {
     return {
       ...roll,
-      breakdown: JSON.parse(roll.breakdown) as RollBreakdown,
+      breakdown: parseBreakdown(roll.breakdown, roll.result),
     };
   }
 
