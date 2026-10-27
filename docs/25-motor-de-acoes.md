@@ -251,6 +251,10 @@ A narração de resultados mecânicos está em `docs/28-narracao-mecanica.md`.
 
 Ataques com arma estão em `docs/29-armas.md`.
 
+## 9.6 Fase G
+
+Economia de ações e turno em `docs/30-economia-de-acoes.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

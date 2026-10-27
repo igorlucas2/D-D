@@ -85,6 +85,9 @@ export interface CombatParticipant {
   hpStatus: HpStatus;
   conditions: string[];
   isAlly: boolean;
+  actionUsed?: boolean;
+  bonusUsed?: boolean;
+  reactionUsed?: boolean;
 }
 
 export interface CombatEncounter {

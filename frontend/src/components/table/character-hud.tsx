@@ -7,6 +7,7 @@ import {
   HeartPulse,
   Shield,
   ShieldPlus,
+  SkipForward,
   Sparkles,
   Swords,
 } from "lucide-react";
@@ -64,6 +65,7 @@ export function CharacterHud({
   onUseItem,
   onCastSpell,
   onAttack,
+  onEndTurn,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -75,6 +77,7 @@ export function CharacterHud({
   onUseItem: () => void;
   onCastSpell: () => void;
   onAttack: () => void;
+  onEndTurn: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -90,6 +93,8 @@ export function CharacterHud({
   const isMyTurn = Boolean(
     participant && currentTurn && currentTurn.id === participant.id,
   );
+  const canAct =
+    !combat || Boolean(isMyTurn && participant && !participant.actionUsed);
   const ratio = character
     ? Math.max(0, Math.min(1, character.currentHp / Math.max(character.maxHp, 1)))
     : 0;
@@ -224,6 +229,7 @@ export function CharacterHud({
               onClick={onAttack}
               disabled={
                 busy ||
+                !canAct ||
                 character.items.filter((item) => item.category === "Arma").length ===
                   0
               }
@@ -242,7 +248,7 @@ export function CharacterHud({
               variant="outline"
               className="mt-2 h-10 w-full justify-start gap-2 border-primary/25 bg-primary/8 text-xs hover:bg-primary/15"
               onClick={onUseItem}
-              disabled={busy}
+              disabled={busy || !canAct}
             >
               <FlaskConical className="size-3.5" aria-hidden="true" />
               Usar item
@@ -257,7 +263,7 @@ export function CharacterHud({
               variant="outline"
               className="mt-2 h-10 w-full justify-start gap-2 border-[#6f5a8f]/30 bg-[#6f5a8f]/10 text-xs hover:bg-[#6f5a8f]/20"
               onClick={onCastSpell}
-              disabled={busy || character.spells.length === 0}
+              disabled={busy || !canAct || character.spells.length === 0}
             >
               <Sparkles className="size-3.5" aria-hidden="true" />
               Conjurar
@@ -310,10 +316,31 @@ export function CharacterHud({
               {combat.name} · {combat.participants.length} participantes
             </p>
             {participant ? (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Iniciativa {participant.initiative}
-                {participant.tempHp ? ` · ${participant.tempHp} PV temp.` : ""}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Iniciativa {participant.initiative}
+                  {participant.tempHp ? ` · ${participant.tempHp} PV temp.` : ""}
+                  {" · "}
+                  {participant.actionUsed
+                    ? "ação usada"
+                    : isMyTurn
+                      ? "ação disponível"
+                      : "aguardando seu turno"}
+                </p>
+                {isMyTurn ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 border-primary/30 text-[11px]"
+                    onClick={onEndTurn}
+                    disabled={busy}
+                  >
+                    <SkipForward className="size-3" />
+                    Encerrar turno
+                  </Button>
+                ) : null}
+              </div>
             ) : null}
           </div>
         ) : (

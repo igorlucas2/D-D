@@ -86,6 +86,7 @@ function AiMasterContent() {
   const [spellBusy, setSpellBusy] = useState(false);
   const [attackDialogOpen, setAttackDialogOpen] = useState(false);
   const [attackBusy, setAttackBusy] = useState(false);
+  const [turnBusy, setTurnBusy] = useState(false);
   const [narratingActionId, setNarratingActionId] = useState<string | null>(
     null,
   );
@@ -432,6 +433,29 @@ function AiMasterContent() {
     }
   }
 
+  async function endTurn() {
+    if (!token || turnBusy) return;
+    setTurnBusy(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/combat/end-turn`,
+        undefined,
+        token,
+      );
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível encerrar o turno.",
+      );
+      await load();
+    } finally {
+      setTurnBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
@@ -634,12 +658,18 @@ function AiMasterContent() {
             combat={combat}
             isMaster={Boolean(state?.isMaster)}
             busy={
-              mechanicalBusy || itemBusy || spellBusy || attackBusy || busy
+              mechanicalBusy ||
+              itemBusy ||
+              spellBusy ||
+              attackBusy ||
+              turnBusy ||
+              busy
             }
             onAction={openAction}
             onUseItem={() => setItemDialogOpen(true)}
             onCastSpell={() => setSpellDialogOpen(true)}
             onAttack={() => setAttackDialogOpen(true)}
+            onEndTurn={() => void endTurn()}
           />
         </div>
       </div>

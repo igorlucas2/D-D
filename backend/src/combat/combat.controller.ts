@@ -182,6 +182,7 @@ export class CombatController {
     );
   }
 
+  @CampaignChanged()
   @Audit('combat.next-turn', 'encounter')
   @Post('next-turn')
   nextTurn(
@@ -189,5 +190,16 @@ export class CombatController {
     @CurrentUser() user: { userId: string },
   ) {
     return this.combatService.nextTurn(campaignId, user.userId);
+  }
+
+  @CampaignChanged()
+  @Audit('combat.end-turn', 'encounter')
+  @Post('end-turn')
+  @HttpCode(200)
+  endTurn(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.combatService.endTurn(campaignId, user.userId);
   }
 }

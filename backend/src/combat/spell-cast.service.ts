@@ -170,6 +170,12 @@ export class SpellCastService {
     });
     if (!casterLocked)
       throw new NotFoundException('Personagem não encontrado.');
+    const economy = await this.combat.assertCanAct(
+      tx,
+      campaignId,
+      casterLocked.id,
+      isMaster,
+    );
 
     const castLevel =
       characterSpell.spell.level === 0
@@ -396,6 +402,8 @@ export class SpellCastService {
       });
       slotResult = { level: slot.level, usedBefore: slot.used, usedAfter };
     }
+
+    if (economy) await this.combat.consumeAction(tx, economy.participantId);
 
     if (encounter) {
       if (dto.expectedRevision !== undefined) {

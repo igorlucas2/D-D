@@ -34,7 +34,7 @@ export class ItemUseService {
   ) {}
 
   async use(campaignId: string, userId: string, dto: UseItemDto) {
-    await this.access.member(campaignId, userId);
+    const campaign = await this.access.member(campaignId, userId);
     const requestHash = createHash('sha256')
       .update(
         canonical({
@@ -62,7 +62,15 @@ export class ItemUseService {
     let participantId: string | null = null;
     try {
       const executed = await this.prisma.$transaction(
-        async (tx) => this.execute(tx, campaignId, userId, dto, requestHash),
+        async (tx) =>
+          this.execute(
+            tx,
+            campaignId,
+            userId,
+            campaign.masterId === userId,
+            dto,
+            requestHash,
+          ),
         { isolationLevel: 'Serializable', timeout: 20_000 },
       );
       result = executed.result;
@@ -97,6 +105,7 @@ export class ItemUseService {
     tx: Tx,
     campaignId: string,
     userId: string,
+    isMaster: boolean,
     dto: UseItemDto,
     requestHash: string,
   ): Promise<{ result: ItemUseResult; participantId: string | null }> {
@@ -129,6 +138,13 @@ export class ItemUseService {
       where: { id: character.id },
     });
     if (!character) throw new NotFoundException('Personagem não encontrado.');
+
+    const economy = await this.combat.assertCanAct(
+      tx,
+      campaignId,
+      character.id,
+      isMaster,
+    );
 
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
@@ -212,6 +228,8 @@ export class ItemUseService {
         tempHp: hpAfter.temp,
       },
     });
+
+    if (economy) await this.combat.consumeAction(tx, economy.participantId);
 
     const quantityBefore = inventory.quantity;
     const quantityAfter = quantityBefore - 1;

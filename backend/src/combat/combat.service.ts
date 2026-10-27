@@ -309,12 +309,10 @@ export class CombatService {
 
   async nextTurn(campaignId: string, userId: string) {
     await this.assertIsMaster(campaignId, userId);
-
     const encounter = await this.prisma.combatEncounter.findUnique({
       where: { campaignId },
       include: ENCOUNTER_INCLUDE,
     });
-
     if (!encounter) {
       throw new NotFoundException(
         'Nenhum combate em andamento nesta campanha.',
@@ -325,23 +323,121 @@ export class CombatService {
         'Adicione participantes antes de avançar o turno.',
       );
     }
+    await this.advanceTurn(campaignId, encounter);
+    return this.getEncounter(campaignId, userId);
+  }
 
+  /** Jogador atual encerra o próprio turno; mestre pode encerrar qualquer um. */
+  async endTurn(campaignId: string, userId: string) {
+    const campaign = await this.assertIsMember(campaignId, userId);
+    const encounter = await this.prisma.combatEncounter.findUnique({
+      where: { campaignId },
+      include: ENCOUNTER_INCLUDE,
+    });
+    if (!encounter)
+      throw new NotFoundException(
+        'Nenhum combate em andamento nesta campanha.',
+      );
+    if (encounter.participants.length === 0)
+      throw new BadRequestException(
+        'Adicione participantes antes de encerrar o turno.',
+      );
+    const current = encounter.participants[encounter.turnIndex];
+    if (campaign.masterId !== userId) {
+      if (!current?.characterId)
+        throw new ConflictException(
+          'Este turno não pertence a um personagem jogável.',
+        );
+      const character = await this.prisma.character.findUnique({
+        where: { id: current.characterId },
+        select: { userId: true },
+      });
+      if (character?.userId !== userId)
+        throw new ConflictException(
+          'Não é o seu turno. Aguarde ou peça ao mestre.',
+        );
+    }
+    await this.advanceTurn(campaignId, encounter);
+    return this.getEncounter(campaignId, userId);
+  }
+
+  /**
+   * Verifica se o personagem pode gastar a ação no combate atual.
+   * Fora de combate retorna null. Mestre sem participante também não entra na
+   * economia (útil para ajustes), mas quem tem participante segue a ordem.
+   */
+  async assertCanAct(
+    tx: Prisma.TransactionClient,
+    campaignId: string,
+    characterId: string,
+    isMaster: boolean,
+  ): Promise<{ participantId: string } | null> {
+    await tx.$queryRaw`SELECT id FROM \`CombatEncounter\` WHERE campaignId = ${campaignId} FOR UPDATE`;
+    const encounter = await tx.combatEncounter.findUnique({
+      where: { campaignId },
+      include: ENCOUNTER_INCLUDE,
+    });
+    if (!encounter) return null;
+    const participant = encounter.participants.find(
+      (item) => item.characterId === characterId,
+    );
+    if (!participant) {
+      if (isMaster) return null;
+      throw new BadRequestException(
+        'Seu personagem não está no combate ativo.',
+      );
+    }
+    const current = encounter.participants[encounter.turnIndex];
+    if (current?.id !== participant.id) {
+      throw new ConflictException(
+        'Não é o seu turno. Aguarde ou peça ao mestre para avançar.',
+      );
+    }
+    if (participant.actionUsed) {
+      throw new ConflictException(
+        'Sua ação já foi usada neste turno. Encerre o turno.',
+      );
+    }
+    return { participantId: participant.id };
+  }
+
+  async consumeAction(tx: Prisma.TransactionClient, participantId: string) {
+    await tx.combatParticipant.update({
+      where: { id: participantId },
+      data: { actionUsed: true },
+    });
+  }
+
+  private async advanceTurn(
+    campaignId: string,
+    encounter: EncounterWithParticipants,
+  ) {
     const nextIndex = encounter.turnIndex + 1;
     const wrapped = nextIndex >= encounter.participants.length;
-
     const turnIndex = wrapped ? 0 : nextIndex;
     const round = wrapped ? encounter.round + 1 : encounter.round;
-    await this.prisma.combatEncounter.update({
-      where: { id: encounter.id },
-      data: { turnIndex, round, revision: { increment: 1 } },
+    const next = encounter.participants[turnIndex];
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.combatEncounter.update({
+        where: { id: encounter.id },
+        data: { turnIndex, round, revision: { increment: 1 } },
+      });
+      await tx.combatParticipant.update({
+        where: { id: next.id },
+        data: {
+          actionUsed: false,
+          bonusUsed: false,
+          reactionUsed: false,
+        },
+      });
     });
 
     await this.broadcast(campaignId, {
       type: 'turn',
-      participantId: encounter.participants[turnIndex].id,
+      participantId: next.id,
       round,
     });
-    return this.getEncounter(campaignId, userId);
   }
 
   /**

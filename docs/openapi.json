@@ -1259,6 +1259,36 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/end-turn": {
+      "post": {
+        "operationId": "CombatController_endTurn",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/vtt/maps": {
       "get": {
         "operationId": "VttController_findMaps",

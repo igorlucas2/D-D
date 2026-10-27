@@ -149,6 +149,12 @@ export class WeaponAttackService {
       throw new BadRequestException(
         'A arma não tem dados de dano utilizáveis.',
       );
+    const economy = await this.combat.assertCanAct(
+      tx,
+      campaignId,
+      attacker.id,
+      isMaster,
+    );
 
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
@@ -263,6 +269,8 @@ export class WeaponAttackService {
         },
       });
     }
+
+    if (economy) await this.combat.consumeAction(tx, economy.participantId);
 
     if (encounter) {
       if (dto.expectedRevision !== undefined) {
