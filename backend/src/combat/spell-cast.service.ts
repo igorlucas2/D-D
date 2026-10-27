@@ -157,6 +157,10 @@ export class SpellCastService {
       );
     if (mechanics.targets === 'SINGLE' && dto.targets.length !== 1)
       throw new BadRequestException('Esta magia exige exatamente um alvo.');
+    if (mechanics.attack && dto.targets.length !== 1)
+      throw new BadRequestException(
+        'Ataques mágicos exigem exatamente um alvo.',
+      );
     if (mechanics.targets === 'MULTIPLE' && dto.targets.length > 12)
       throw new BadRequestException('Máximo de 12 alvos por conjuração.');
 
@@ -282,6 +286,7 @@ export class SpellCastService {
           };
 
       let save: SpellCastResult['targets'][number]['save'] = null;
+      let attack: SpellCastResult['targets'][number]['attack'] = null;
       let amount = mechanics.kind === 'HEAL' ? healingTotal : damageTotal;
       if (mechanics.kind === 'DAMAGE' && mechanics.save) {
         const ability = mechanics.save.ability;
@@ -299,6 +304,31 @@ export class SpellCastService {
         };
         if (success)
           amount = mechanics.save.halfOnSuccess ? Math.floor(amount / 2) : 0;
+      } else if (mechanics.kind === 'DAMAGE' && mechanics.attack) {
+        const modifier = casterLocked.proficiencyBonus + casterModifier;
+        const roll = this.dice.parseAndRoll('1d20');
+        const total = roll.total + modifier;
+        const ac = character?.armorClass ?? 10;
+        const critical = roll.total === 20;
+        const hit = roll.total !== 1 && (critical || total >= ac);
+        attack = {
+          roll: roll.total,
+          modifier,
+          total,
+          ac,
+          hit,
+          critical,
+        };
+        if (!hit) {
+          amount = 0;
+        } else if (critical) {
+          amount += this.rollDamage(
+            mechanics.formula,
+            mechanics.upcast?.formula ?? null,
+            castLevel,
+            characterSpell.spell.level,
+          );
+        }
       }
 
       let hpAfter = hpBefore;
@@ -350,6 +380,7 @@ export class SpellCastService {
         hpBefore: hidden ? null : hpBefore,
         hpAfter: hidden ? null : hpAfter,
         save,
+        attack,
         amount,
         applied,
         absorbedByTempHp,

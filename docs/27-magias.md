@@ -117,13 +117,29 @@ interface SpellCastResult {
 ## 6. Limites desta fase
 
 - Alcance, área geométrica, cobertura e linha de visão não são validados.
-- Ataques mágicos (d20 vs CA), cantrips de dano e magias de utilidade ainda não
-  têm mecânica.
+- Cantrips de dano que usam **ataque mágico** já são suportados (Raio de Fogo);
+  magias de utilidade ainda não têm mecânica.
 - Concentração, duração e quebra por dano ainda não são aplicadas.
 - Resistência/imunidade/vulnerabilidade do alvo ainda não entram no cálculo.
 - Proficiência de save não é modelada.
 
-## 7. Testes
+## 7. Ataques mágicos (Fase D)
+
+`Spell.mechanics.attack = "SPELL"` resolve um ataque mágico contra a CA do
+alvo:
+
+- bônus = proficiência + modificador de conjuração;
+- d20 natural 1 erra; natural 20 acerta e causa crítico;
+- crítico rola o dano base novamente;
+- erro não aplica dano;
+- CA de personagem vem da ficha; participante sem ficha usa CA 10;
+- truque não consome espaço.
+
+O catálogo atual tem **Raio de Fogo** (`1d10` de fogo, alcance) como fallback
+conhecido. O resultado inclui `attack` com rolagem, modificador, total, CA,
+acerto e crítico.
+
+## 8. Testes
 
 Unitários: fallback de Curar Ferimentos/Bola de Fogo, prioridade de
 `mechanics`, magia sem mecânica, modificador/DC e HUD.

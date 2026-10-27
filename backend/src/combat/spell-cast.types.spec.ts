@@ -41,6 +41,16 @@ describe('spell mechanics', () => {
     ).toMatchObject({ formula: '2d8' });
   });
 
+  it('resolve Raio de Fogo como ataque mágico', () => {
+    expect(resolveSpellMechanics({ name: 'Raio de Fogo' })).toMatchObject({
+      kind: 'DAMAGE',
+      formula: '1d10',
+      damageType: 'fire',
+      attack: 'SPELL',
+      targets: 'SINGLE',
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

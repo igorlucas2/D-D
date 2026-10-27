@@ -62,6 +62,7 @@ export interface HudSpell {
   effectKind: "HEAL" | "DAMAGE";
   saveAbility: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA" | null;
   halfOnSuccess: boolean;
+  attack: boolean;
   targetMode: "SINGLE" | "MULTIPLE";
   formula: string;
   upcastFormula: string | null;
@@ -169,6 +170,14 @@ export interface SpellCastResult {
       total: number;
       dc: number;
       success: boolean;
+    } | null;
+    attack: {
+      roll: number;
+      modifier: number;
+      total: number;
+      ac: number;
+      hit: boolean;
+      critical: boolean;
     } | null;
     amount: number;
     applied: number;

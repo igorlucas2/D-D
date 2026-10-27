@@ -81,9 +81,17 @@ function SpellCard({
                   {target.name}:{" "}
                   {damage
                     ? `${formatNumber(target.applied)} de dano${
-                        target.save
-                          ? ` · ${target.save.success ? "passou" : "falhou"} (${target.save.total} vs CD ${target.save.dc})`
-                          : ""
+                        target.attack
+                          ? ` · ${
+                              target.attack.hit
+                                ? target.attack.critical
+                                  ? "crítico"
+                                  : "acertou"
+                                : "errou"
+                            } (${target.attack.total} vs CA ${target.attack.ac})`
+                          : target.save
+                            ? ` · ${target.save.success ? "passou" : "falhou"} (${target.save.total} vs CD ${target.save.dc})`
+                            : ""
                       }`
                     : `+${formatNumber(target.applied)} PV`}
                 </p>

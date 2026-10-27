@@ -208,9 +208,11 @@ export function SpellDialog({
                   </div>
                   <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
                     {spell.formula}
-                    {spell.saveAbility
-                      ? ` · save ${spell.saveAbility}${spell.halfOnSuccess ? " (metade no sucesso)" : ""}`
-                      : ""}
+                    {spell.attack
+                      ? " · ataque mágico"
+                      : spell.saveAbility
+                        ? ` · save ${spell.saveAbility}${spell.halfOnSuccess ? " (metade no sucesso)" : ""}`
+                        : ""}
                   </p>
                 </label>
               );

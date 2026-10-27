@@ -239,6 +239,10 @@ Itens consumíveis usam o mesmo ledger e a mesma transação; a spec está em `d
 
 Magias usam slot, save e upcast no mesmo pipeline; a spec está em `docs/27-magias.md`.
 
+## 9.3 Fase D
+
+Ataques mágicos usam CA e crítico no mesmo pipeline de magia; ver `docs/27-magias.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

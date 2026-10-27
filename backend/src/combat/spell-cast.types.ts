@@ -15,6 +15,7 @@ export interface SpellMechanics {
   damageType: DamageType;
   addSpellcastingModifier: boolean;
   save: { ability: SpellAbility; halfOnSuccess: boolean } | null;
+  attack: 'SPELL' | null;
   upcast: { formula: string | null } | null;
   targets: SpellTargetMode;
 }
@@ -30,6 +31,7 @@ export interface SpellHud {
   effectKind: SpellEffectKind;
   saveAbility: SpellAbility | null;
   halfOnSuccess: boolean;
+  attack: boolean;
   targetMode: SpellTargetMode;
   formula: string;
   upcastFormula: string | null;
@@ -69,6 +71,14 @@ export interface SpellCastResult {
       dc: number;
       success: boolean;
     } | null;
+    attack: {
+      roll: number;
+      modifier: number;
+      total: number;
+      ac: number;
+      hit: boolean;
+      critical: boolean;
+    } | null;
     amount: number;
     applied: number;
     absorbedByTempHp: number;
@@ -88,6 +98,7 @@ const FALLBACKS: Record<string, SpellMechanics> = {
     damageType: 'untyped',
     addSpellcastingModifier: true,
     save: null,
+    attack: null,
     upcast: { formula: '1d8' },
     targets: 'SINGLE',
   },
@@ -97,6 +108,7 @@ const FALLBACKS: Record<string, SpellMechanics> = {
     damageType: 'untyped',
     addSpellcastingModifier: true,
     save: null,
+    attack: null,
     upcast: { formula: '1d8' },
     targets: 'SINGLE',
   },
@@ -106,8 +118,19 @@ const FALLBACKS: Record<string, SpellMechanics> = {
     damageType: 'fire',
     addSpellcastingModifier: false,
     save: { ability: 'DEX', halfOnSuccess: true },
+    attack: null,
     upcast: { formula: '1d6' },
     targets: 'MULTIPLE',
+  },
+  'raio de fogo': {
+    kind: 'DAMAGE',
+    formula: '1d10',
+    damageType: 'fire',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: 'SPELL',
+    upcast: null,
+    targets: 'SINGLE',
   },
 };
 
@@ -164,6 +187,7 @@ export function resolveSpellMechanics(spell: {
         save: ability
           ? { ability, halfOnSuccess: save?.halfOnSuccess === true }
           : null,
+        attack: record.attack === 'SPELL' ? 'SPELL' : null,
         upcast:
           upcast &&
           typeof upcast.formula === 'string' &&
@@ -202,6 +226,7 @@ export function spellToHud(
     effectKind: mechanics.kind,
     saveAbility: mechanics.save?.ability ?? null,
     halfOnSuccess: mechanics.save?.halfOnSuccess ?? false,
+    attack: mechanics.attack === 'SPELL',
     targetMode: mechanics.targets,
     formula: mechanics.formula,
     upcastFormula: mechanics.upcast?.formula ?? null,
