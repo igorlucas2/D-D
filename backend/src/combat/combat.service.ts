@@ -388,6 +388,14 @@ export class CombatService {
     }
   }
 
+  /**
+   * Entrada pública para o motor de ações emitir hp/condições sem duplicar a
+   * lógica de projeção por papel (mestre x jogador).
+   */
+  async emitAction(campaignId: string, event: CombatEvent) {
+    await this.broadcast(campaignId, event);
+  }
+
   private async getActiveEncounter(campaignId: string) {
     const encounter = await this.prisma.combatEncounter.findUnique({
       where: { campaignId },

@@ -796,6 +796,75 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/actions": {
+      "get": {
+        "operationId": "CombatController_actionHistory",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      },
+      "post": {
+        "operationId": "CombatController_applyAction",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CombatActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat": {
       "get": {
         "operationId": "CombatController_getEncounter",
@@ -5012,6 +5081,91 @@
             "maximum": 9
           }
         }
+      },
+      "CombatActionDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedRevision": {
+            "type": "number",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DAMAGE",
+              "HEAL",
+              "TEMP_HP",
+              "CONDITION"
+            ]
+          },
+          "targetKind": {
+            "type": "string",
+            "enum": [
+              "CHARACTER",
+              "PARTICIPANT"
+            ]
+          },
+          "targetId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "formula": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^\\d{1,2}d(4|6|8|10|12|20|100)([+-]\\d{1,3})?$"
+          },
+          "damageType": {
+            "type": "string",
+            "enum": [
+              "acid",
+              "bludgeoning",
+              "cold",
+              "fire",
+              "force",
+              "lightning",
+              "necrotic",
+              "piercing",
+              "poison",
+              "psychic",
+              "radiant",
+              "slashing",
+              "thunder",
+              "untyped"
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "maxLength": 60,
+            "pattern": "\\S"
+          },
+          "conditionMode": {
+            "type": "string",
+            "enum": [
+              "ADD",
+              "REMOVE"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 80,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "requestKey",
+          "kind",
+          "targetKind",
+          "targetId"
+        ]
       },
       "StartEncounterDto": {
         "type": "object",

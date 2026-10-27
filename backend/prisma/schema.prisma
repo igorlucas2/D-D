@@ -47,6 +47,7 @@ model User {
   scheduledConsequences ScheduledConsequence[]
   automationPolicies WorldAutomationPolicy[]
   auditLogs AuditLog[] @relation("AuditActor")
+  combatActions CombatAction[] @relation("CombatActor")
 }
 
 model Achievement {
@@ -316,6 +317,7 @@ model Campaign {
   chatMessages      ChatMessage[]
   assistantRequests AssistantRequest[]
   auditLogs         AuditLog[]
+  combatActions     CombatAction[]
 }
 
 model AuditLog {
@@ -377,6 +379,7 @@ model CombatEncounter {
 
   campaign     Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   participants CombatParticipant[]
+  actions      CombatAction[]
 }
 
 // Como o jogador ve o PV de inimigos: DESCRIPTIVE envia so o estado
@@ -394,11 +397,37 @@ model CombatParticipant {
   initiative  Int     @default(0)
   maxHp       Int     @default(1)
   currentHp   Int     @default(1)
+  tempHp      Int     @default(0)
   conditions  String? @db.LongText // JSON serializado (lista de strings)
   isAlly      Boolean @default(true)
 
   encounter CombatEncounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
   character Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)
+}
+
+/// Fase A do motor de ações: ledger imutável de dano/cura/PV temporário/condição.
+model CombatAction {
+  id          String   @id @default(cuid())
+  campaignId  String
+  encounterId String?
+  actorUserId String?
+  requestKey  String
+  requestHash String   @db.Char(64)
+  kind        String
+  targetKind  String
+  targetId    String
+  targetName  String
+  payload     String   @db.LongText
+  result      String   @db.LongText
+  createdAt   DateTime @default(now())
+
+  campaign  Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  encounter CombatEncounter? @relation(fields: [encounterId], references: [id], onDelete: SetNull)
+  actor     User?            @relation("CombatActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@unique([campaignId, actorUserId, requestKey])
+  @@index([campaignId, createdAt])
+  @@index([encounterId, createdAt])
 }
 
 // =====================================================================

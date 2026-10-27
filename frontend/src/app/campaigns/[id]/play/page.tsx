@@ -2,19 +2,23 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Loader2, Send, Sparkles } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
+import { CharacterHud } from "@/components/table/character-hud";
+import { Chronicle, type ChronicleEvent } from "@/components/table/chronicle";
+import { MechanicalActionDialog } from "@/components/table/mechanical-action-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { api, ApiError } from "@/lib/api";
+import type { CombatEncounter } from "@/lib/types";
+import type {
+  ActionTarget,
+  CombatActionKind,
+  CombatActionResult,
+  HudCharacter,
+  MechanicalActionInput,
+} from "@/lib/table-types";
 import { useStoryUpdates } from "@/lib/use-story-updates";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -32,14 +36,8 @@ interface AiState {
     gameMinute: number;
     weather: string;
   } | null;
-  characters: Array<{ id: string; name: string; isMine: boolean }>;
-  events: Array<{
-    eventId: string;
-    sequence: number;
-    gameMinute: number;
-    summary: string;
-    narration: string | null;
-  }>;
+  characters: HudCharacter[];
+  events: ChronicleEvent[];
   provider: { available: boolean; model: string; reason?: string };
 }
 
@@ -55,39 +53,59 @@ interface AiTurnResult {
 }
 
 const textareaClassName =
-  "min-h-28 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "min-h-32 w-full resize-y rounded-xl border border-input bg-background/50 px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 function AiMasterContent() {
   const params = useParams<{ id: string }>();
-  const token = useAuthStore((state) => state.token);
+  const token = useAuthStore((store) => store.token);
   const [state, setState] = useState<AiState | null>(null);
+  const [combat, setCombat] = useState<CombatEncounter | null>(null);
+  const [actions, setActions] = useState<CombatActionResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [action, setAction] = useState("");
-  const [characterId, setCharacterId] = useState("");
+  const [selectedId, setSelectedId] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mechanicalBusy, setMechanicalBusy] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogKind, setDialogKind] = useState<CombatActionKind>("DAMAGE");
+  const [lastResult, setLastResult] = useState<CombatActionResult | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const next = await api.get<AiState>(
-        `/campaigns/${params.id}/ai-master/state`,
-        token,
-      );
+      const [next, encounter, recentActions] = await Promise.all([
+        api.get<AiState>(`/campaigns/${params.id}/ai-master/state`, token),
+        api
+          .get<CombatEncounter | null>(`/campaigns/${params.id}/combat`, token)
+          .catch(() => null),
+        api
+          .get<CombatActionResult[]>(
+            `/campaigns/${params.id}/combat/actions?take=12`,
+            token,
+          )
+          .catch(() => []),
+      ]);
       setState(next);
-      setCharacterId((current) => {
+      setCombat(encounter);
+      setActions(recentActions);
+      setSelectedId((current) => {
         if (current && next.characters.some((item) => item.id === current)) {
           return current;
         }
-        return next.characters.find((item) => item.isMine)?.id ?? "";
+        return (
+          next.characters.find((item) => item.isMine)?.id ??
+          next.characters[0]?.id ??
+          ""
+        );
       });
       setError(null);
     } catch (err) {
       setError(
         err instanceof ApiError
           ? err.message
-          : "Não foi possível carregar o mestre IA.",
+          : "Não foi possível carregar a mesa.",
       );
     } finally {
       setLoading(false);
@@ -101,6 +119,61 @@ function AiMasterContent() {
 
   useStoryUpdates(params.id, token, load);
 
+  const selectedCharacter =
+    state?.characters.find((character) => character.id === selectedId) ??
+    state?.characters[0] ??
+    null;
+
+  const targets = useMemo<ActionTarget[]>(() => {
+    if (!state) return [];
+    const result: ActionTarget[] = [];
+    const seenCharacters = new Set<string>();
+    if (combat) {
+      for (const participant of combat.participants) {
+        if (participant.characterId) seenCharacters.add(participant.characterId);
+        if (!state.isMaster && !participant.characterId) continue;
+        const own = state.characters.find(
+          (character) => character.characterId === participant.characterId,
+        );
+        if (!state.isMaster && !own?.isMine) continue;
+        result.push({
+          kind: "PARTICIPANT",
+          id: participant.id,
+          name: participant.name,
+          characterId: participant.characterId,
+          currentHp: participant.currentHp,
+          maxHp: participant.maxHp,
+          isAlly: participant.isAlly,
+        });
+      }
+    }
+    for (const character of state.characters) {
+      if (seenCharacters.has(character.characterId)) continue;
+      if (!state.isMaster && !character.isMine) continue;
+      result.push({
+        kind: "CHARACTER",
+        id: character.characterId,
+        name: character.name,
+        characterId: character.characterId,
+        currentHp: character.currentHp,
+        maxHp: character.maxHp,
+      });
+    }
+    return result;
+  }, [state, combat]);
+
+  const defaultTargetId =
+    targets.find(
+      (target) => target.characterId === selectedCharacter?.characterId,
+    )?.id ??
+    targets[0]?.id ??
+    "";
+
+  const active =
+    Boolean(state?.storyReady) &&
+    state?.mode === "AUTONOMOUS" &&
+    !state.paused;
+
   async function changeMode(mode: AiMode, paused: boolean) {
     if (!token || !state || busy) return;
     setBusy(true);
@@ -113,8 +186,8 @@ function AiMasterContent() {
       );
       setNotice(
         mode === "AUTONOMOUS" && !paused
-          ? "Mestre IA ligado."
-          : "Mestre IA atualizado.",
+          ? "Mestre IA ligado. A crônica está pronta."
+          : "Configuração do mestre atualizada.",
       );
       await load();
     } catch (err) {
@@ -129,9 +202,9 @@ function AiMasterContent() {
     }
   }
 
-  async function submitAction(event: React.FormEvent<HTMLFormElement>) {
+  async function submitNarration(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!token || !state || busy || !action.trim()) return;
+    if (!token || !state || busy || !action.trim() || !selectedCharacter) return;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -141,17 +214,13 @@ function AiMasterContent() {
         {
           requestKey: crypto.randomUUID(),
           action: action.trim(),
-          characterId: characterId || undefined,
+          characterId: selectedCharacter.id,
           expectedRevision: state.revision,
         },
         token,
       );
       setAction("");
-      setNotice(
-        result.ask
-          ? `O mestre pergunta: ${result.ask}`
-          : result.narration,
-      );
+      if (result.ask) setNotice(`O mestre pergunta: ${result.ask}`);
       await load();
     } catch (err) {
       setError(
@@ -165,192 +234,255 @@ function AiMasterContent() {
     }
   }
 
+  function openAction(kind: CombatActionKind) {
+    setDialogKind(kind);
+    setDialogOpen(true);
+  }
+
+  async function submitMechanical(input: MechanicalActionInput) {
+    if (!token || !state) return;
+    setMechanicalBusy(true);
+    setError(null);
+    try {
+      const result = await api.post<CombatActionResult>(
+        `/campaigns/${params.id}/combat/actions`,
+        {
+          ...input,
+          requestKey: crypto.randomUUID(),
+          expectedRevision: combat?.revision,
+        },
+        token,
+      );
+      setLastResult(result);
+      setDialogOpen(false);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível aplicar a ação.",
+      );
+      await load();
+    } finally {
+      setMechanicalBusy(false);
+    }
+  }
+
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-16 text-muted-foreground">
-        Carregando o mestre IA...
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
+        <div className="h-8 w-56 animate-pulse rounded-lg bg-muted" />
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]">
+          <div className="h-96 animate-pulse rounded-2xl bg-muted/70" />
+          <div className="h-80 animate-pulse rounded-2xl bg-muted/50" />
+        </div>
       </div>
     );
   }
 
-  const mine = state?.characters.filter((item) => item.isMine) ?? [];
-  const active =
-    state?.storyReady && state.mode === "AUTONOMOUS" && !state.paused;
-
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-8">
-      <div>
-        <Link
-          href={`/campaigns/${params.id}`}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
-        >
-          <ArrowLeft className="size-3.5" /> Voltar para a mesa
-        </Link>
-        <p className="mt-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-          <Sparkles className="size-4" /> Mesa narrada
-        </p>
-        <h1 className="mt-1 font-heading text-3xl font-bold">
-          Mestre IA local
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          O modelo narra a consequência da sua ação. Dados, PV e mudanças de
-          estado continuam com o motor da mesa.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant={active ? "default" : "outline"}>
-          {state?.mode === "AUTONOMOUS"
-            ? state.paused
-              ? "Pausado"
-              : "Autônomo"
-            : state?.mode === "COPILOT"
-              ? "Copiloto"
-              : "Desligado"}
-        </Badge>
-        <Badge variant="outline">
-          {state?.provider.available
-            ? `Modelo ${state.provider.model}`
-            : "Modelo indisponível"}
-        </Badge>
-        {state?.scene ? (
-          <Badge variant="outline">
-            {state.scene.name} · {state.scene.phase.toLowerCase()}
-          </Badge>
-        ) : null}
-      </div>
-
-      {state?.isMaster ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Controles do mestre</CardTitle>
-            <CardDescription>
-              Ligue o modo autônomo quando o grupo estiver pronto para jogar.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Button
-              onClick={() => void changeMode("AUTONOMOUS", false)}
-              disabled={busy}
-            >
-              Ligar mestre IA
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => void changeMode("AUTONOMOUS", !state.paused)}
-              disabled={busy || state.mode !== "AUTONOMOUS"}
-            >
-              {state.paused ? "Retomar" : "Pausar"}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => void changeMode("OFF", false)}
-              disabled={busy}
-            >
-              Desligar
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
-      {notice ? (
-        <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 text-sm whitespace-pre-wrap">
-          {notice}
-        </div>
-      ) : null}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Ações recentes</CardTitle>
-          <CardDescription>
-            Últimas narrações públicas registradas na memória da campanha.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          {state?.events.length ? (
-            state.events.map((event) => (
-              <article
-                key={event.eventId}
-                className="rounded-lg border border-border/70 p-3 text-sm"
+    <div className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(120,92,54,0.08),transparent_55%)]">
+      <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-5 px-4 py-6 sm:px-6 lg:py-8">
+        <header className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <Link
+                href={`/campaigns/${params.id}`}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary"
               >
-                <p className="text-xs text-muted-foreground">
-                  #{event.sequence} · {event.gameMinute} min de jogo
-                </p>
-                <p className="mt-1 whitespace-pre-wrap">
-                  {event.narration ?? event.summary}
-                </p>
-              </article>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma narração ainda nesta campanha.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">O que você faz?</CardTitle>
-          <CardDescription>
-            Descreva a ação do seu personagem. O mestre narra o resultado
-            imediato.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submitAction} className="flex flex-col gap-3">
-            {mine.length > 0 ? (
-              <label className="flex flex-col gap-1 text-sm">
-                Personagem
-                <select
-                  className="h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30"
-                  value={characterId}
-                  onChange={(event) => setCharacterId(event.target.value)}
-                >
-                  {mine.map((character) => (
-                    <option key={character.id} value={character.id}>
-                      {character.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Você não tem personagem nesta campanha. Peça ao mestre para
-                criar um ou use a mesa manual.
+                <ArrowLeft className="size-3.5" /> Voltar para a mesa
+              </Link>
+              <p className="mt-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
+                <Sparkles className="size-3.5" /> Mesa narrada
               </p>
-            )}
-            <textarea
-              className={textareaClassName}
-              value={action}
-              onChange={(event) => setAction(event.target.value)}
-              placeholder="Ex.: Examino a porta atrás do balcão e pergunto ao taverneiro o que ele ouviu naquela noite."
-              maxLength={1000}
-              disabled={!active || busy}
-            />
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">
-                {!state?.storyReady
-                  ? "Inicie a memória do cenário antes de jogar com o mestre IA."
-                  : active
-                    ? "A narração é registrada no diário público."
-                    : "O mestre precisa ligar o modo autônomo para responder."}
-              </span>
-              <Button
-                type="submit"
-                disabled={!active || busy || !action.trim() || mine.length === 0}
-              >
-                {busy ? "O mestre está narrando..." : "Enviar ação"}
-              </Button>
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+                  A crônica continua
+                </h1>
+                {state?.scene ? (
+                  <p className="text-sm text-muted-foreground">
+                    {state.scene.name} · {state.scene.phase.toLowerCase()}
+                  </p>
+                ) : null}
+              </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                Leia a narração na coluna principal. Use o HUD ao lado para
+                aplicar dano, cura, PV temporário ou condições — o motor
+                calcula, o mestre narra.
+              </p>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap justify-end gap-2">
+                <Badge variant={active ? "default" : "outline"}>
+                  {state?.mode === "AUTONOMOUS"
+                    ? state.paused
+                      ? "Pausado"
+                      : "Autônomo"
+                    : state?.mode === "COPILOT"
+                      ? "Copiloto"
+                      : "Desligado"}
+                </Badge>
+                <Badge variant="outline">
+                  {state?.provider.available
+                    ? state.provider.model
+                    : "Modelo indisponível"}
+                </Badge>
+              </div>
+              {state?.isMaster ? (
+                <details className="relative">
+                  <summary className="cursor-pointer list-none rounded-lg border border-border/70 bg-card/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground">
+                    Controles do mestre
+                  </summary>
+                  <div className="absolute right-0 z-20 mt-2 flex w-52 flex-col gap-1 rounded-xl border border-border bg-card p-2 shadow-xl">
+                    <Button
+                      size="sm"
+                      onClick={() => void changeMode("AUTONOMOUS", false)}
+                      disabled={busy}
+                    >
+                      Ligar mestre IA
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        void changeMode("AUTONOMOUS", !state.paused)
+                      }
+                      disabled={busy || state.mode !== "AUTONOMOUS"}
+                    >
+                      {state.paused ? "Retomar" : "Pausar"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => void changeMode("OFF", false)}
+                      disabled={busy}
+                    >
+                      Desligar
+                    </Button>
+                  </div>
+                </details>
+              ) : null}
+            </div>
+          </div>
+
+          {error ? (
+            <p
+              role="alert"
+              className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            >
+              {error}
+            </p>
+          ) : null}
+          {notice ? (
+            <p className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm text-foreground/90">
+              {notice}
+            </p>
+          ) : null}
+          {!state?.provider.available ? (
+            <p className="text-xs text-amber-300/80">
+              O modelo local não está disponível; a mesa mecânica continua
+              funcionando, mas a narração automática pode falhar.
+            </p>
+          ) : null}
+        </header>
+
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
+          <main className="flex min-w-0 flex-col gap-5">
+            <Chronicle
+              events={state?.events ?? []}
+              actions={actions}
+              latestAction={lastResult}
+              sceneName={state?.scene?.name ?? null}
+              pending={busy}
+            />
+
+            <section
+              aria-labelledby="composer-title"
+              className="rounded-2xl border border-border/70 bg-card/65 p-5 shadow-sm backdrop-blur sm:p-6"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                    Sua vez
+                  </p>
+                  <h2
+                    id="composer-title"
+                    className="mt-1 font-heading text-xl font-semibold"
+                  >
+                    O que você faz?
+                  </h2>
+                </div>
+                {selectedCharacter ? (
+                  <Badge variant="outline">como {selectedCharacter.name}</Badge>
+                ) : null}
+              </div>
+
+              <form onSubmit={submitNarration} className="mt-4 flex flex-col gap-3">
+                <textarea
+                  className={textareaClassName}
+                  value={action}
+                  onChange={(event) => setAction(event.target.value)}
+                  placeholder="Descreva a ação, a fala ou a pergunta do seu personagem. O mestre lê a cena e responde na crônica."
+                  maxLength={1000}
+                  disabled={!active || busy}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="max-w-xl text-xs leading-5 text-muted-foreground">
+                    {!state?.storyReady
+                      ? "Inicie a memória do cenário antes de jogar."
+                      : active
+                        ? "A narração é registrada no diário público. Para dano/cura, use o HUD ao lado."
+                        : "O mestre precisa estar em modo autônomo e sem pausa."}
+                  </p>
+                  <Button
+                    type="submit"
+                    disabled={
+                      !active ||
+                      busy ||
+                      !action.trim() ||
+                      !selectedCharacter
+                    }
+                    className="min-w-36"
+                  >
+                    {busy ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" /> Narrando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="size-4" /> Enviar ação
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </section>
+          </main>
+
+          <CharacterHud
+            characters={state?.characters ?? []}
+            selectedId={selectedCharacter?.id ?? ""}
+            onSelect={setSelectedId}
+            combat={combat}
+            isMaster={Boolean(state?.isMaster)}
+            busy={mechanicalBusy || busy}
+            onAction={openAction}
+          />
+        </div>
+      </div>
+
+      {dialogOpen ? (
+        <MechanicalActionDialog
+          open
+          kind={dialogKind}
+          targets={targets}
+          defaultTargetId={defaultTargetId}
+          busy={mechanicalBusy}
+          onOpenChange={setDialogOpen}
+          onSubmit={submitMechanical}
+        />
+      ) : null}
     </div>
   );
 }

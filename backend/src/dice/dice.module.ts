@@ -7,5 +7,6 @@ import { DiceController } from './dice.controller';
   imports: [VttModule],
   providers: [DiceService],
   controllers: [DiceController],
+  exports: [DiceService],
 })
 export class DiceModule {}

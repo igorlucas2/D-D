@@ -37,7 +37,17 @@ export interface AiTurnState {
     gameMinute: number;
     weather: string;
   } | null;
-  characters: Array<{ id: string; name: string; isMine: boolean }>;
+  characters: Array<{
+    id: string;
+    characterId: string;
+    name: string;
+    isMine: boolean;
+    currentHp: number;
+    maxHp: number;
+    tempHp: number;
+    armorClass: number;
+    conditions: string[];
+  }>;
   events: Array<{
     eventId: string;
     sequence: number;

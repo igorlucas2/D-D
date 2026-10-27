@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
+import { parseStringArray } from '../common/json';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { AiTurnContextBuilder } from './ai-master.context';
@@ -92,6 +93,27 @@ export class AiMasterService {
       this.provider.status(),
     ]);
 
+    const characterIds = rows.map((row) => row.characterId);
+    const participants =
+      characterIds.length === 0
+        ? []
+        : await this.prisma.combatParticipant.findMany({
+            where: {
+              characterId: { in: characterIds },
+              encounter: { campaignId },
+            },
+            select: { characterId: true, conditions: true },
+          });
+    const conditionsByCharacter = new Map<string, string[]>();
+    for (const participant of participants) {
+      if (participant.characterId) {
+        conditionsByCharacter.set(
+          participant.characterId,
+          parseStringArray(participant.conditions),
+        );
+      }
+    }
+
     return {
       mode: modeOf(lore.mode),
       paused: lore.aiPaused,
@@ -109,8 +131,14 @@ export class AiMasterService {
           : null,
       characters: rows.map((row) => ({
         id: row.entityId,
+        characterId: row.characterId,
         name: row.character.name,
         isMine: row.character.userId === userId,
+        currentHp: row.character.currentHp,
+        maxHp: row.character.maxHp,
+        tempHp: row.character.tempHp,
+        armorClass: row.character.armorClass,
+        conditions: conditionsByCharacter.get(row.characterId) ?? [],
       })),
       events: events.map((event) => ({
         eventId: event.id,

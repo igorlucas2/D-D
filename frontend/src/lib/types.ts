@@ -80,6 +80,8 @@ export interface CombatParticipant {
   /** null quando o servidor oculta o PV exato deste inimigo ao jogador. */
   maxHp: number | null;
   currentHp: number | null;
+  /** PV temporários; ausente em respostas antigas. */
+  tempHp?: number;
   hpStatus: HpStatus;
   conditions: string[];
   isAlly: boolean;

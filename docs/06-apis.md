@@ -50,6 +50,8 @@ Base URL: `http://localhost:3001/api`
 | POST | /campaigns/:id/combat/start | Inicia encontro, calcula iniciativa |
 | PATCH | /combat/:id/participants/:pid | Atualiza HP/condições |
 | POST | /combat/:id/next-turn | Avança turno |
+| GET | /campaigns/:id/combat/actions | Histórico do ledger de dano/cura/PV/condição |
+| POST | /campaigns/:id/combat/actions | Aplica dano/cura/PV temporário/condição com alvo, fórmula, idempotência e revisão |
 
 ## Mesa Virtual / VTT (v1.0)
 | Método | Rota | Descrição |
