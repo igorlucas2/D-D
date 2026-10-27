@@ -540,7 +540,7 @@ abrir novas frentes. Situação verificada no código hoje:
 | MV-02 | Exploração por campanha/personagem | **Feito** (`CharacterExplorationState`, binding em `CampaignCharacter`) — mas a decisão "1 personagem ↔ 1 campanha" está implícita no schema e não documentada |
 | MV-03 | Fonte da verdade + `revision` | **Aberto** (sem campo de revisão) |
 | MV-04 | Relógio atômico e cron multi-instância | **Aberto** (`world.service.ts:316-333`, `world-tick.service.ts:15-44`) |
-| MV-05 | Endurecer imagem remota + CORS + JWT | **Aberto** (este documento, P0-2 e P0-3) |
+| MV-05 | Endurecer imagem remota + CORS + JWT | **Feito** em 26/10/2026 (P0-2 e P0-3) |
 | MV-06 | Lobby, sessão, convite expirável | **Parcial** (convite permanente; sem estado de sessão) |
 | MV-14 | Mobile/teclado + fatiar `vtt-panel` | **Parcial** (teclado na grade feito; toque e split pendentes) |
 
@@ -609,16 +609,25 @@ IA. O retorno por esforço é muito maior em hardening e processo.
 
 ## 9. Andamento das correções
 
+As notas das seções 1 e 2 refletem o diagnóstico inicial; esta seção registra o
+que já foi corrigido.
+
 | Data | Item | O que foi feito |
 | --- | --- | --- |
 | 26/10/2026 | P0-1 (parcial) | Repositório Git na raiz, `.gitignore`/`.gitattributes`, `.env` e artefatos grandes fora do versionamento, primeiro commit publicado em https://github.com/igorlucas2/D-D. Pendente: mover o RAR e excluir `.next`/`node_modules` da sincronização do OneDrive. |
 | 26/10/2026 | P0-2 | `validateEnv` com falha no boot; fallback do JWT removido; segredo local rotacionado; CORS por allowlist no HTTP e no handshake do Socket.IO; `helmet`, `compression`, limite de payload de 1 MB, shutdown hooks e `trust proxy` opt-in; CSP e headers de segurança no Next. Verificado com build dos dois lados e smoke test (health, headers, CORS e handshake). |
 | 26/10/2026 | P0-3 | `image-proxy` reescrito: só http(s) e portas 80/443; bloqueio de loopback, rede privada, link-local, multicast e reservados (IPv4, IPv6 e mapeados), revalidado a cada redirecionamento; timeout de 5 s, limite de 8 MB em streaming, apenas raster (SVG recusado), rate limit de 120/min e cabeçalhos `nosniff`/`CORP`. Verificado por HTTP: `file:`→400, `127.0.0.1`→403, HTML→415, SVG→415, PNG público→200, redirect para localhost→403, 121ª requisição→429. |
 | 26/10/2026 | P0-4 | `@nestjs/throttler` global (300/min por IP) com limites específicos: login 10/min, cadastro 3/min, dados 60/min, assistente e copiloto 10/min, sync SRD 2/10 min; bloqueio por e-mail após 10 falhas (15 min) independente do IP; `ADMIN_EMAILS` opcional no sync SRD; fetch do SRD com timeout de 15 s e orçamento total de 2 min com resultado parcial; `trust proxy` corrigido para reconhecer `::ffff:127.0.0.1` (sem isso, todos os clientes dividiam o mesmo balde). Verificado com 429 por IP, 429 por e-mail e isolamento entre clientes. |
+| 26/10/2026 | P0-5 | Sessão WebSocket com prazo: o `exp` do JWT vira timer por socket, é conferido em cada evento e há varredura de 60 s como rede de segurança; token vencido ou sem `exp` é encerrado já no handshake. Token bucket por socket para join/leave (10 a cada 2 s) e presença (5 a cada 2 s), nos namespaces `/vtt` e `/world`. Verificado com socket real: token de 4 s cai em ~3,4 s; token vencido e token sem `exp` caem em <10 ms; origem proibida é recusada no handshake; `localhost` conecta e permanece. |
+
+**Limite conhecido (revogação):** remover um membro já derruba o acesso na hora
+(`evictUser`). Revogar um token específico antes do vencimento — logout em todos
+os aparelhos ou troca de senha — exige um `tokenVersion` por usuário conferido a
+cada requisição; fica como item de P1, junto do Redis adapter.
 
 ---
 
-## Anexo A — Evidências coletadas
+## Anexo A — Evidências coletadas (baseline da análise, 26/10/2026)
 
 - **Git**: raiz sem `.git`; `frontend` em `master` com 1 commit, 19 arquivos
   rastreados, 98 não rastreados, sem remoto.
