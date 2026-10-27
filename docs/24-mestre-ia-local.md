@@ -229,6 +229,6 @@ Implementado:
 - schema/validador com reparo único e fallback 422;
 - persistência como `StoryEvent` público e invalidação por socket;
 - página `/campaigns/:id/play` com controles de mestre;
-- testes do schema (8 casos) e build/CI.
+- testes do schema (9 casos) e build/CI.
 
 Pendente para as próximas fases: testes de integração com banco/provider simulado, operações mecânicas validadas, ledger de fatos propostos pela IA e narração de combate.

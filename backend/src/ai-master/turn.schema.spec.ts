@@ -74,4 +74,26 @@ describe('parseAiTurn', () => {
       ),
     ).toThrow(AiTurnValidationError);
   });
+
+  it('rejeita eco de nomes de campos do schema', () => {
+    expect(() =>
+      parseAiTurn(
+        JSON.stringify({
+          ...valid,
+          narration: `${valid.narration} ask`,
+        }),
+      ),
+    ).toThrow(AiTurnValidationError);
+    expect(() =>
+      parseAiTurn(
+        JSON.stringify({
+          ...valid,
+          memory: {
+            summary: 'player.character pergunta sobre a porta.',
+            openQuestions: [],
+          },
+        }),
+      ),
+    ).toThrow(AiTurnValidationError);
+  });
 });

@@ -128,6 +128,14 @@ function contentIssues(result: AiTurnResult): string[] {
   ) {
     issues.push('narration com meta-discurso');
   }
+  const schemaEcho =
+    /(?:player\.(?:character|name)|\b(?:narration|openQuestions|memory|schemaVersion|ask)\b)/i;
+  if (schemaEcho.test(result.narration)) {
+    issues.push('narration com nome de campo do schema');
+  }
+  if (schemaEcho.test(summary)) {
+    issues.push('memory.summary com nome de campo do schema');
+  }
   if (
     /\b\d+\s*(?:pontos? de vida|pv|de dano)\b/i.test(result.narration) ||
     /você (?:perde|ganha|sofre)\s+\d+/i.test(result.narration)

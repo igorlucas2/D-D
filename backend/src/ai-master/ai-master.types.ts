@@ -14,7 +14,7 @@ export interface AiTurnContext {
     gameMinute: number;
     weather: string;
   } | null;
-  player: { name: string; character: string | null };
+  player: { character: string | null };
   characters: AiTurnCharacter[];
   facts: Array<{
     text: string;

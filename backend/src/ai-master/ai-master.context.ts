@@ -35,7 +35,7 @@ export class AiTurnContextBuilder {
       campaign.masterId,
       ...campaign.members.map((member) => member.userId),
     ];
-    const [lore, scene, calendar, rows, player] = await Promise.all([
+    const [lore, scene, calendar, rows] = await Promise.all([
       this.prisma.campaignLore.findUnique({ where: { campaignId } }),
       this.prisma.sceneState.findUnique({
         where: { campaignId },
@@ -48,10 +48,6 @@ export class AiTurnContextBuilder {
           character: { userId: { in: memberIds } },
         },
         include: { character: true },
-      }),
-      this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { displayName: true },
       }),
     ]);
     if (!lore)
@@ -127,6 +123,7 @@ export class AiTurnContextBuilder {
     const selectedCharacter = characterEntityId
       ? rows.find((row) => row.entityId === characterEntityId)
       : rows.find((row) => row.character.userId === userId);
+    const characterName = selectedCharacter?.character.name ?? null;
 
     const context: AiTurnContext = {
       campaign: { name: campaign.name },
@@ -136,10 +133,7 @@ export class AiTurnContextBuilder {
         gameMinute: calendar.totalMinutes,
         weather: calendar.weather,
       },
-      player: {
-        name: player?.displayName ?? 'Jogador',
-        character: selectedCharacter?.character.name ?? null,
-      },
+      player: { character: characterName },
       characters,
       facts: publicFacts,
       recent: events
