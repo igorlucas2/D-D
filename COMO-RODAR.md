@@ -67,3 +67,12 @@ Para mais de um domínio, separe por vírgula. Sem isso, o Next bloqueia os pró
 - `frontend\.env.local` com `NEXT_PUBLIC_API_URL=/api` (mesma origem), `BACKEND_URL=http://localhost:3001` e, se usar túnel, `ELDORIA_PUBLIC_HOSTS`.
 - Com túnel, o `backend\.env` também precisa de `ELDORIA_PUBLIC_HOSTS=seu-dominio` (ou `ELDORIA_ALLOWED_ORIGINS=https://seu-dominio`); sem isso o CORS e o Socket.IO recusam a origem pública. `TRUST_PROXY=loopback` já basta quando o Next está na mesma máquina; use `1` apenas se o backend ficar atrás de outro proxy (nginx, balanceador).
 - O backend responde com cabeçalhos de segurança (`helmet`) e o Next envia CSP, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` e `Permissions-Policy`. Payloads JSON são limitados a 1 MB.
+
+## Saúde, logs e métricas
+
+- `GET /api/health` — banco respondendo (usado pelo monitor).
+- `GET /api/health/live` — processo vivo, sem tocar no banco.
+- `GET /api/health/ready` — banco + outbox sem atraso (pendente há mais de 120 s devolve 503).
+- Logs em JSON no stdout, com `x-request-id` (gerado ou ecoado do proxy), sem `Authorization`, cookies ou senhas. `LOG_LEVEL` ajusta o nível.
+- `GET /api/metrics` (Prometheus) fica desligado; ligue com `METRICS_ENABLED=1` no `backend\.env`. Se `METRICS_TOKEN` estiver definido, exige `Authorization: Bearer <token>`.
+- Erros da API seguem um formato único: `statusCode`, `error`, `message`, `requestId`, `timestamp` e `path`.

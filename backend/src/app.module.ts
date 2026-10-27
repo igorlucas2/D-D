@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { validateEnv } from './config/env.validation';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AllExceptionsFilter } from './observability/all-exceptions.filter';
+import { LoggingModule } from './observability/logging';
+import { ObservabilityModule } from './observability/observability.module';
 import { AppController } from './app.controller';
 import { HealthController } from './health/health.controller';
 import { AppService } from './app.service';
@@ -32,6 +35,8 @@ import { ConsequencesModule } from './consequences/consequences.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    LoggingModule,
+    ObservabilityModule,
     // Limite global por IP; rotas sensíveis (login, cadastro, dados, IA e
     // sincronização) apertam o limite com @Throttle.
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 300 }]),
@@ -59,6 +64,10 @@ import { ConsequencesModule } from './consequences/consequences.module';
     ConsequencesModule,
   ],
   controllers: [AppController, HealthController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
 })
 export class AppModule {}

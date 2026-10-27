@@ -67,6 +67,23 @@ class EnvironmentVariables {
   })
   TRUST_PROXY?: string;
 
+  /** Nível dos logs estruturados (pino). */
+  @IsOptional()
+  @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'], {
+    message: 'LOG_LEVEL inválido.',
+  })
+  LOG_LEVEL?: string;
+
+  /** 1 liga /api/metrics; desligado por padrão. */
+  @IsOptional()
+  @IsIn(['0', '1'], { message: 'METRICS_ENABLED deve ser 0 ou 1.' })
+  METRICS_ENABLED?: string;
+
+  /** Quando definido, /api/metrics exige Authorization: Bearer <token>. */
+  @IsOptional()
+  @IsString()
+  METRICS_TOKEN?: string;
+
   /** E-mails (vírgula) autorizados a ações administrativas, como sincronizar SRD. */
   @IsOptional()
   @IsString()
