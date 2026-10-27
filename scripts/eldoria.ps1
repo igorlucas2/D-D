@@ -5,8 +5,9 @@
 .DESCRIPTION
   1. Encerra instâncias anteriores do próprio projeto nas portas 3001/3000.
   2. Prepara o ambiente: dependências, migrações e cliente Prisma.
-  3. Inicia backend e frontend com logs por sessão em logs\<data-hora>\.
-  4. Monitora a cada -CheckInterval segundos: processo vivo e resposta HTTP
+  3. Sobe o Ollama local (quando instalado) e confere o modelo do mestre IA.
+  4. Inicia backend e frontend com logs por sessão em logs\<data-hora>\.
+  5. Monitora a cada -CheckInterval segundos: processo vivo e resposta HTTP
      (backend: /api/health, que também testa o banco; frontend: página inicial).
      Após 3 falhas seguidas, ou se o processo cair, reinicia o serviço.
      Mais de 5 reinícios em 10 minutos: desiste daquele serviço e avisa.
@@ -17,6 +18,8 @@
 .EXAMPLE
   .\eldoria.ps1                 # desenvolvimento (recarrega ao editar)
   .\eldoria.ps1 -Mode prod      # gera build e roda em modo produção
+  .\eldoria.ps1 -PullModel      # baixa o modelo do mestre IA se faltar
+  .\eldoria.ps1 -SkipAi         # sobe só backend/frontend
   .\eldoria.ps1 -Stop           # só encerra o que estiver rodando
 #>
 param(
@@ -25,6 +28,8 @@ param(
   [int]$CheckInterval = 10,
   [switch]$NoBrowser,
   [switch]$SkipSetup,
+  [switch]$PullModel,
+  [switch]$SkipAi,
   [switch]$Stop
 )
 
@@ -44,6 +49,12 @@ $KeepLogSessions = 10
 $StopFlag = Join-Path $Root "logs\.parar"
 # PID do monitor em execução: impede dois monitores brigando pelos mesmos serviços.
 $LockFile = Join-Path $Root "logs\.monitor.pid"
+# Ollama local (mestre IA). Só é encerrado no fim se foi este script que o subiu.
+$AiUrl = "http://127.0.0.1:11434"
+$AiPidFile = Join-Path $Root "logs\.ollama.pid"
+$script:AiProcess = $null
+$script:AiManaged = $false
+$script:AiLabel = "IA: não verificada"
 
 # ---------------------------------------------------------------- utilidades
 
@@ -164,6 +175,153 @@ function Stop-OtherMonitor {
   Remove-Item $StopFlag -Force -ErrorAction SilentlyContinue
 }
 
+# ---------------------------------------------------------------- mestre IA
+
+function Get-BackendSetting([string]$Name, [string]$Default) {
+  $envFile = Join-Path $BackendDir ".env"
+  if (-not (Test-Path $envFile)) { return $Default }
+  $line = Get-Content -LiteralPath $envFile -Encoding UTF8 -ErrorAction SilentlyContinue |
+    Where-Object { $_ -match "^\s*$([regex]::Escape($Name))\s*=" } |
+    Select-Object -Last 1
+  if (-not $line) { return $Default }
+  $value = ($line -split "=", 2)[1].Trim().Trim('"').Trim("'")
+  if ($value) { return $value }
+  return $Default
+}
+
+function Get-OllamaExe {
+  $command = Get-Command "ollama" -ErrorAction SilentlyContinue
+  if ($command) { return $command.Source }
+  foreach ($candidate in @(
+      (Join-Path $env:LOCALAPPDATA "Programs\Ollama\ollama.exe"),
+      (Join-Path $env:ProgramFiles "Ollama\ollama.exe")
+    )) {
+    if (Test-Path $candidate) { return $candidate }
+  }
+  return $null
+}
+
+function Get-OllamaTags {
+  try {
+    return Invoke-RestMethod -Uri "$AiUrl/api/tags" -TimeoutSec 3
+  } catch {
+    return $null
+  }
+}
+
+function Start-AiService([string]$LogDir) {
+  if ($SkipAi) {
+    $script:AiLabel = "IA: desligada"
+    Write-Event "Mestre IA desligado nesta execução (-SkipAi)." "warn"
+    return
+  }
+
+  $exe = Get-OllamaExe
+  if (-not $exe) {
+    $script:AiLabel = "IA: Ollama não instalado"
+    Write-Event "Ollama não encontrado. O mestre IA fica indisponível; instale em https://ollama.com e rode de novo." "warn"
+    return
+  }
+
+  $tags = Get-OllamaTags
+  if (-not $tags) {
+    $outLog = Join-Path $LogDir "ollama.out.log"
+    $errLog = Join-Path $LogDir "ollama.err.log"
+    try {
+      $script:AiProcess = Start-Process -FilePath $exe -ArgumentList "serve" `
+        -WindowStyle Hidden -PassThru `
+        -RedirectStandardOutput $outLog -RedirectStandardError $errLog
+      [void]$script:AiProcess.Handle
+      $script:AiManaged = $true
+      Set-Content -Path $AiPidFile -Value $script:AiProcess.Id
+      Write-Event "Ollama iniciado (PID $($script:AiProcess.Id)); aguardando em $AiUrl..."
+    } catch {
+      $script:AiLabel = "IA: Ollama não subiu"
+      Write-Event "Não foi possível iniciar o Ollama: $($_.Exception.Message)" "warn"
+      return
+    }
+
+    $deadline = (Get-Date).AddSeconds(30)
+    while ((Get-Date) -lt $deadline) {
+      $tags = Get-OllamaTags
+      if ($tags) { break }
+      if ($script:AiProcess.HasExited) { break }
+      Start-Sleep -Seconds 1
+    }
+  } else {
+    Write-Event "Ollama já está respondendo em $AiUrl (processo externo)." "info"
+    Remove-Item $AiPidFile -Force -ErrorAction SilentlyContinue
+  }
+
+  if (-not $tags) {
+    $script:AiLabel = "IA: Ollama sem resposta"
+    Write-Event "O Ollama não respondeu em $AiUrl. O jogo continua; o mestre IA fica indisponível." "warn"
+    return
+  }
+
+  $model = Get-BackendSetting "GAME_MASTER_MODEL" "gemma2:9b"
+  $names = @($tags.models | ForEach-Object { $_.name } | Where-Object { $_ })
+  $found = @($names | Where-Object {
+      $_ -eq $model -or $_ -eq "${model}:latest" -or ($_ -replace ':latest$', '') -eq $model
+    }).Count -gt 0
+
+  if (-not $found) {
+    $script:AiLabel = "IA: modelo ausente"
+    Write-Event "O modelo '$model' não está instalado no Ollama." "warn"
+    $pull = $PullModel
+    if (-not $pull) {
+      try {
+        $answer = Read-Host "Baixar '$model' agora? Pode levar vários minutos (s/N)"
+        $pull = $answer -match '^[sS]'
+      } catch {
+        $pull = $false
+      }
+    }
+    if ($pull) {
+      Write-Event "Baixando o modelo '$model' (acompanhe pelo log $LogDir)..."
+      try {
+        Invoke-Step "Baixando modelo do mestre IA..." $Root "`"$exe`" pull $model"
+        $tags = Get-OllamaTags
+        $names = @($tags.models | ForEach-Object { $_.name } | Where-Object { $_ })
+        $found = @($names | Where-Object {
+            $_ -eq $model -or $_ -eq "${model}:latest" -or ($_ -replace ':latest$', '') -eq $model
+          }).Count -gt 0
+      } catch {
+        Write-Event "Não foi possível baixar o modelo. Rode manualmente: ollama pull $model" "warn"
+      }
+    } else {
+      Write-Event "Para habilitar o mestre IA depois: ollama pull $model" "warn"
+    }
+  }
+
+  if ($found) {
+    $script:AiLabel = "IA: $model"
+    Write-Event "Mestre IA pronto (modelo $model)." "ok"
+  } elseif (-not $found) {
+    $script:AiLabel = "IA: sem modelo"
+    Write-Event "Mestre IA fica indisponível até instalar o modelo '$model'." "warn"
+  }
+}
+
+function Stop-AiService {
+  if ($script:AiProcess -and -not $script:AiProcess.HasExited) {
+    Stop-Tree $script:AiProcess.Id
+  }
+  $script:AiProcess = $null
+
+  if (Test-Path $AiPidFile) {
+    $saved = Get-Content $AiPidFile -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($saved) {
+      $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$saved" -ErrorAction SilentlyContinue
+      if ($proc -and $proc.CommandLine -match "ollama") {
+        Stop-Tree ([int]$saved)
+      }
+    }
+    Remove-Item $AiPidFile -Force -ErrorAction SilentlyContinue
+  }
+  $script:AiManaged = $false
+}
+
 # ---------------------------------------------------------------- serviços
 
 function New-Service([string]$Name, [string]$WorkDir, [string]$Command, [int]$Port, [string]$HealthUrl, [int]$StartTimeout) {
@@ -279,6 +437,7 @@ function Update-Title($Services) {
   $parts = $Services | ForEach-Object {
     if ($_.State -eq "ok") { "$($_.Name) ok $($_.LastMs)ms" } else { "$($_.Name) $($_.State)" }
   }
+  if ($script:AiLabel) { $parts += $script:AiLabel }
   Set-Title ($parts -join " | ")
 }
 
@@ -304,6 +463,7 @@ if (-not $Stop) { Stop-OtherMonitor }
 $okBackend = Stop-ProjectOnPort 3001
 $okFrontend = Stop-ProjectOnPort 3000
 Stop-ProjectServers
+Stop-AiService
 if ($Stop) {
   Remove-Item $StopFlag -Force -ErrorAction SilentlyContinue
   if ($okBackend -and $okFrontend) { Write-Event "Nada mais rodando nas portas 3000 e 3001." "ok" }
@@ -344,6 +504,8 @@ try {
   Write-Event $_.Exception.Message "error"
   exit 1
 }
+
+Start-AiService $logDir
 
 if ($Mode -eq "prod") {
   $backend = New-Service "backend" $BackendDir "node dist\src\main.js" 3001 "http://localhost:3001/api/health" 60
@@ -398,6 +560,9 @@ try {
           "A" { Start-Process $SiteUrl }
           "L" { foreach ($svc in $services) { Write-Host "  [$($svc.Name)]" -ForegroundColor Cyan; Show-LogTail $svc 20 } }
           "R" {
+            if (-not $SkipAi -and (-not $script:AiProcess -or $script:AiProcess.HasExited)) {
+              Start-AiService $logDir
+            }
             foreach ($svc in $services) { $svc.GaveUp = $false; $svc.Restarts = @(); Restart-EldoriaService $svc $logDir "pedido manual" }
           }
         }
@@ -432,6 +597,10 @@ try {
         if ($svc.Failures -ge $FailuresBeforeRestart) { Restart-EldoriaService $svc $logDir "$FailuresBeforeRestart verificações sem resposta" }
       }
     }
+    if (-not $SkipAi -and $script:AiManaged -and $script:AiProcess -and $script:AiProcess.HasExited) {
+      Write-Event "Ollama parou. Use R para reiniciar o mestre IA ou abra o Ollama manualmente." "warn"
+      $script:AiManaged = $false
+    }
     Update-Title $services
 
     if (((Get-Date) - $lastSummary).TotalMinutes -ge 5) {
@@ -447,6 +616,7 @@ try {
   [void](Stop-ProjectOnPort 3001)
   [void](Stop-ProjectOnPort 3000)
   Stop-ProjectServers
+  Stop-AiService
   if ((Get-Content $LockFile -ErrorAction SilentlyContinue | Select-Object -First 1) -eq "$PID") {
     Remove-Item $LockFile -Force -ErrorAction SilentlyContinue
   }

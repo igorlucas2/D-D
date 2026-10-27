@@ -70,6 +70,10 @@ Para mais de um domínio, separe por vírgula. Sem isso, o Next bloqueia os pró
 
 ## Mestre IA local (Ollama)
 
+O **Iniciar Eldoria.cmd** já cuida do Ollama: detecta a instalação, sobe o serviço quando necessário e confere o modelo configurado em `GAME_MASTER_MODEL`. Se o modelo faltar, ele pergunta antes de baixar; use `"Iniciar Eldoria.cmd" -PullModel` para baixar sem perguntar ou `-SkipAi` para subir só backend/frontend. Ao encerrar, o Ollama iniciado pelo script também é encerrado; um Ollama que já estava aberto é preservado.
+
+
+
 O modo `AUTONOMOUS` usa um modelo local para narrar as ações dos jogadores. A mecânica continua manual: o modelo não altera PV, itens, tempo, posição nem fatos canônicos.
 
 1. Instale o [Ollama](https://ollama.com/) e baixe um modelo. Para português, `qwen2.5:14b-instruct` é uma boa escolha; `gemma2:9b` é o padrão atual e serve para hardware menor.

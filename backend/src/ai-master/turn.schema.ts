@@ -40,6 +40,30 @@ export const aiTurnSchema = {
 
 const validate = new Ajv({ allErrors: true }).compile(aiTurnSchema);
 
+/**
+ * Schema para o compilador de gramática do Ollama. Limites de repetição
+ * grandes (maxLength/maxItems) estouram o parser; o Ajv acima os aplica
+ * depois da geração.
+ */
+export const aiTurnGenerationSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['narration', 'memory', 'ask'],
+  properties: {
+    narration: { type: 'string' },
+    memory: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['summary', 'openQuestions'],
+      properties: {
+        summary: { type: 'string' },
+        openQuestions: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    ask: { type: 'string' },
+  },
+} as const;
+
 export class AiTurnValidationError extends Error {
   constructor(public readonly issues: string[]) {
     super(`Turno da IA inválido: ${issues.join('; ')}`);

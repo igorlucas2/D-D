@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { aiTurnSchema, parseAiTurn, type AiTurnResult } from './turn.schema';
+import {
+  aiTurnGenerationSchema,
+  parseAiTurn,
+  type AiTurnResult,
+} from './turn.schema';
 import type { AiTurnContext } from './ai-master.types';
 
 export interface AiTurnGeneration {
@@ -117,7 +121,7 @@ export class LocalAiProvider {
           model: this.model(),
           stream: false,
           keep_alive: '2m',
-          format: aiTurnSchema,
+          format: aiTurnGenerationSchema,
           options: {
             temperature: 0.4,
             num_ctx: 8192,
