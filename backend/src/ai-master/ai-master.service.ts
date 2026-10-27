@@ -435,9 +435,13 @@ export class AiMasterService {
       where: { id: input.actionId, campaignId },
     });
     if (!action) throw new NotFoundException('Ação mecânica não encontrada.');
-    if (action.kind !== 'USE_ITEM' && action.kind !== 'CAST_SPELL')
+    if (
+      action.kind !== 'USE_ITEM' &&
+      action.kind !== 'CAST_SPELL' &&
+      action.kind !== 'WEAPON_ATTACK'
+    )
       throw new BadRequestException(
-        'Só resultados de item ou magia têm narração automática. Ajustes manuais de PV permanecem como cartões mecânicos.',
+        'Só resultados de item, magia ou ataque com arma têm narração automática. Ajustes manuais de PV permanecem como cartões mecânicos.',
       );
     if (campaign.masterId !== userId && action.actorUserId !== userId)
       throw new ForbiddenException(

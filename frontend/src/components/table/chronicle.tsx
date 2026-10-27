@@ -41,7 +41,9 @@ export function Chronicle({
   const latest = events[0] ?? null;
   const older = events.slice(1);
   const canNarrate =
-    latestAction?.kind === 'USE_ITEM' || latestAction?.kind === 'CAST_SPELL';
+    latestAction?.kind === 'USE_ITEM' ||
+    latestAction?.kind === 'CAST_SPELL' ||
+    latestAction?.kind === 'WEAPON_ATTACK';
   const otherActions = actions.filter(
     (action) => action.actionId !== latestAction?.actionId,
   ).slice(0, 4);

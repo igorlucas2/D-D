@@ -77,7 +77,7 @@ dano (fórmula, modificador, tipo), PV antes/depois, dano aplicado e absorvido.
 - Alcance, cobertura, desvantagem e proficiência de arma não são modelados.
 - Ação/economia de turno ainda não é aplicada.
 - Não há ataque desarmado nem duas mãos/versátil completo.
-- Ação de ataque não gera narração automática.
+- O resultado do ataque pode ser narrado pelo mestre (Fase J).
 
 ## 7. Testes
 

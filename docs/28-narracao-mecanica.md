@@ -9,7 +9,7 @@ Fechar o ciclo entre o motor e a crônica: depois de **usar um item ou conjurar
 uma magia**, o jogador pode pedir ao mestre para narrar **aquele resultado já
 aplicado**, sem recalcular nada e sem criar efeitos novos.
 
-O botão **Narrar consequência** aparece no cartão do último resultado de **item ou magia**. Ajustes manuais de PV não geram narração automática — são cartões mecânicos, não ações de ficção. A
+O botão **Narrar consequência** aparece no cartão do último resultado de **item, magia ou ataque com arma**. Ajustes manuais de PV não geram narração automática — são cartões mecânicos, não ações de ficção. A
 narração é persistida como evento público e passa a ser a leitura principal da
 crônica.
 
@@ -63,7 +63,7 @@ interface NarratedActionResult {
 Regras:
 
 - exige `AUTONOMOUS`, não pausado e memória iniciada;
-- só aceita `USE_ITEM` e `CAST_SPELL`; dano/cura manual devolve 400;
+- só aceita `USE_ITEM`, `CAST_SPELL` e `WEAPON_ATTACK`; dano/cura manual devolve 400;
 - apenas o ator da ação ou o mestre pode pedir a narração;
 - a ação precisa pertencer à campanha;
 - se `requestKey` repetir, devolve o evento anterior sem chamar o modelo;

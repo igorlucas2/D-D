@@ -263,6 +263,10 @@ Queda, estabilização e morte em `docs/31-morte-e-estabilizacao.md`.
 
 Salvaguarda automática no início do turno em `docs/31-morte-e-estabilizacao.md`.
 
+## 9.9 Fase J
+
+Narração de ataques com arma em `docs/32-narracao-de-armas.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

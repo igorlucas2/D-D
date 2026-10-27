@@ -59,6 +59,7 @@ Regras obrigatórias:
 - Mencione NOMINALMENTE o alvo (ou alvos) listado em resolvedAction.targets.
 - Mencione o efeito e o resultado numérico de cada alvo: dano, cura, PV temporário, acerto/erro, crítico, condição ou item consumido.
 - Quando houver PV final numérico em resolvedAction, cite esse PV final.
+- Se for ataque com arma, deixe claro se acertou, errou ou foi crítico, e cite o dano aplicado.
 - Use somente os fatos, nomes e números de resolvedAction e do contexto. Não invente novos alvos, nomes, itens, magias, dano, cura, mortes ou mudanças de lugar/tempo.
 - Se um ataque errou, narre o erro sem aplicar dano. Se houve save, reflita o sucesso ou falha.
 - Em "memory.summary", resuma o resultado efetivamente aplicado em uma frase factual.

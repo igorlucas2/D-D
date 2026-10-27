@@ -58,6 +58,26 @@ describe('describeMechanicalResult', () => {
     expect(save.targets[0].result).toContain('falhou no save');
   });
 
+  it('descreve ataque com arma e crítico', () => {
+    const facts = describeMechanicalResult('WEAPON_ATTACK', {
+      weapon: { name: 'Punhal' },
+      target: { name: 'Goblin' },
+      attack: {
+        total: 22,
+        ac: 13,
+        hit: true,
+        critical: true,
+      },
+      damage: { damageType: 'piercing' },
+      applied: 9,
+      hpAfter: { current: 0, max: 8, temp: 0 },
+    });
+    expect(facts.action).toBe('Ataque com Punhal');
+    expect(facts.targets[0].result).toContain('crítico');
+    expect(facts.targets[0].result).toContain('9 de dano piercing');
+    expect(facts.targets[0].result).toContain('PV 0/8');
+  });
+
   it('não quebra com resultado desconhecido', () => {
     const facts = describeMechanicalResult('UNKNOWN', null);
     expect(facts.action).toBe('Condição');

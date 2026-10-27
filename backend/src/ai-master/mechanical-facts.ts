@@ -70,6 +70,31 @@ export function describeMechanicalResult(
     };
   }
 
+  if (kind === 'WEAPON_ATTACK' && data) {
+    const weapon = record(data.weapon);
+    const name = typeof weapon?.name === 'string' ? weapon.name : 'Arma';
+    const target = record(data.target);
+    const attack = record(data.attack);
+    const damage = record(data.damage);
+    const outcome = attack?.hit
+      ? attack.critical
+        ? 'crítico'
+        : 'acertou'
+      : 'errou';
+    return {
+      action: `Ataque com ${name}`,
+      outcome: 'ataque resolvido pelo motor',
+      targets: [
+        {
+          name:
+            target && typeof target.name === 'string' ? target.name : 'Alvo',
+          result: `${outcome} (${numberValue(attack?.total)} vs CA ${numberValue(attack?.ac)}) · ${numberValue(data.applied)} de dano${typeof damage?.damageType === 'string' ? ` ${damage.damageType}` : ''} · ${hpText(data.hpAfter)}`,
+        },
+      ],
+      resource: `arma ${name}`,
+    };
+  }
+
   if (kind === 'CAST_SPELL' && data) {
     const spell = record(data.spell);
     const name = typeof spell?.name === 'string' ? spell.name : 'Magia';
