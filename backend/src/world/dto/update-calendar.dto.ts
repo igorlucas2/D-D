@@ -79,4 +79,10 @@ export class UpdateCalendarDto {
   @Min(0)
   @Max(100)
   eventChancePercent?: number;
+
+  /** Revisão que o cliente leu; divergência devolve 409. */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  expectedRevision?: number;
 }

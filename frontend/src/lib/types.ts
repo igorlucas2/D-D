@@ -92,6 +92,8 @@ export interface CombatEncounter {
   round: number;
   turnIndex: number;
   hpDisplay: CombatHpDisplay;
+  /** Concorrência otimista (P1-2). */
+  revision?: number;
   createdAt: string;
   participants: CombatParticipant[];
 }
@@ -212,6 +214,8 @@ export interface VttMap {
   gridSize: number;
   gridColor: string;
   imageUrl: string | null;
+  /** Concorrência otimista (P1-2): enviado como expectedRevision no PATCH. */
+  revision?: number;
   createdAt: string;
   updatedAt: string;
   fogCells: string[];
@@ -331,6 +335,8 @@ export interface CampaignCalendar {
   gameMinutesPerTick: number;
   eventChancePercent: number;
   weather: Weather;
+  /** Concorrência otimista (P1-2): enviado como expectedRevision no PUT. */
+  revision?: number;
 }
 
 /** Evento do mundo sorteado com a mesa aberta (IM-09). */

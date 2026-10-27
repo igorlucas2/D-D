@@ -113,17 +113,31 @@ export class CombatService {
     const encounter = await this.getActiveEncounter(campaignId);
 
     if (dto.hpDisplay !== undefined) {
-      // A escolha vale para este combate e vira o padrao do proximo.
-      await this.prisma.$transaction([
-        this.prisma.combatEncounter.update({
-          where: { id: encounter.id },
-          data: { hpDisplay: dto.hpDisplay },
-        }),
-        this.prisma.campaign.update({
+      // A escolha vale para este combate e vira o padrao do proximo. O CAS em
+      // revision evita que duas abas do mestre sobrescrevam uma à outra.
+      await this.prisma.$transaction(async (tx) => {
+        const claimed = await tx.combatEncounter.updateMany({
+          where: {
+            id: encounter.id,
+            ...(dto.expectedRevision !== undefined
+              ? { revision: dto.expectedRevision }
+              : {}),
+          },
+          data: {
+            hpDisplay: dto.hpDisplay,
+            revision: { increment: 1 },
+          },
+        });
+        if (claimed.count === 0) {
+          throw new ConflictException(
+            'O combate foi alterado por outra pessoa. Recarregue antes de salvar.',
+          );
+        }
+        await tx.campaign.update({
           where: { id: campaignId },
           data: { combatHpDisplay: dto.hpDisplay },
-        }),
-      ]);
+        });
+      });
       await this.broadcast(campaignId, { type: 'display' });
     }
 
@@ -185,6 +199,7 @@ export class CombatService {
       },
     });
 
+    await this.touchEncounter(encounter.id);
     await this.broadcast(campaignId, { type: 'roster' });
     return this.getEncounter(campaignId, userId);
   }
@@ -219,6 +234,7 @@ export class CombatService {
       where: { id: participantId },
       data,
     });
+    await this.touchEncounter(participant.encounterId);
 
     // A ficha acompanha o combate na hora. O PV máximo da ficha vem das
     // regras do personagem, então só o PV atual é copiado (limitado a ele).
@@ -273,10 +289,15 @@ export class CombatService {
     const encounter = await this.prisma.combatEncounter.findUnique({
       where: { id: participant.encounterId },
     });
-    if (encounter && remaining > 0 && encounter.turnIndex >= remaining) {
+    if (encounter) {
       await this.prisma.combatEncounter.update({
         where: { id: encounter.id },
-        data: { turnIndex: 0 },
+        data: {
+          revision: { increment: 1 },
+          ...(remaining > 0 && encounter.turnIndex >= remaining
+            ? { turnIndex: 0 }
+            : {}),
+        },
       });
     }
 
@@ -310,7 +331,7 @@ export class CombatService {
     const round = wrapped ? encounter.round + 1 : encounter.round;
     await this.prisma.combatEncounter.update({
       where: { id: encounter.id },
-      data: { turnIndex, round },
+      data: { turnIndex, round, revision: { increment: 1 } },
     });
 
     await this.broadcast(campaignId, {
@@ -442,6 +463,14 @@ export class CombatService {
         };
       }),
     };
+  }
+
+  /** Marca o encontro como alterado (concorrência otimista, P1-2). */
+  private async touchEncounter(encounterId: string) {
+    await this.prisma.combatEncounter.update({
+      where: { id: encounterId },
+      data: { revision: { increment: 1 } },
+    });
   }
 
   private async assertIsMember(campaignId: string, userId: string) {

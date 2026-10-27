@@ -62,6 +62,7 @@ export function projectPlayerMap(
     published: true,
     createdAt: map.createdAt,
     updatedAt: map.updatedAt,
+    revision: map.revision,
     vision: map.vision,
     fogCells: [...fog],
     walls: walls.map((wall) => ({ ...wall })),

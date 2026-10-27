@@ -126,6 +126,15 @@ export class VttService {
     await this.assertIsMaster(campaignId, userId);
     const existing = await this.getOwnedMap(campaignId, mapId);
 
+    if (
+      dto.expectedRevision !== undefined &&
+      dto.expectedRevision !== existing.revision
+    ) {
+      throw new ConflictException(
+        'O mapa foi alterado por outra pessoa. Recarregue antes de salvar.',
+      );
+    }
+
     const width = dto.width ?? existing.width;
     const height = dto.height ?? existing.height;
     const data: Prisma.VttMapUpdateInput = {};
@@ -178,7 +187,31 @@ export class VttService {
       );
     }
 
-    await this.prisma.vttMap.update({ where: { id: mapId }, data });
+    if (dto.expectedRevision === undefined) {
+      await this.prisma.vttMap.update({
+        where: { id: mapId },
+        data: { ...data, revision: { increment: 1 } },
+      });
+    } else {
+      // Concorrência otimista (P1-2): só grava se a revisão ainda for a que o
+      // cliente leu. O CAS e a gravação ficam na mesma transação.
+      await this.prisma.$transaction(async (tx) => {
+        const claimed = await tx.vttMap.updateMany({
+          where: {
+            id: mapId,
+            campaignId,
+            revision: dto.expectedRevision,
+          },
+          data: { revision: { increment: 1 } },
+        });
+        if (claimed.count === 0) {
+          throw new ConflictException(
+            'O mapa foi alterado por outra pessoa. Recarregue antes de salvar.',
+          );
+        }
+        await tx.vttMap.update({ where: { id: mapId }, data });
+      });
+    }
 
     if (dto.width !== undefined || dto.height !== undefined) {
       await this.clampTokensToMap(mapId, width, height);

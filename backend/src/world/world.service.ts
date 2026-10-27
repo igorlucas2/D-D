@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma, type CampaignCalendar } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorldEntryDto } from './dto/create-world-entry.dto';
 import { UpdateWorldEntryDto } from './dto/update-world-entry.dto';
@@ -13,6 +14,7 @@ import { AdvanceClockDto } from './dto/advance-clock.dto';
 import { CreateWorldEventDto } from './dto/create-world-event.dto';
 import { UpdateWorldEventDto } from './dto/update-world-event.dto';
 import { WorldGateway } from './world.gateway';
+import { planAutoTick } from './clock';
 import {
   asWeather,
   type SerializedCalendar,
@@ -47,6 +49,35 @@ const DEFAULT_WEEKDAY_NAMES = [
 const MINUTES_PER_HOUR = 60;
 const HOURS_PER_DAY = 24;
 const MINUTES_PER_DAY = HOURS_PER_DAY * MINUTES_PER_HOUR;
+
+/** Campos escalares do calendário, prontos para create/update. */
+interface CalendarData {
+  monthNames: string;
+  daysPerMonth: string;
+  weekdayNames: string;
+  totalMinutes: number;
+  currentDay: number;
+  currentMonth: number;
+  currentYear: number;
+  currentHour: number;
+  currentMinute: number;
+  notes: string | null;
+  realMinutesPerTick: number;
+  gameMinutesPerTick: number;
+  eventChancePercent: number;
+}
+
+/** Entrada semântica do calendário (listas já desserializadas). */
+interface CalendarInput {
+  monthNames: string[];
+  daysPerMonth: number[];
+  weekdayNames: string[];
+  totalMinutes: number;
+  notes: string | null;
+  realMinutesPerTick: number;
+  gameMinutesPerTick: number;
+  eventChancePercent: number;
+}
 
 export function totalMinutesFromFields(
   currentDay: number,
@@ -204,7 +235,8 @@ export class WorldService {
     await this.assertIsMaster(campaignId, userId);
     await this.assertLegacyClock(campaignId);
 
-    const existing = await this.loadCalendar(campaignId);
+    const existingRow = await this.ensureCalendar(campaignId);
+    const existing = this.serializeRow(existingRow);
 
     const monthNames = dto.monthNames ?? existing.monthNames;
     const daysPerMonth = dto.daysPerMonth ?? existing.daysPerMonth;
@@ -252,35 +284,23 @@ export class WorldService {
     const notes =
       dto.notes !== undefined ? dto.notes.trim() || null : existing.notes;
 
-    const realMinutesPerTick =
-      dto.realMinutesPerTick ?? existing.realMinutesPerTick;
-    const gameMinutesPerTick =
-      dto.gameMinutesPerTick ?? existing.gameMinutesPerTick;
-    const eventChancePercent =
-      dto.eventChancePercent ?? existing.eventChancePercent;
-
-    await this.persistCalendar(campaignId, {
+    const data = this.calendarData({
       monthNames,
       daysPerMonth,
       weekdayNames,
       totalMinutes,
       notes,
-      realMinutesPerTick,
-      gameMinutesPerTick,
-      eventChancePercent,
+      realMinutesPerTick: dto.realMinutesPerTick ?? existing.realMinutesPerTick,
+      gameMinutesPerTick: dto.gameMinutesPerTick ?? existing.gameMinutesPerTick,
+      eventChancePercent: dto.eventChancePercent ?? existing.eventChancePercent,
     });
 
-    const serialized = this.buildSerializedCalendar({
-      monthNames,
-      daysPerMonth,
-      weekdayNames,
-      totalMinutes,
-      notes,
-      realMinutesPerTick,
-      gameMinutesPerTick,
-      eventChancePercent,
-      weather: existing.weather,
-    });
+    const updated = await this.writeCalendar(
+      campaignId,
+      data,
+      dto.expectedRevision,
+    );
+    const serialized = this.serializeRow(updated);
 
     this.worldGateway.emitClockUpdated(campaignId, serialized);
     return serialized;
@@ -294,14 +314,14 @@ export class WorldService {
   /** Grava o clima global e avisa a mesa pelo mesmo evento do relógio. */
   private async applyWeather(campaignId: string, weather: Weather) {
     await this.assertLegacyClock(campaignId);
-    const existing = await this.loadCalendar(campaignId);
-    // Garante o registro do calendário antes de gravar o clima.
-    await this.persistCalendar(campaignId, existing);
-    await this.prisma.campaignCalendar.update({
+    await this.ensureCalendar(campaignId);
+
+    const updated = await this.prisma.campaignCalendar.update({
       where: { campaignId },
-      data: { weather },
+      data: { weather, revision: { increment: 1 } },
     });
-    const serialized = { ...existing, weather };
+
+    const serialized = this.serializeRow(updated);
     this.worldGateway.emitClockUpdated(campaignId, serialized);
     return serialized;
   }
@@ -318,39 +338,26 @@ export class WorldService {
     minutes: number,
   ): Promise<SerializedCalendar> {
     await this.assertLegacyClock(campaignId);
-    const existing = await this.loadCalendar(campaignId);
-    const totalMinutes = existing.totalMinutes + minutes;
+    await this.ensureCalendar(campaignId);
 
-    await this.persistCalendar(campaignId, {
-      monthNames: existing.monthNames,
-      daysPerMonth: existing.daysPerMonth,
-      weekdayNames: existing.weekdayNames,
-      totalMinutes,
-      notes: existing.notes,
-      realMinutesPerTick: existing.realMinutesPerTick,
-      gameMinutesPerTick: existing.gameMinutesPerTick,
-      eventChancePercent: existing.eventChancePercent,
+    // Incremento atômico: dois avanços simultâneos (tick + viagem) não perdem
+    // minutos, ao contrário do antigo ler-somar-gravar.
+    const updated = await this.prisma.campaignCalendar.update({
+      where: { campaignId },
+      data: {
+        totalMinutes: { increment: minutes },
+        revision: { increment: 1 },
+      },
     });
 
-    const serialized = this.buildSerializedCalendar({
-      monthNames: existing.monthNames,
-      daysPerMonth: existing.daysPerMonth,
-      weekdayNames: existing.weekdayNames,
-      totalMinutes,
-      notes: existing.notes,
-      realMinutesPerTick: existing.realMinutesPerTick,
-      gameMinutesPerTick: existing.gameMinutesPerTick,
-      eventChancePercent: existing.eventChancePercent,
-      weather: existing.weather,
-    });
-
+    const serialized = this.serializeRow(updated);
     this.worldGateway.emitClockUpdated(campaignId, serialized);
     return serialized;
   }
 
   // Lista campanhas com avanco automatico do relogio habilitado, junto com
-  // o intervalo configurado e a data da ultima atualizacao do calendario —
-  // usado pelo WorldTickService para decidir quando aplicar um tick.
+  // o intervalo configurado e o instante do ultimo tick — usado pelo
+  // WorldTickService para decidir quando aplicar um tick.
   async findCampaignsWithAutoTick() {
     return this.prisma.campaignCalendar.findMany({
       where: {
@@ -362,9 +369,50 @@ export class WorldService {
         realMinutesPerTick: true,
         gameMinutesPerTick: true,
         eventChancePercent: true,
+        lastTickAt: true,
         updatedAt: true,
       },
     });
+  }
+
+  /**
+   * Aplica o tick automático se o intervalo venceu, com CAS em `lastTickAt`:
+   * duas instâncias nunca somam o mesmo tick. Retorna null quando ainda não
+   * venceu ou quando outra instância ganhou a corrida.
+   */
+  async advanceAutoTick(calendar: {
+    campaignId: string;
+    realMinutesPerTick: number;
+    gameMinutesPerTick: number;
+    eventChancePercent: number;
+    lastTickAt: Date | null;
+    updatedAt: Date;
+  }): Promise<SerializedCalendar | null> {
+    const plan = planAutoTick(calendar);
+    if (!plan) return null;
+
+    const claimed = await this.prisma.campaignCalendar.updateMany({
+      where: {
+        campaignId: calendar.campaignId,
+        lastTickAt: calendar.lastTickAt,
+      },
+      data: {
+        totalMinutes: { increment: plan.minutesToAdd },
+        revision: { increment: 1 },
+        lastTickAt: plan.nextTickAt,
+      },
+    });
+
+    if (claimed.count === 0) return null;
+
+    const updated = await this.prisma.campaignCalendar.findUnique({
+      where: { campaignId: calendar.campaignId },
+    });
+    if (!updated) return null;
+
+    const serialized = this.serializeRow(updated);
+    this.worldGateway.emitClockUpdated(calendar.campaignId, serialized);
+    return serialized;
   }
 
   // Sorteia um evento ativo da tabela de eventos da campanha (ponderado por
@@ -541,6 +589,7 @@ export class WorldService {
         gameMinutesPerTick: 60,
         eventChancePercent: 0,
         weather: 'clear',
+        revision: 0,
       });
     }
 
@@ -557,8 +606,7 @@ export class WorldService {
       DEFAULT_WEEKDAY_NAMES,
     );
 
-    let totalMinutes = existing.totalMinutes;
-    if (totalMinutes === 0) {
+    if (existing.totalMinutes === 0) {
       const backfilled = totalMinutesFromFields(
         existing.currentDay,
         existing.currentMonth,
@@ -568,52 +616,98 @@ export class WorldService {
         daysPerMonth,
       );
       if (backfilled !== 0) {
-        totalMinutes = backfilled;
-        await this.persistCalendar(campaignId, {
+        const updated = await this.persistCalendar(campaignId, {
           monthNames,
           daysPerMonth,
           weekdayNames,
-          totalMinutes,
+          totalMinutes: backfilled,
           notes: existing.notes,
           realMinutesPerTick: existing.realMinutesPerTick,
           gameMinutesPerTick: existing.gameMinutesPerTick,
           eventChancePercent: existing.eventChancePercent,
         });
+        return this.serializeRow(updated);
       }
     }
 
+    return this.serializeRow(existing);
+  }
+
+  private serializeRow(row: CampaignCalendar): SerializedCalendar {
     return this.buildSerializedCalendar({
-      monthNames,
-      daysPerMonth,
-      weekdayNames,
-      totalMinutes,
-      notes: existing.notes,
-      realMinutesPerTick: existing.realMinutesPerTick,
-      gameMinutesPerTick: existing.gameMinutesPerTick,
-      eventChancePercent: existing.eventChancePercent,
-      weather: asWeather(existing.weather),
+      monthNames: this.parseStringArray(row.monthNames, DEFAULT_MONTH_NAMES),
+      daysPerMonth: this.parseNumberArray(
+        row.daysPerMonth,
+        DEFAULT_DAYS_PER_MONTH,
+      ),
+      weekdayNames: this.parseStringArray(
+        row.weekdayNames,
+        DEFAULT_WEEKDAY_NAMES,
+      ),
+      totalMinutes: row.totalMinutes,
+      notes: row.notes,
+      realMinutesPerTick: row.realMinutesPerTick,
+      gameMinutesPerTick: row.gameMinutesPerTick,
+      eventChancePercent: row.eventChancePercent,
+      weather: asWeather(row.weather),
+      revision: row.revision,
     });
   }
 
-  private async persistCalendar(
-    campaignId: string,
-    input: {
-      monthNames: string[];
-      daysPerMonth: number[];
-      weekdayNames: string[];
-      totalMinutes: number;
-      notes: string | null;
-      realMinutesPerTick: number;
-      gameMinutesPerTick: number;
-      eventChancePercent: number;
-    },
-  ) {
+  /** Cria o calendário com os padrões quando a campanha ainda não tem um. */
+  private async ensureCalendar(campaignId: string): Promise<CampaignCalendar> {
+    const existing = await this.prisma.campaignCalendar.findUnique({
+      where: { campaignId },
+    });
+    if (existing) return existing;
+
+    try {
+      return await this.persistCalendarData(
+        campaignId,
+        this.defaultCalendarData(),
+      );
+    } catch (error) {
+      // Duas requisições criando o calendário ao mesmo tempo.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const raced = await this.prisma.campaignCalendar.findUnique({
+          where: { campaignId },
+        });
+        if (raced) return raced;
+      }
+      throw error;
+    }
+  }
+
+  private defaultCalendarData(): CalendarData {
+    return this.calendarData({
+      monthNames: DEFAULT_MONTH_NAMES,
+      daysPerMonth: DEFAULT_DAYS_PER_MONTH,
+      weekdayNames: DEFAULT_WEEKDAY_NAMES,
+      totalMinutes: totalMinutesFromFields(
+        1,
+        1,
+        1,
+        8,
+        0,
+        DEFAULT_DAYS_PER_MONTH,
+      ),
+      notes: null,
+      realMinutesPerTick: 0,
+      gameMinutesPerTick: 60,
+      eventChancePercent: 0,
+    });
+  }
+
+  private calendarData(input: CalendarInput): CalendarData {
     const derived = deriveFieldsFromTotalMinutes(
       input.totalMinutes,
       input.daysPerMonth,
     );
 
-    const data = {
+    return {
       monthNames: JSON.stringify(input.monthNames),
       daysPerMonth: JSON.stringify(input.daysPerMonth),
       weekdayNames: JSON.stringify(input.weekdayNames),
@@ -628,12 +722,55 @@ export class WorldService {
       gameMinutesPerTick: input.gameMinutesPerTick,
       eventChancePercent: input.eventChancePercent,
     };
+  }
 
-    await this.prisma.campaignCalendar.upsert({
+  /**
+   * Grava o calendário. Com `expectedRevision`, só grava se a revisão ainda for
+   * a que o cliente leu (senão 409); sem ela, mantém o comportamento antigo.
+   */
+  private async writeCalendar(
+    campaignId: string,
+    data: CalendarData,
+    expectedRevision?: number,
+  ): Promise<CampaignCalendar> {
+    if (expectedRevision === undefined) {
+      return this.persistCalendarData(campaignId, data);
+    }
+
+    const updated = await this.prisma.campaignCalendar.updateMany({
+      where: { campaignId, revision: expectedRevision },
+      data: { ...data, revision: { increment: 1 } },
+    });
+
+    if (updated.count === 0) {
+      throw new ConflictException(
+        'O calendário foi alterado por outra pessoa. Recarregue antes de salvar.',
+      );
+    }
+
+    const row = await this.prisma.campaignCalendar.findUnique({
+      where: { campaignId },
+    });
+    if (!row) throw new NotFoundException('Calendário não encontrado.');
+    return row;
+  }
+
+  private async persistCalendarData(
+    campaignId: string,
+    data: CalendarData,
+  ): Promise<CampaignCalendar> {
+    return this.prisma.campaignCalendar.upsert({
       where: { campaignId },
       create: { campaignId, ...data },
-      update: data,
+      update: { ...data, revision: { increment: 1 } },
     });
+  }
+
+  private async persistCalendar(
+    campaignId: string,
+    input: CalendarInput,
+  ): Promise<CampaignCalendar> {
+    return this.persistCalendarData(campaignId, this.calendarData(input));
   }
 
   private buildSerializedCalendar(input: {
@@ -646,6 +783,7 @@ export class WorldService {
     gameMinutesPerTick: number;
     eventChancePercent: number;
     weather: Weather;
+    revision: number;
   }): SerializedCalendar {
     const derived = deriveFieldsFromTotalMinutes(
       input.totalMinutes,
@@ -669,6 +807,7 @@ export class WorldService {
       gameMinutesPerTick: input.gameMinutesPerTick,
       eventChancePercent: input.eventChancePercent,
       weather: input.weather,
+      revision: input.revision,
     };
   }
 

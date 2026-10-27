@@ -198,11 +198,15 @@ conectados, dentro de um ritmo configurado pelo mestre.
   `@nestjs/schedule` (`@Cron(CronExpression.EVERY_MINUTE)`, registrado via
   `ScheduleModule.forRoot()` no `AppModule`):
   - a cada minuto, para cada `CampaignCalendar` com `realMinutesPerTick > 0`
-    (`WorldService.findCampaignsWithAutoTick`), verifica se já se passaram
-    `realMinutesPerTick` minutos reais desde `updatedAt`; se sim, soma
-    `gameMinutesPerTick` ao `totalMinutes` via `WorldService.addMinutes`
-    (que já emite `world:clock:updated` e atualiza `updatedAt`, reiniciando
-    a contagem do próximo tick)
+    (`WorldService.findCampaignsWithAutoTick`), calcula em `planAutoTick`
+    quantos intervalos venceram desde `lastTickAt` (ou `updatedAt`, em
+    calendários antigos) e chama `WorldService.advanceAutoTick`
+  - o avanço é um **CAS** em `lastTickAt` dentro de um `UPDATE` atômico
+    (`updateMany ... WHERE lastTickAt = <lido>`): duas instâncias nunca somam o
+    mesmo tick, e o incremento de `totalMinutes` não perde atualização
+  - recuperação limitada a 24 ticks por execução e `revision` incrementada a
+    cada avanço; `lastTickAt` é separado de `updatedAt`, então editar o
+    calendário não reinicia a contagem
   - se o avanço ocorreu e `eventChancePercent > 0`, sorteia (com
     `Math.random() * 100 < eventChancePercent`) se um evento será disparado;
     em caso positivo, `WorldService.rollWorldEvent` faz uma seleção aleatória

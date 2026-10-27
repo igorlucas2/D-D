@@ -731,6 +731,32 @@ export function VttPanel({
     setSelectedMapId(nextMap.id);
   }
 
+  /**
+   * PATCH do mapa com concorrência otimista (P1-2): envia a revisão lida e,
+   * se outra pessoa salvou antes, recarrega em vez de sobrescrever.
+   */
+  async function patchMap(patch: Record<string, unknown>, failureMessage: string) {
+    if (!token || !selectedMap) return null;
+    setError(null);
+    try {
+      const updated = await api.patch<VttMap>(
+        `/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`,
+        { ...patch, expectedRevision: selectedMap.revision },
+        token,
+      );
+      replaceMap(updated);
+      return updated;
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setError("Outra pessoa alterou este mapa. O estado atual foi recarregado; refaça a alteração.");
+        await refresh(selectedMap.id);
+        return null;
+      }
+      setError(err instanceof ApiError ? err.message : failureMessage);
+      return null;
+    }
+  }
+
   async function handleCreateMap() {
     if (!token) return;
     setCreatingMap(true);
@@ -778,23 +804,13 @@ export function VttPanel({
 
   async function updateMapFog(nextFogCells: string[]) {
     if (!token || !selectedMap || !isMaster) return;
-    const updated = await api.patch<VttMap>(
-      `/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`,
-      { fogCells: nextFogCells },
-      token,
-    );
-    replaceMap(updated);
+    await patchMap({ fogCells: nextFogCells }, "Não foi possível alterar a névoa.");
   }
 
   // Visão dinâmica (IM-13): paredes e portas nas bordas das células.
   async function saveWalls(walls: VttWall[]) {
     if (!token || !selectedMap || !isMaster) return;
-    try {
-      const updated = await api.patch<VttMap>(`/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`, { walls }, token);
-      replaceMap(updated);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível salvar as paredes.");
-    }
+    await patchMap({ walls }, "Não foi possível salvar as paredes.");
   }
 
   /** Parede: liga/desliga a parede da borda. Porta: põe/tira uma porta fechada. */
@@ -845,50 +861,22 @@ export function VttPanel({
 
   async function updateMapVision(vision: VttVisionMode) {
     if (!token || !selectedMap || !isMaster) return;
-    try {
-      const updated = await api.patch<VttMap>(`/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`, { vision }, token);
-      replaceMap(updated);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível alterar a visão.");
-    }
+    await patchMap({ vision }, "Não foi possível alterar a visão.");
   }
 
   async function updateMapLightingMode(lightingMode: VttLightingMode) {
     if (!token || !selectedMap || !isMaster) return;
-    try {
-      const updated = await api.patch<VttMap>(
-        `/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`,
-        { lightingMode },
-        token,
-      );
-      replaceMap(updated);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível alterar a iluminação.");
-    }
+    await patchMap({ lightingMode }, "Não foi possível alterar a iluminação.");
   }
 
   async function updateMapAmbience(ambiencePreset: AmbiencePreset | null) {
     if (!token || !selectedMap || !isMaster) return;
-    try {
-      const updated = await api.patch<VttMap>(
-        `/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`,
-        { ambiencePreset },
-        token,
-      );
-      replaceMap(updated);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível alterar o ambiente sonoro.");
-    }
+    await patchMap({ ambiencePreset }, "Não foi possível alterar o ambiente sonoro.");
   }
 
   async function updateMapGridColor(color: string) {
     if (!token || !selectedMap || !isMaster) return;
-    const updated = await api.patch<VttMap>(
-      `/campaigns/${campaignId}/vtt/maps/${selectedMap.id}`,
-      { gridColor: color },
-      token,
-    );
-    replaceMap(updated);
+    await patchMap({ gridColor: color }, "Não foi possível alterar a cor da grade.");
   }
 
   async function handleCreateToken() {

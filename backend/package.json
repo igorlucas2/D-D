@@ -21,6 +21,7 @@
     "test:game-master": "node scripts/game-master/smoke.cjs",
     "test:player-intents": "node scripts/game-master/smoke.cjs --intents",
     "test:consequences": "node scripts/consequences/smoke.cjs",
+    "test:clock-revisions": "node scripts/world/clock-revisions-smoke.cjs",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

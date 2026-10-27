@@ -538,8 +538,8 @@ abrir novas frentes. Situação verificada no código hoje:
 | --- | --- | --- |
 | MV-01 | Projeções mestre/jogador e revogação de sala | **Feito** (`vtt.projection.ts`, `evictUser`) |
 | MV-02 | Exploração por campanha/personagem | **Feito** (`CharacterExplorationState`, binding em `CampaignCharacter`) — mas a decisão "1 personagem ↔ 1 campanha" está implícita no schema e não documentada |
-| MV-03 | Fonte da verdade + `revision` | **Aberto** (sem campo de revisão) |
-| MV-04 | Relógio atômico e cron multi-instância | **Aberto** (`world.service.ts:316-333`, `world-tick.service.ts:15-44`) |
+| MV-03 | Fonte da verdade + `revision` | **Feito** em 26/10/2026: `revision` em mapa, combate e calendário, com `expectedRevision` opcional e 409 (P1-2); o cliente da mesa e o do calendário já enviam a revisão |
+| MV-04 | Relógio atômico e cron multi-instância | **Feito** em 26/10/2026: incremento atômico, `lastTickAt` + CAS, teto de 24 ticks por execução (P1-1) |
 | MV-05 | Endurecer imagem remota + CORS + JWT | **Feito** em 26/10/2026 (P0-2 e P0-3) |
 | MV-06 | Lobby, sessão, convite expirável | **Parcial** (convite permanente; sem estado de sessão) |
 | MV-14 | Mobile/teclado + fatiar `vtt-panel` | **Parcial** (teclado na grade feito; toque e split pendentes) |
@@ -619,6 +619,8 @@ que já foi corrigido.
 | 26/10/2026 | P0-3 | `image-proxy` reescrito: só http(s) e portas 80/443; bloqueio de loopback, rede privada, link-local, multicast e reservados (IPv4, IPv6 e mapeados), revalidado a cada redirecionamento; timeout de 5 s, limite de 8 MB em streaming, apenas raster (SVG recusado), rate limit de 120/min e cabeçalhos `nosniff`/`CORP`. Verificado por HTTP: `file:`→400, `127.0.0.1`→403, HTML→415, SVG→415, PNG público→200, redirect para localhost→403, 121ª requisição→429. |
 | 26/10/2026 | P0-4 | `@nestjs/throttler` global (300/min por IP) com limites específicos: login 10/min, cadastro 3/min, dados 60/min, assistente e copiloto 10/min, sync SRD 2/10 min; bloqueio por e-mail após 10 falhas (15 min) independente do IP; `ADMIN_EMAILS` opcional no sync SRD; fetch do SRD com timeout de 15 s e orçamento total de 2 min com resultado parcial; `trust proxy` corrigido para reconhecer `::ffff:127.0.0.1` (sem isso, todos os clientes dividiam o mesmo balde). Verificado com 429 por IP, 429 por e-mail e isolamento entre clientes. |
 | 26/10/2026 | P0-5 | Sessão WebSocket com prazo: o `exp` do JWT vira timer por socket, é conferido em cada evento e há varredura de 60 s como rede de segurança; token vencido ou sem `exp` é encerrado já no handshake. Token bucket por socket para join/leave (10 a cada 2 s) e presença (5 a cada 2 s), nos namespaces `/vtt` e `/world`. Verificado com socket real: token de 4 s cai em ~3,4 s; token vencido e token sem `exp` caem em <10 ms; origem proibida é recusada no handshake; `localhost` conecta e permanece. |
+| 26/10/2026 | P1-1 | Relógio atômico: `addMinutes` passou a incrementar no banco (sem ler-somar-gravar); `CampaignCalendar.lastTickAt` ganhou coluna própria e o tick usa CAS em `updateMany`, com recuperação limitada a 24 intervalos e cálculo puro em `planAutoTick`. Ensaio concorrente: 20 avanços simultâneos somaram exatamente 160 min; dois workers com o mesmo snapshot produziram **1 vencedor** e +180 min (3 intervalos). |
+| 26/10/2026 | P1-2 | Concorrência otimista: `revision` em `VttMap`, `CombatEncounter` e `CampaignCalendar`, incluída nas projeções/eventos; `expectedRevision` opcional no PATCH do mapa, PATCH do combate e PUT do calendário, com CAS em transação e **409**. A mesa envia a revisão e recarrega em conflito; o formulário do calendário e o painel de combate também. Ensaio: duas edições simultâneas com a mesma revisão → 1 sucesso e 1 conflito no mapa e no calendário; revisão do mapa subiu uma única vez. |
 
 **Limite conhecido (revogação):** remover um membro já derruba o acesso na hora
 (`evictUser`). Revogar um token específico antes do vencimento — logout em todos

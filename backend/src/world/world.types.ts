@@ -14,6 +14,8 @@ export interface SerializedCalendar {
   gameMinutesPerTick: number;
   eventChancePercent: number;
   weather: Weather;
+  /** Concorrência otimista (P1-2): muda a cada gravação do calendário. */
+  revision: number;
 }
 
 // Clima global da campanha (IM-08). Manter em sincronia com

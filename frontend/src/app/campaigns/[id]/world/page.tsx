@@ -291,6 +291,7 @@ function WorldContent() {
         realMinutesPerTick: Math.max(0, Number(calendarForm.realMinutesPerTick) || 0),
         gameMinutesPerTick: Math.max(1, Number(calendarForm.gameMinutesPerTick) || 1),
         eventChancePercent: Math.max(0, Math.min(100, Number(calendarForm.eventChancePercent) || 0)),
+        expectedRevision: calendar?.revision,
       };
 
       const updated = await api.put<CampaignCalendar>(`/campaigns/${params.id}/world/calendar`, body, token);

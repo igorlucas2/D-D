@@ -233,7 +233,7 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
     if (!token) return;
     setError(null);
     try {
-      const updated = await api.patch<CombatEncounter>(`/campaigns/${campaignId}/combat`, { hpDisplay }, token);
+      const updated = await api.patch<CombatEncounter>(`/campaigns/${campaignId}/combat`, { hpDisplay, expectedRevision: encounter?.revision }, token);
       setEncounter(updated);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Não foi possível alterar a exibição de PV.");

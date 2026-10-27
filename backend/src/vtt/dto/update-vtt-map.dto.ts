@@ -83,4 +83,10 @@ export class UpdateVttMapDto {
   @IsArray()
   @ArrayMaxSize(2000)
   walls?: unknown[];
+
+  /** Revisão que o cliente leu; divergência devolve 409 (P1-2). */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  expectedRevision?: number;
 }

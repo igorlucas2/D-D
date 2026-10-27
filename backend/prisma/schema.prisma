@@ -344,6 +344,8 @@ model CombatEncounter {
   round      Int             @default(1)
   turnIndex  Int             @default(0)
   hpDisplay  CombatHpDisplay @default(DESCRIPTIVE)
+  // Concorrencia otimista (P1-2): muda a cada alteracao do encontro.
+  revision   Int             @default(0)
   createdAt  DateTime        @default(now())
 
   campaign     Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -421,6 +423,9 @@ model VttMap {
   // JSON: lista de { x1, y1, x2, y2, door? } nas bordas das celulas.
   wallsData      String? @db.LongText
   ambiencePreset String? // som ambiente (IM-02); null = padrao pelo kind
+  // Concorrencia otimista (P1-2): incrementa a cada alteracao do mapa, tokens,
+  // marcadores ou hotspots. O cliente devolve em `expectedRevision`.
+  revision       Int             @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
@@ -751,6 +756,11 @@ model CampaignCalendar {
   gameMinutesPerTick Int      @default(60) // minutos de jogo somados a cada tick
   eventChancePercent Int      @default(0) // 0-100: chance de sortear um evento da tabela a cada tick automatico
   weather            String   @default("clear") // clima global da campanha (IM-08)
+  // Concorrencia otimista (P1-2): muda a cada alteracao do calendario.
+  revision           Int      @default(0)
+  // Ultimo tick automatico aplicado (P1-1). Separado de updatedAt: editar o
+  // calendario nao reinicia a contagem do tick.
+  lastTickAt         DateTime?
   updatedAt          DateTime @updatedAt
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
