@@ -243,6 +243,10 @@ Magias usam slot, save e upcast no mesmo pipeline; a spec está em `docs/27-magi
 
 Ataques mágicos usam CA e crítico no mesmo pipeline de magia; ver `docs/27-magias.md`.
 
+## 9.4 Fase E
+
+A narração de resultados mecânicos está em `docs/28-narracao-mecanica.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

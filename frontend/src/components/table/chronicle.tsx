@@ -2,6 +2,7 @@
 
 import { BookOpen, ChevronDown, ScrollText, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ResolutionCard } from "@/components/table/resolution-card";
 import type { TableActionResult } from "@/lib/table-types";
 
@@ -11,6 +12,7 @@ export interface ChronicleEvent {
   gameMinute: number;
   summary: string;
   narration: string | null;
+  sourceActionId?: string | null;
 }
 
 function eventLabel(event: ChronicleEvent) {
@@ -23,12 +25,18 @@ export function Chronicle({
   latestAction,
   sceneName,
   pending,
+  onNarrate,
+  narratedActionId,
+  narratingActionId,
 }: {
   events: ChronicleEvent[];
   actions: TableActionResult[];
   latestAction: TableActionResult | null;
   sceneName: string | null;
   pending: boolean;
+  onNarrate?: (actionId: string) => void;
+  narratedActionId?: string | null;
+  narratingActionId?: string | null;
 }) {
   const latest = events[0] ?? null;
   const older = events.slice(1);
@@ -104,6 +112,22 @@ export function Chronicle({
               Resultado aplicado pelo motor
             </p>
             <ResolutionCard result={latestAction} />
+            {onNarrate &&
+            narratedActionId !== latestAction.actionId ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2 gap-2 border-primary/30 bg-primary/8 text-xs"
+                onClick={() => onNarrate(latestAction.actionId)}
+                disabled={Boolean(narratingActionId)}
+              >
+                <Sparkles className="size-3.5" />
+                {narratingActionId === latestAction.actionId
+                  ? "O mestre está narrando..."
+                  : "Narrar consequência"}
+              </Button>
+            ) : null}
           </div>
         ) : null}
 

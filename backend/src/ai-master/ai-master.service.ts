@@ -1,7 +1,10 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
+  Logger,
+  NotFoundException,
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -10,6 +13,10 @@ import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseStringArray } from '../common/json';
 import { parseItemEffect } from '../combat/item-use.types';
 import { spellToHud, type SpellHud } from '../combat/spell-cast.types';
+import {
+  describeMechanicalResult,
+  type MechanicalFacts,
+} from './mechanical-facts';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { AiTurnContextBuilder } from './ai-master.context';
@@ -45,6 +52,8 @@ function textField(value: unknown): string | null {
 
 @Injectable()
 export class AiMasterService {
+  private readonly logger = new Logger(AiMasterService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: CampaignAccessService,
@@ -177,6 +186,7 @@ export class AiMasterService {
         gameMinute: event.gameMinute,
         summary: event.summary,
         narration: textField(parsePayload(event.payload)?.narration),
+        sourceActionId: textField(parsePayload(event.payload)?.sourceActionId),
       })),
       provider,
     };
@@ -385,6 +395,203 @@ export class AiMasterService {
     }
   }
 
+  async narrateAction(
+    campaignId: string,
+    userId: string,
+    input: { requestKey: string; actionId: string },
+  ) {
+    const campaign = await this.access.member(campaignId, userId);
+    const lore = await this.prisma.campaignLore.findUnique({
+      where: { campaignId },
+      select: { mode: true, aiPaused: true, storySequence: true },
+    });
+    if (!lore)
+      throw new ConflictException(
+        'Instale um cenário antes de usar o mestre IA.',
+      );
+    if (modeOf(lore.mode) !== 'AUTONOMOUS')
+      throw new ConflictException('Ligue o mestre IA autônomo para narrar.');
+    if (lore.aiPaused) throw new ConflictException('O mestre IA está pausado.');
+    if (lore.storySequence < 1)
+      throw new ConflictException('Inicie a memória do cenário antes.');
+
+    const existing = await this.prisma.storyEvent.findUnique({
+      where: {
+        campaignId_requestKey: {
+          campaignId,
+          requestKey: input.requestKey,
+        },
+      },
+      select: {
+        id: true,
+        sequence: true,
+        gameMinute: true,
+        payload: true,
+      },
+    });
+    if (existing) return this.narrationReplay(existing, input.actionId);
+
+    const action = await this.prisma.combatAction.findFirst({
+      where: { id: input.actionId, campaignId },
+    });
+    if (!action) throw new NotFoundException('Ação mecânica não encontrada.');
+    if (campaign.masterId !== userId && action.actorUserId !== userId)
+      throw new ForbiddenException(
+        'Você só pode narrar as suas próprias ações.',
+      );
+    const result = parsePayload(action.result);
+    if (!result)
+      throw new ConflictException('Resultado mecânico indisponível.');
+    const facts = describeMechanicalResult(action.kind, result);
+
+    const context = await this.context.build(
+      campaignId,
+      userId,
+      'Narre a consequência da ação mecânica já resolvida. Não recalcule nem aplique novos efeitos.',
+      undefined,
+      facts,
+    );
+
+    let generation: AiTurnGeneration;
+    try {
+      generation = await this.provider.narrateResult(context);
+      const issues = this.resultNarrationIssues(generation.result, facts);
+      if (issues.length) throw new AiTurnValidationError(issues);
+    } catch (error) {
+      if (error instanceof AiTurnValidationError) {
+        try {
+          generation = await this.provider.narrateResult(context, error.issues);
+          const issues = this.resultNarrationIssues(generation.result, facts);
+          if (issues.length) throw new AiTurnValidationError(issues);
+        } catch (second) {
+          throw this.outputError(second);
+        }
+      } else {
+        throw this.outputError(error);
+      }
+    }
+
+    const turn: AiTurnResult = generation.result;
+    if (turn.ask)
+      throw new UnprocessableEntityException({
+        message:
+          'O mestre pediu mais contexto em vez de narrar o resultado. Tente de novo.',
+        fallback:
+          'O resultado mecânico está aplicado; a narração pode ser feita manualmente.',
+      });
+
+    const payload = {
+      schemaVersion: 1,
+      mode: 'ACTION_RESULT',
+      sourceActionId: action.id,
+      actionKind: action.kind,
+      facts,
+      narration: turn.narration,
+      memory: turn.memory,
+      model: generation.model,
+      latencyMs: generation.latencyMs,
+    };
+
+    try {
+      const event = await this.story.appendAiTurn(campaignId, {
+        requestKey: input.requestKey,
+        summary: turn.memory.summary,
+        payload,
+      });
+      return {
+        ...event,
+        narration: turn.narration,
+        memory: turn.memory,
+        model: generation.model,
+        latencyMs: generation.latencyMs,
+        alreadyApplied: false,
+        persisted: true,
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const replay = await this.prisma.storyEvent.findUnique({
+          where: {
+            campaignId_requestKey: {
+              campaignId,
+              requestKey: input.requestKey,
+            },
+          },
+          select: {
+            id: true,
+            sequence: true,
+            gameMinute: true,
+            payload: true,
+          },
+        });
+        if (replay) return this.narrationReplay(replay, input.actionId);
+      }
+      throw error;
+    }
+  }
+
+  private narrationReplay(
+    event: {
+      id: string;
+      sequence: number;
+      gameMinute: number;
+      payload: string;
+    },
+    sourceActionId: string,
+  ) {
+    const payload = parsePayload(event.payload);
+    if (payload?.sourceActionId !== sourceActionId)
+      throw new ConflictException(
+        'Esta chave já foi usada para narrar outra ação.',
+      );
+    return {
+      eventId: event.id,
+      sequence: event.sequence,
+      gameMinute: event.gameMinute,
+      narration: textField(payload?.narration) ?? '',
+      memory: payload?.memory ?? null,
+      model: textField(payload?.model),
+      latencyMs:
+        typeof payload?.latencyMs === 'number' ? payload.latencyMs : null,
+      alreadyApplied: true,
+      persisted: true,
+    };
+  }
+
+  private resultNarrationIssues(
+    result: AiTurnResult,
+    facts: MechanicalFacts,
+  ): string[] {
+    const text = result.narration.toLowerCase();
+    const names = facts.targets
+      .map((target) => target.name.toLowerCase())
+      .filter((name) => name && name !== 'alvo');
+    const missing = names.filter((name) => !text.includes(name));
+    const issues: string[] = [];
+    if (missing.length)
+      issues.push(
+        `a narração precisa citar nominalmente o alvo: ${missing.join(', ')}`,
+      );
+    if (
+      ![
+        'dano',
+        'cura',
+        'pv',
+        'acert',
+        'err',
+        'crít',
+        'condi',
+        'poção',
+        'item',
+        'save',
+      ].some((term) => text.includes(term))
+    )
+      issues.push('a narração precisa descrever o efeito aplicado');
+    return issues;
+  }
+
   private replay(event: {
     id: string;
     sequence: number;
@@ -409,6 +616,7 @@ export class AiMasterService {
 
   private outputError(error: unknown) {
     if (error instanceof AiTurnValidationError) {
+      this.logger.warn(`Narração rejeitada: ${error.issues.join('; ')}`);
       return new UnprocessableEntityException({
         message:
           'O mestre IA não conseguiu produzir uma narração válida. Tente de novo.',

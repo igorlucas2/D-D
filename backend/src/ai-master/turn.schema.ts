@@ -105,7 +105,7 @@ function hasControlCharacters(value: string): boolean {
   });
 }
 
-function contentIssues(result: AiTurnResult): string[] {
+function contentIssues(result: AiTurnResult, allowMechanics = false): string[] {
   const issues: string[] = [];
   const narration = result.narration.trim();
   const summary = result.memory.summary.trim();
@@ -137,8 +137,9 @@ function contentIssues(result: AiTurnResult): string[] {
     issues.push('memory.summary com nome de campo do schema');
   }
   if (
-    /\b\d+\s*(?:pontos? de vida|pv|de dano)\b/i.test(result.narration) ||
-    /você (?:perde|ganha|sofre)\s+\d+/i.test(result.narration)
+    !allowMechanics &&
+    (/\b\d+\s*(?:pontos? de vida|pv|de dano)\b/i.test(result.narration) ||
+      /você (?:perde|ganha|sofre)\s+\d+/i.test(result.narration))
   ) {
     issues.push('narration com mecânica inventada');
   }
@@ -146,7 +147,10 @@ function contentIssues(result: AiTurnResult): string[] {
   return issues;
 }
 
-export function parseAiTurn(text: string): AiTurnResult {
+export function parseAiTurn(
+  text: string,
+  allowMechanics = false,
+): AiTurnResult {
   let value: unknown;
   try {
     value = JSON.parse(text);
@@ -168,11 +172,14 @@ export function parseAiTurn(text: string): AiTurnResult {
   }
 
   const result = value;
-  const issues = contentIssues({
-    narration: result.narration,
-    memory: result.memory,
-    ask: result.ask.trim() || null,
-  });
+  const issues = contentIssues(
+    {
+      narration: result.narration,
+      memory: result.memory,
+      ask: result.ask.trim() || null,
+    },
+    allowMechanics,
+  );
   if (issues.length) throw new AiTurnValidationError(issues);
 
   return {

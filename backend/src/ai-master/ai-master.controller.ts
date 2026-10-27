@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -14,6 +15,7 @@ import { Audit } from '../audit/audit.decorator';
 import { CampaignChanged } from '../realtime/campaign-changed.decorator';
 import { AiMasterService } from './ai-master.service';
 import { AiActDto, AiSettingsDto } from './dto/ai-master.dto';
+import { NarrateActionDto } from './dto/narrate-action.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('campaigns/:campaignId/ai-master')
@@ -48,5 +50,18 @@ export class AiMasterController {
     @Body() dto: AiActDto,
   ) {
     return this.service.act(campaignId, user.userId, dto);
+  }
+
+  @CampaignChanged()
+  @Audit('ai-master.narrate-action', 'ai-master')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Post('narrate-action')
+  @HttpCode(200)
+  narrateAction(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: NarrateActionDto,
+  ) {
+    return this.service.narrateAction(campaignId, user.userId, dto);
   }
 }

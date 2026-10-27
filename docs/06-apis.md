@@ -84,6 +84,7 @@ Base URL: `http://localhost:3001/api`
 | GET | /campaigns/:campaignId/ai-master/state | Modo, pausa, cena, personagens, últimas narrações públicas e status do modelo |
 | PATCH | /campaigns/:campaignId/ai-master/settings | Só mestre: `{ mode: 'OFF'|'COPILOT'|'AUTONOMOUS', paused, expectedRevision }` |
 | POST | /campaigns/:campaignId/ai-master/act | `{ requestKey, action, characterId?, expectedRevision }`; narra e grava um evento público |
+| POST | /campaigns/:campaignId/ai-master/narrate-action | `{ requestKey, actionId }`; narra um resultado mecânico já aplicado, sem recalculá-lo |
 
 O modelo local só produz narração; não aplica dano, PV, item, tempo ou movimento. Detalhes e critérios de aceite em `docs/24-mestre-ia-local.md`.
 

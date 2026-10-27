@@ -52,6 +52,17 @@ describe('parseAiTurn', () => {
     ).toThrow(AiTurnValidationError);
   });
 
+  it('permite mecânica no modo resultado já aplicado', () => {
+    const parsed = parseAiTurn(
+      JSON.stringify({
+        ...valid,
+        narration: 'O goblin perde 8 pontos de vida com o golpe.',
+      }),
+      true,
+    );
+    expect(parsed.narration).toContain('8 pontos de vida');
+  });
+
   it('rejeita HTML, URL e meta-discurso', () => {
     for (const narration of [
       '<b>A porta abre.</b>',

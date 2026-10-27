@@ -1,4 +1,5 @@
 import type { SpellHud, SpellSlotHud } from '../combat/spell-cast.types';
+import type { MechanicalFacts } from './mechanical-facts';
 
 export interface AiTurnCharacter {
   entityId: string;
@@ -25,6 +26,7 @@ export interface AiTurnContext {
   recent: Array<{ sequence: number; gameMinute: number; summary: string }>;
   action: string;
   rules: string[];
+  resolvedAction: MechanicalFacts | null;
 }
 
 export interface AiTurnState {
@@ -68,6 +70,7 @@ export interface AiTurnState {
     gameMinute: number;
     summary: string;
     narration: string | null;
+    sourceActionId: string | null;
   }>;
   provider: {
     available: boolean;

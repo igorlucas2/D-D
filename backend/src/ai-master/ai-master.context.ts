@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { parseStringArray } from '../common/json';
 import type { AiTurnCharacter, AiTurnContext } from './ai-master.types';
+import type { MechanicalFacts } from './mechanical-facts';
 
 const MAX_CONTEXT_BYTES = 12_000;
 const MAX_FACTS = 24;
@@ -20,6 +21,7 @@ export class AiTurnContextBuilder {
     userId: string,
     action: string,
     characterEntityId?: string,
+    resolvedAction?: MechanicalFacts,
   ): Promise<AiTurnContext> {
     const campaign = await this.prisma.campaign.findUnique({
       where: { id: campaignId },
@@ -145,6 +147,7 @@ export class AiTurnContextBuilder {
           summary: event.summary,
         })),
       action,
+      resolvedAction: resolvedAction ?? null,
       rules: [
         'Narre apenas a consequência imediata da ação.',
         'Não invente fatos, nomes, itens, recompensas, dano, PV, rolagens ou mudanças de tempo e lugar.',

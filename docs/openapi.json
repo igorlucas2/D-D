@@ -4891,6 +4891,39 @@
           "AiMaster"
         ]
       }
+    },
+    "/api/campaigns/{campaignId}/ai-master/narrate-action": {
+      "post": {
+        "operationId": "AiMasterController_narrateAction",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NarrateActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiMaster"
+        ]
+      }
     }
   },
   "info": {
@@ -6526,6 +6559,23 @@
           "requestKey",
           "action",
           "expectedRevision"
+        ]
+      },
+      "NarrateActionDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actionId": {
+            "type": "string",
+            "maxLength": 191
+          }
+        },
+        "required": [
+          "requestKey",
+          "actionId"
         ]
       }
     }

@@ -79,6 +79,9 @@ function AiMasterContent() {
   const [itemBusy, setItemBusy] = useState(false);
   const [spellDialogOpen, setSpellDialogOpen] = useState(false);
   const [spellBusy, setSpellBusy] = useState(false);
+  const [narratingActionId, setNarratingActionId] = useState<string | null>(
+    null,
+  );
   const [lastResult, setLastResult] = useState<TableActionResult | null>(null);
 
   const load = useCallback(async () => {
@@ -214,6 +217,9 @@ function AiMasterContent() {
     Boolean(state?.storyReady) &&
     state?.mode === "AUTONOMOUS" &&
     !state.paused;
+
+  const narratedActionId =
+    state?.events.find((event) => event.sourceActionId)?.sourceActionId ?? null;
 
   async function changeMode(mode: AiMode, paused: boolean) {
     if (!token || !state || busy) return;
@@ -368,6 +374,28 @@ function AiMasterContent() {
     }
   }
 
+  async function narrateAction(actionId: string) {
+    if (!token || !state || narratingActionId) return;
+    setNarratingActionId(actionId);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/ai-master/narrate-action`,
+        { actionId, requestKey: crypto.randomUUID() },
+        token,
+      );
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível narrar a consequência.",
+      );
+    } finally {
+      setNarratingActionId(null);
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
@@ -495,6 +523,9 @@ function AiMasterContent() {
               latestAction={lastResult}
               sceneName={state?.scene?.name ?? null}
               pending={busy}
+              onNarrate={(actionId) => void narrateAction(actionId)}
+              narratedActionId={narratedActionId}
+              narratingActionId={narratingActionId}
             />
 
             <section
