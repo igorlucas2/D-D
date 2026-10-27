@@ -259,6 +259,10 @@ Economia de ações e turno em `docs/30-economia-de-acoes.md`.
 
 Queda, estabilização e morte em `docs/31-morte-e-estabilizacao.md`.
 
+## 9.8 Fase I
+
+Salvaguarda automática no início do turno em `docs/31-morte-e-estabilizacao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

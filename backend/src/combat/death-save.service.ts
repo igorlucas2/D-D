@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseJson, parseStringArray } from '../common/json';
 import { DiceService } from '../dice/dice.service';
@@ -78,6 +78,48 @@ export class DeathSaveService {
       outcome: result.outcome,
     });
     return result;
+  }
+
+  /**
+   * Chamada pelo avanço de turno: se o novo participante atual é um personagem
+   * caído, rola a salvaguarda automaticamente. Erros de corrida (turno mudou,
+   * já rolou) são ignorados para não quebrar o avanço.
+   */
+  async autoRoll(campaignId: string): Promise<DeathSaveResult | null> {
+    const encounter = await this.prisma.combatEncounter.findUnique({
+      where: { campaignId },
+      include: {
+        participants: { orderBy: [{ initiative: 'desc' }, { id: 'asc' }] },
+      },
+    });
+    if (!encounter) return null;
+    const current = encounter.participants[encounter.turnIndex];
+    if (
+      !current?.characterId ||
+      current.currentHp > 0 ||
+      current.isDead ||
+      current.isStable ||
+      current.deathSaveUsed
+    )
+      return null;
+    const character = await this.prisma.character.findUnique({
+      where: { id: current.characterId },
+      select: { userId: true },
+    });
+    if (!character) return null;
+    try {
+      return await this.roll(campaignId, character.userId, {
+        requestKey: randomUUID(),
+      });
+    } catch (error) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      )
+        return null;
+      throw error;
+    }
   }
 
   private async execute(

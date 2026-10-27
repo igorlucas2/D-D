@@ -123,12 +123,14 @@ function AiMasterContent() {
         );
       });
       setError(null);
+      return recentActions;
     } catch (err) {
       setError(
         err instanceof ApiError
           ? err.message
           : "Não foi possível carregar a mesa.",
       );
+      return undefined;
     } finally {
       setLoading(false);
     }
@@ -445,7 +447,9 @@ function AiMasterContent() {
         undefined,
         token,
       );
-      await load();
+      const recent = await load();
+      const latest = recent?.[0];
+      if (latest?.kind === "DEATH_SAVE") setLastResult(latest);
     } catch (err) {
       setError(
         err instanceof ApiError

@@ -50,6 +50,8 @@ com PV 0. Ajustes manuais de PV continuam disponíveis.
 
 ### Salvaguarda contra morte
 
+A salvaguarda é **automática no início do turno** do personagem caído. O endpoint manual continua disponível para o caso de o personagem cair durante o próprio turno.
+
 `POST /campaigns/:campaignId/combat/death-save`
 
 ```ts
@@ -86,7 +88,7 @@ que começa.
 
 ## 5. Limites
 
-- A salvaguarda é manual; não rola automaticamente no início do turno.
+- A salvaguarda automática só ocorre quando o turno avança; se o personagem cai durante o próprio turno, o jogador pode usar o endpoint/botão manual.
 - Não há morte instantânea por dano massivo.
 - Cura recebida por outra pessoa depende de magia com alvo; o item atual é
   autoalvo.
@@ -101,8 +103,10 @@ Smoke com banco:
 - dano 6 em elfo 6/6 → PV 0, condição `Inconsciente`, `isDead = false`;
 - salvaguarda d20 = 12 → 1 sucesso, `PENDING`, `deathSaveUsed = true`;
 - segunda salvaguarda no mesmo turno → **409**;
-- encerrar turno → próximo participante;
+- encerrar turno com elfo caído → próximo participante é elfo, salvaguarda automática d20 = 15 → 1 sucesso, `deathSaveUsed = true`;
 - encontro removido e HP restaurado.
+
+A salvaguarda automática é disparada por `end-turn`/`next-turn`; o resultado entra no ledger e a resposta recarrega o estado fresco.
 
 Unitários: 20 revive, 1 duas falhas, 2–9 falha, 10–19 sucesso, 3 sucessos
 estabilizam, 3 falhas matam. **190 testes/36 suítes**.

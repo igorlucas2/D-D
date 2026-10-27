@@ -204,7 +204,12 @@ export class CombatController {
     @Param('campaignId') campaignId: string,
     @CurrentUser() user: { userId: string },
   ) {
-    return this.combatService.nextTurn(campaignId, user.userId);
+    return this.combatService
+      .nextTurn(campaignId, user.userId)
+      .then(async () => {
+        await this.deathSaves.autoRoll(campaignId);
+        return this.combatService.getEncounter(campaignId, user.userId);
+      });
   }
 
   @CampaignChanged()
@@ -215,6 +220,11 @@ export class CombatController {
     @Param('campaignId') campaignId: string,
     @CurrentUser() user: { userId: string },
   ) {
-    return this.combatService.endTurn(campaignId, user.userId);
+    return this.combatService
+      .endTurn(campaignId, user.userId)
+      .then(async () => {
+        await this.deathSaves.autoRoll(campaignId);
+        return this.combatService.getEncounter(campaignId, user.userId);
+      });
   }
 }
