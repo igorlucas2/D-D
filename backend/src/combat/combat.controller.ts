@@ -20,10 +20,12 @@ import { CombatActionsService } from './combat-actions.service';
 import { ItemUseService } from './item-use.service';
 import { SpellCastService } from './spell-cast.service';
 import { WeaponAttackService } from './weapon-attack.service';
+import { DeathSaveService } from './death-save.service';
 import { CombatActionDto } from './combat-action.dto';
 import { UseItemDto } from './item-use.dto';
 import { CastSpellDto } from './spell-cast.dto';
 import { WeaponAttackDto } from './weapon-attack.dto';
+import { DeathSaveDto } from './death-save.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -38,7 +40,20 @@ export class CombatController {
     private readonly items: ItemUseService,
     private readonly spells: SpellCastService,
     private readonly weapons: WeaponAttackService,
+    private readonly deathSaves: DeathSaveService,
   ) {}
+
+  @CampaignChanged()
+  @Audit('combat.death-save', 'combat')
+  @Post('death-save')
+  @HttpCode(200)
+  deathSave(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: DeathSaveDto,
+  ) {
+    return this.deathSaves.roll(campaignId, user.userId, dto);
+  }
 
   @CampaignChanged()
   @Audit('combat.attack', 'combat')

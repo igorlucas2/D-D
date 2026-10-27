@@ -7,6 +7,7 @@ import {
   HeartPulse,
   Shield,
   ShieldPlus,
+  Skull,
   SkipForward,
   Sparkles,
   Swords,
@@ -66,6 +67,7 @@ export function CharacterHud({
   onCastSpell,
   onAttack,
   onEndTurn,
+  onDeathSave,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -78,6 +80,7 @@ export function CharacterHud({
   onCastSpell: () => void;
   onAttack: () => void;
   onEndTurn: () => void;
+  onDeathSave: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -93,8 +96,21 @@ export function CharacterHud({
   const isMyTurn = Boolean(
     participant && currentTurn && currentTurn.id === participant.id,
   );
+  const isDown = Boolean(participant && (participant.currentHp ?? 0) <= 0);
+  const isDead = Boolean(participant?.isDead);
+  const isStable = Boolean(participant?.isStable);
   const canAct =
-    !combat || Boolean(isMyTurn && participant && !participant.actionUsed);
+    !combat ||
+    Boolean(
+      isMyTurn &&
+        participant &&
+        !participant.actionUsed &&
+        !isDown &&
+        !isDead,
+    );
+  const canRollDeath =
+    Boolean(combat && isMyTurn && participant && isDown && !isDead && !isStable) &&
+    !participant?.deathSaveUsed;
   const ratio = character
     ? Math.max(0, Math.min(1, character.currentHp / Math.max(character.maxHp, 1)))
     : 0;
@@ -316,30 +332,50 @@ export function CharacterHud({
               {combat.name} · {combat.participants.length} participantes
             </p>
             {participant ? (
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="mt-2 flex flex-col gap-2">
                 <p className="text-xs text-muted-foreground">
                   Iniciativa {participant.initiative}
                   {participant.tempHp ? ` · ${participant.tempHp} PV temp.` : ""}
                   {" · "}
-                  {participant.actionUsed
-                    ? "ação usada"
-                    : isMyTurn
-                      ? "ação disponível"
-                      : "aguardando seu turno"}
+                  {isDead
+                    ? "morto"
+                    : isStable
+                      ? "estável"
+                      : isDown
+                        ? `inconsciente · ${participant.deathSuccesses ?? 0} sucesso(s) / ${participant.deathFailures ?? 0} falha(s)`
+                        : participant.actionUsed
+                          ? "ação usada"
+                          : isMyTurn
+                            ? "ação disponível"
+                            : "aguardando seu turno"}
                 </p>
-                {isMyTurn ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 border-primary/30 text-[11px]"
-                    onClick={onEndTurn}
-                    disabled={busy}
-                  >
-                    <SkipForward className="size-3" />
-                    Encerrar turno
-                  </Button>
-                ) : null}
+                <div className="flex flex-wrap gap-2">
+                  {canRollDeath ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="gap-1.5 text-[11px]"
+                      onClick={onDeathSave}
+                      disabled={busy}
+                    >
+                      <Skull className="size-3" />
+                      Rolar morte
+                    </Button>
+                  ) : null}
+                  {isMyTurn ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 border-primary/30 text-[11px]"
+                      onClick={onEndTurn}
+                      disabled={busy}
+                    >
+                      <SkipForward className="size-3" />
+                      Encerrar turno
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             ) : null}
           </div>

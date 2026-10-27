@@ -6,6 +6,7 @@ import { CombatActionsService } from './combat-actions.service';
 import { ItemUseService } from './item-use.service';
 import { SpellCastService } from './spell-cast.service';
 import { WeaponAttackService } from './weapon-attack.service';
+import { DeathSaveService } from './death-save.service';
 import { CombatController } from './combat.controller';
 
 @Module({
@@ -16,6 +17,7 @@ import { CombatController } from './combat.controller';
     ItemUseService,
     SpellCastService,
     WeaponAttackService,
+    DeathSaveService,
   ],
   controllers: [CombatController],
   exports: [CombatService],

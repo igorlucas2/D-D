@@ -51,6 +51,7 @@ Base URL: `http://localhost:3001/api`
 | PATCH | /combat/:id/participants/:pid | Atualiza HP/condições |
 | POST | /campaigns/:id/combat/next-turn | Mestre avança o turno (legado) |
 | POST | /campaigns/:id/combat/end-turn | Jogador atual encerra o próprio turno; mestre pode qualquer um |
+| POST | /campaigns/:id/combat/death-save | Rola uma salvaguarda contra morte do participante atual |
 | GET | /campaigns/:id/combat/actions | Histórico do ledger de dano/cura/PV/condição |
 | POST | /campaigns/:id/combat/actions | Aplica dano/cura/PV temporário/condição com alvo, fórmula, idempotência e revisão |
 | POST | /campaigns/:id/combat/items/use | Consome um item do inventário e aplica cura/PV temporário/dano no próprio personagem |

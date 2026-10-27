@@ -33,6 +33,13 @@ export type CombatEvent =
   | { type: 'turn'; participantId: string; round: number }
   | { type: 'conditions'; participantId: string }
   | {
+      type: 'death';
+      participantId: string;
+      successes: number;
+      failures: number;
+      outcome: string;
+    }
+  | {
       type: 'hp';
       participantId: string;
       /** null para o jogador quando o PV do inimigo está oculto. */
@@ -393,12 +400,98 @@ export class CombatService {
         'Não é o seu turno. Aguarde ou peça ao mestre para avançar.',
       );
     }
+    if (participant.isDead) {
+      throw new ConflictException('Este personagem está morto.');
+    }
+    if (participant.currentHp <= 0) {
+      throw new ConflictException(
+        'Personagem inconsciente: role a salvaguarda contra morte ou receba cura.',
+      );
+    }
     if (participant.actionUsed) {
       throw new ConflictException(
         'Sua ação já foi usada neste turno. Encerre o turno.',
       );
     }
     return { participantId: participant.id };
+  }
+
+  /**
+   * Normaliza o estado de vida depois de dano/cura em um participante.
+   * Personagens a 0 PV ficam inconscientes e passam a rolar morte; monstros
+   * caem mortos. Cura acima de 0 limpa os estados de morte.
+   */
+  async reconcileVitals(
+    tx: Prisma.TransactionClient,
+    participantId: string,
+    damageAtZero = false,
+  ) {
+    const participant = await tx.combatParticipant.findUnique({
+      where: { id: participantId },
+    });
+    if (!participant) return;
+    const conditions = parseStringArray(participant.conditions);
+    const exists = (name: string) =>
+      conditions.some((item) => item.toLowerCase() === name.toLowerCase());
+    const add = (name: string) => {
+      if (!exists(name)) conditions.push(name);
+    };
+    const remove = (...names: string[]) => {
+      for (let index = conditions.length - 1; index >= 0; index--) {
+        if (
+          names.some(
+            (name) => conditions[index].toLowerCase() === name.toLowerCase(),
+          )
+        )
+          conditions.splice(index, 1);
+      }
+    };
+
+    let isDead = participant.isDead;
+    let isStable = participant.isStable;
+    let successes = participant.deathSuccesses;
+    let failures = participant.deathFailures;
+
+    if (participant.currentHp > 0) {
+      isDead = false;
+      isStable = false;
+      successes = 0;
+      failures = 0;
+      remove('Inconsciente', 'Estável', 'Morto');
+    } else if (!participant.characterId) {
+      isDead = true;
+      isStable = false;
+      add('Morto');
+      remove('Inconsciente', 'Estável');
+    } else if (isDead) {
+      add('Morto');
+    } else {
+      add('Inconsciente');
+      if (isStable) {
+        add('Estável');
+      } else if (damageAtZero) {
+        isStable = false;
+        failures = Math.min(3, failures + 1);
+        if (failures >= 3) {
+          isDead = true;
+          add('Morto');
+          remove('Inconsciente', 'Estável');
+        }
+      }
+    }
+
+    await tx.combatParticipant.update({
+      where: { id: participant.id },
+      data: {
+        isDead,
+        isStable,
+        deathSuccesses: successes,
+        deathFailures: failures,
+        deathSaveUsed:
+          participant.currentHp > 0 ? false : participant.deathSaveUsed,
+        conditions: conditions.length ? JSON.stringify(conditions) : null,
+      },
+    });
   }
 
   async consumeAction(tx: Prisma.TransactionClient, participantId: string) {
@@ -429,6 +522,7 @@ export class CombatService {
           actionUsed: false,
           bonusUsed: false,
           reactionUsed: false,
+          deathSaveUsed: false,
         },
       });
     });

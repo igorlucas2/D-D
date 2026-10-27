@@ -366,6 +366,11 @@ export class SpellCastService {
         });
       }
       if (participant) {
+        await this.combat.reconcileVitals(
+          tx,
+          participant.id,
+          mechanics.kind === 'DAMAGE' && hpBefore.current === 0 && amount > 0,
+        );
         emits.push({
           participantId: participant.id,
           delta: hpAfter.current - hpBefore.current,

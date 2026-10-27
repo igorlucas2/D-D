@@ -231,6 +231,14 @@ export class ItemUseService {
 
     if (economy) await this.combat.consumeAction(tx, economy.participantId);
 
+    if (participant) {
+      await this.combat.reconcileVitals(
+        tx,
+        participant.id,
+        effect.kind === 'DAMAGE' && hpBefore.current === 0 && applied > 0,
+      );
+    }
+
     const quantityBefore = inventory.quantity;
     const quantityAfter = quantityBefore - 1;
     if (quantityAfter <= 0) {

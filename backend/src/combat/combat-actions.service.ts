@@ -320,6 +320,14 @@ export class CombatActionsService {
       });
     }
 
+    if (participant) {
+      await this.combat.reconcileVitals(
+        tx,
+        participant.id,
+        dto.kind === 'DAMAGE' && hpBefore.current === 0 && applied > 0,
+      );
+    }
+
     if (encounter) {
       if (dto.expectedRevision !== undefined) {
         const claimed = await tx.combatEncounter.updateMany({

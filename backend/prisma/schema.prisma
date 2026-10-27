@@ -403,6 +403,11 @@ model CombatParticipant {
   actionUsed  Boolean @default(false)
   bonusUsed   Boolean @default(false)
   reactionUsed Boolean @default(false)
+  deathSuccesses Int @default(0)
+  deathFailures Int @default(0)
+  isStable    Boolean @default(false)
+  isDead      Boolean @default(false)
+  deathSaveUsed Boolean @default(false)
   isAlly      Boolean @default(true)
 
   encounter CombatEncounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)

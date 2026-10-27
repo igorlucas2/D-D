@@ -229,11 +229,35 @@ export interface WeaponAttackResult {
   createdAt: string;
 }
 
+export interface DeathSaveResult {
+  actionId: string;
+  requestKey: string;
+  kind: "DEATH_SAVE";
+  target: {
+    kind: "PARTICIPANT";
+    id: string;
+    name: string;
+    characterId: string;
+  };
+  roll: number;
+  successes: number;
+  failures: number;
+  stable: boolean;
+  dead: boolean;
+  revived: boolean;
+  outcome: "REVIVED" | "STABLE" | "DEAD" | "PENDING";
+  hpBefore: { current: number; max: number; temp: number };
+  hpAfter: { current: number; max: number; temp: number };
+  alreadyApplied: boolean;
+  createdAt: string;
+}
+
 export type TableActionResult =
   | CombatActionResult
   | ItemUseResult
   | SpellCastResult
-  | WeaponAttackResult;
+  | WeaponAttackResult
+  | DeathSaveResult;
 
 export const ACTION_LABELS: Record<CombatActionKind, string> = {
   DAMAGE: "Dano",

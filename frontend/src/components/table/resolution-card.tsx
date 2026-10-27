@@ -5,6 +5,7 @@ import {
   FlaskConical,
   HeartPulse,
   Shield,
+  Skull,
   Sparkles,
   Swords,
 } from "lucide-react";
@@ -121,6 +122,63 @@ function SpellCard({
   );
 }
 
+function DeathCard({
+  result,
+  compact,
+}: {
+  result: Extract<TableActionResult, { kind: "DEATH_SAVE" }>;
+  compact: boolean;
+}) {
+  const after = result.hpAfter;
+  const tone =
+    result.outcome === "REVIVED"
+      ? TONES.HEAL
+      : result.outcome === "DEAD"
+        ? TONES.DAMAGE
+        : TONES.CONDITION;
+  const outcome =
+    result.outcome === "REVIVED"
+      ? "voltou com 1 PV"
+      : result.outcome === "STABLE"
+        ? "estabilizado"
+        : result.outcome === "DEAD"
+          ? "morto"
+          : "ainda inconsciente";
+  return (
+    <article
+      className={`rounded-xl border p-3 ${tone}`}
+      aria-label={`Salvaguarda contra morte de ${result.target.name}: ${outcome}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          <Skull className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              Salvaguarda contra morte · {result.target.name}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              d20: {result.roll} · {result.successes} sucesso
+              {result.successes === 1 ? "" : "s"} / {result.failures} falha
+              {result.failures === 1 ? "" : "s"} · {outcome}
+            </p>
+          </div>
+        </div>
+        <HpBadge hp={after} />
+      </div>
+      {!compact && after ? (
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-black/25">
+          <div
+            className="h-full rounded-full bg-current opacity-70"
+            style={{
+              width: `${Math.max(0, Math.min(100, (after.current / Math.max(after.max, 1)) * 100))}%`,
+            }}
+          />
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
 function WeaponCard({
   result,
   compact,
@@ -187,6 +245,10 @@ export function ResolutionCard({
 
   if (result.kind === "WEAPON_ATTACK") {
     return <WeaponCard result={result} compact={compact} />;
+  }
+
+  if (result.kind === "DEATH_SAVE") {
+    return <DeathCard result={result} compact={compact} />;
   }
 
   if (result.kind === "CONDITION") {

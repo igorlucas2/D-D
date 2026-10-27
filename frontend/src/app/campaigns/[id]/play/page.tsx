@@ -26,6 +26,7 @@ import type {
   ItemUseResult,
   MechanicalActionInput,
   SpellCastResult,
+  DeathSaveResult,
   TableActionResult,
   WeaponAttackResult,
 } from "@/lib/table-types";
@@ -87,6 +88,7 @@ function AiMasterContent() {
   const [attackDialogOpen, setAttackDialogOpen] = useState(false);
   const [attackBusy, setAttackBusy] = useState(false);
   const [turnBusy, setTurnBusy] = useState(false);
+  const [deathBusy, setDeathBusy] = useState(false);
   const [narratingActionId, setNarratingActionId] = useState<string | null>(
     null,
   );
@@ -456,6 +458,30 @@ function AiMasterContent() {
     }
   }
 
+  async function rollDeathSave() {
+    if (!token || deathBusy) return;
+    setDeathBusy(true);
+    setError(null);
+    try {
+      const result = await api.post<DeathSaveResult>(
+        `/campaigns/${params.id}/combat/death-save`,
+        { requestKey: crypto.randomUUID() },
+        token,
+      );
+      setLastResult(result);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível rolar a salvaguarda contra morte.",
+      );
+      await load();
+    } finally {
+      setDeathBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
@@ -663,6 +689,7 @@ function AiMasterContent() {
               spellBusy ||
               attackBusy ||
               turnBusy ||
+              deathBusy ||
               busy
             }
             onAction={openAction}
@@ -670,6 +697,7 @@ function AiMasterContent() {
             onCastSpell={() => setSpellDialogOpen(true)}
             onAttack={() => setAttackDialogOpen(true)}
             onEndTurn={() => void endTurn()}
+            onDeathSave={() => void rollDeathSave()}
           />
         </div>
       </div>

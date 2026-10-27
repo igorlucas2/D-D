@@ -255,6 +255,10 @@ Ataques com arma estão em `docs/29-armas.md`.
 
 Economia de ações e turno em `docs/30-economia-de-acoes.md`.
 
+## 9.7 Fase H
+
+Queda, estabilização e morte em `docs/31-morte-e-estabilizacao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

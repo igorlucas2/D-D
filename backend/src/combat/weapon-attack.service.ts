@@ -269,6 +269,13 @@ export class WeaponAttackService {
         },
       });
     }
+    if (targetParticipant) {
+      await this.combat.reconcileVitals(
+        tx,
+        targetParticipant.id,
+        hpBefore.current === 0 && amount > 0,
+      );
+    }
 
     if (economy) await this.combat.consumeAction(tx, economy.participantId);
 

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `CombatParticipant` ADD COLUMN `deathFailures` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `deathSuccesses` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `isDead` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `isStable` BOOLEAN NOT NULL DEFAULT false;

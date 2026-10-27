@@ -69,6 +69,13 @@ export type CombatEvent =
   | { type: 'start' | 'end' | 'roster' | 'display' }
   | { type: 'turn'; participantId: string; round: number }
   | { type: 'conditions'; participantId: string }
+  | {
+      type: 'death';
+      participantId: string;
+      successes: number;
+      failures: number;
+      outcome: string;
+    }
   | { type: 'hp'; participantId: string; delta: number | null; hpStatus: HpStatus };
 
 export interface CombatParticipant {
@@ -88,6 +95,11 @@ export interface CombatParticipant {
   actionUsed?: boolean;
   bonusUsed?: boolean;
   reactionUsed?: boolean;
+  deathSuccesses?: number;
+  deathFailures?: number;
+  isStable?: boolean;
+  isDead?: boolean;
+  deathSaveUsed?: boolean;
 }
 
 export interface CombatEncounter {

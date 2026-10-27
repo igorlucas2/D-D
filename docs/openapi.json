@@ -796,6 +796,46 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/death-save": {
+      "post": {
+        "operationId": "CombatController_deathSave",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeathSaveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat/attacks": {
       "post": {
         "operationId": "CombatController_attack",
@@ -5264,6 +5304,18 @@
             "maximum": 9
           }
         }
+      },
+      "DeathSaveDto": {
+        "type": "object",
+        "properties": {
+          "requestKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "requestKey"
+        ]
       },
       "WeaponAttackDto": {
         "type": "object",
