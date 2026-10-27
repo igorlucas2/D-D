@@ -1,5 +1,7 @@
 # D-D
 
+[![CI](https://github.com/igorlucas2/D-D/actions/workflows/ci.yml/badge.svg)](https://github.com/igorlucas2/D-D/actions/workflows/ci.yml)
+
 Plataforma de RPG de mesa — **Eldoria** — com backend NestJS/Prisma (MySQL) e
 frontend Next.js 16/React 19, mesa virtual (VTT) em tempo real via Socket.IO.
 

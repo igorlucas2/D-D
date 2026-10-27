@@ -68,6 +68,52 @@ Para mais de um domínio, separe por vírgula. Sem isso, o Next bloqueia os pró
 - Com túnel, o `backend\.env` também precisa de `ELDORIA_PUBLIC_HOSTS=seu-dominio` (ou `ELDORIA_ALLOWED_ORIGINS=https://seu-dominio`); sem isso o CORS e o Socket.IO recusam a origem pública. `TRUST_PROXY=loopback` já basta quando o Next está na mesma máquina; use `1` apenas se o backend ficar atrás de outro proxy (nginx, balanceador).
 - O backend responde com cabeçalhos de segurança (`helmet`) e o Next envia CSP, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` e `Permissions-Policy`. Payloads JSON são limitados a 1 MB.
 
+## Testes automatizados
+
+### Backend
+
+Com o MySQL do `backend/.env` ativo:
+
+```powershell
+cd backend
+npm test                 # 127 testes unitários/integração (Jest)
+npm run build            # compila o Nest
+```
+
+### Frontend
+
+```powershell
+cd frontend
+npm run lint
+npx tsc --noEmit
+npm run build
+```
+
+### E2E (Playwright)
+
+Os testes E2E cobrem página inicial, login/cadastro, 404 custom, criação de
+campanha e abertura da mesa. Eles precisam do **backend** e do **MySQL** no ar;
+o Playwright sobe o frontend de produção sozinho.
+
+```powershell
+# uma vez: baixa o Chromium usado pelo Playwright
+cd frontend
+npx playwright install chromium
+
+# com o backend em http://localhost:3001 (npm run start:prod)
+npm run test:e2e
+npm run test:e2e:headed   # opcional, com navegador visível
+```
+
+Cada execução cria usuários `e2e-…@example.com`. Para limpar:
+
+```powershell
+cd backend
+npm run test:e2e:cleanup
+```
+
+O CI (`.github/workflows/ci.yml`) roda lint, tipos, build e testes do backend,
+lint/tipos/build do frontend e o E2E com MySQL de serviço.
 ## Saúde, logs e métricas
 
 - `GET /api/health` — banco respondendo (usado pelo monitor).
