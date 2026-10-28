@@ -6,8 +6,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   Compass,
+  Crown,
+  Dices,
   HeartPulse,
   MapPin,
+  MessageSquare,
   Plus,
   RefreshCw,
   ScrollText,
@@ -18,6 +21,8 @@ import {
 } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
+import { NarrationComposer } from "@/components/campaigns/narration-composer";
+import { TableDiceControls } from "@/components/campaigns/table-dice-controls";
 import {
   SpellDialog,
   type SpellCastInput,
@@ -29,9 +34,23 @@ import {
 import { ItemUseDialog } from "@/components/table/item-use-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { api, ApiError } from "@/lib/api";
-import type { Campaign, Character, CombatEncounter, VttMap } from "@/lib/types";
+import type {
+  Campaign,
+  Character,
+  CombatEncounter,
+  DiceRoll,
+  Item,
+  VttMap,
+} from "@/lib/types";
 import type {
   ActionTarget,
   CombatActionResult,
@@ -193,7 +212,7 @@ interface AttackHudResult {
   applied: number;
 }
 
-type SideTab = "sheet" | "party" | "chronicle" | "combat" | "npc";
+type SideTab = "sheet" | "party" | "chronicle" | "combat" | "npc" | "master";
 
 function frameCss() {
   return `
@@ -239,6 +258,22 @@ function ImmersiveContent() {
   const [npcX, setNpcX] = useState("10");
   const [npcY, setNpcY] = useState("10");
   const [npcJob, setNpcJob] = useState("0");
+  const [narrationOpen, setNarrationOpen] = useState(false);
+  const [diceOpen, setDiceOpen] = useState(false);
+  const [diceRolls, setDiceRolls] = useState<DiceRoll[]>([]);
+  const [masterMessage, setMasterMessage] = useState<string | null>(null);
+  const [bossName, setBossName] = useState("Chefe da Cena");
+  const [bossHp, setBossHp] = useState("120");
+  const [bossInitiative, setBossInitiative] = useState("20");
+  const [catalogItems, setCatalogItems] = useState<Item[]>([]);
+  const [itemSearch, setItemSearch] = useState("");
+  const [itemTarget, setItemTarget] = useState("");
+  const [itemChoice, setItemChoice] = useState("");
+  const [itemQuantity, setItemQuantity] = useState("1");
+  const [levelTarget, setLevelTarget] = useState("");
+  const [levelValue, setLevelValue] = useState("2");
+  const [levelClass, setLevelClass] = useState("");
+  const [masterBusy, setMasterBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [attackOpen, setAttackOpen] = useState(false);
   const [itemOpen, setItemOpen] = useState(false);
@@ -1120,6 +1155,161 @@ function ImmersiveContent() {
 
   const isMaster = campaign?.masterId === currentUserId;
   const currentCombatant = combat?.participants[combat.turnIndex] ?? null;
+
+  useEffect(() => {
+    const first = party?.characters[0];
+    if (!first) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- alvo padrão dos comandos
+    setItemTarget((current) => current || first.characterId);
+    setLevelTarget((current) => current || first.characterId);
+  }, [party]);
+
+  useEffect(() => {
+    if (!token || tab !== "master" || !isMaster) return;
+    let cancelled = false;
+    api
+      .get<Item[]>("/catalog/items", token)
+      .then((items) => {
+        if (!cancelled) setCatalogItems(items);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalogItems([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isMaster, tab, token]);
+
+  useEffect(() => {
+    if (!diceOpen || !token) return;
+    let cancelled = false;
+    api
+      .get<DiceRoll[]>(`/dice/campaign/${params.id}`, token)
+      .then((rolls) => {
+        if (!cancelled) setDiceRolls(rolls);
+      })
+      .catch(() => {
+        if (!cancelled) setDiceRolls([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [diceOpen, params.id, token]);
+
+  async function summonBoss() {
+    if (!token || !selected || !isMaster) return;
+    setMasterBusy(true);
+    setMasterMessage(null);
+    try {
+      let encounter = await api.get<CombatEncounter | null>(
+        `/campaigns/${params.id}/combat`,
+        token,
+      );
+      if (!encounter) {
+        encounter = await api.post<CombatEncounter>(
+          `/campaigns/${params.id}/combat`,
+          { name: "Encontro do Mestre" },
+          token,
+        );
+      }
+      const x = Math.floor(selected.width / 2);
+      const y = Math.floor(selected.height / 2);
+      await api.post(
+        `/campaigns/${params.id}/vtt/maps/${selected.id}/tokens`,
+        {
+          name: bossName.trim() || "Chefe",
+          x,
+          y,
+          imageUrl: NPC_IMAGES[2],
+          color: "#ef4444",
+          visible: true,
+        },
+        token,
+      );
+      const updated = await api.post<CombatEncounter>(
+        `/campaigns/${params.id}/combat/participants`,
+        {
+          name: bossName.trim() || "Chefe",
+          initiative: Math.max(1, Number(bossInitiative) || 20),
+          maxHp: Math.max(1, Number(bossHp) || 120),
+          currentHp: Math.max(1, Number(bossHp) || 120),
+          isAlly: false,
+        },
+        token,
+      );
+      const boss = updated.participants.find(
+        (entry) => entry.name === (bossName.trim() || "Chefe") && !entry.isAlly,
+      );
+      if (boss) {
+        await api.patch(
+          `/campaigns/${params.id}/combat/participants/${boss.id}/move`,
+          { x, y },
+          token,
+        );
+      }
+      setMasterMessage(`${bossName.trim() || "Chefe"} entrou no combate.`);
+      await load();
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao invocar o boss.",
+      );
+    } finally {
+      setMasterBusy(false);
+    }
+  }
+
+  async function grantMasterItem() {
+    if (!token || !itemTarget || !itemChoice) return;
+    setMasterBusy(true);
+    setMasterMessage(null);
+    try {
+      const result = await api.post<{ characterName: string; item: Item }>(
+        `/campaigns/${params.id}/master/grant-item`,
+        {
+          characterId: itemTarget,
+          itemId: itemChoice,
+          quantity: Math.max(1, Number(itemQuantity) || 1),
+        },
+        token,
+      );
+      setMasterMessage(
+        `${result.item.name} entregue a ${result.characterName}.`,
+      );
+      await load();
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao entregar o item.",
+      );
+    } finally {
+      setMasterBusy(false);
+    }
+  }
+
+  async function levelMasterCharacter() {
+    if (!token || !levelTarget) return;
+    setMasterBusy(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<{ name: string; level: number }>(
+        `/campaigns/${params.id}/master/level-up`,
+        {
+          characterId: levelTarget,
+          level: Math.max(1, Math.min(20, Number(levelValue) || 1)),
+          className: levelClass.trim() || undefined,
+        },
+        token,
+      );
+      setMasterMessage(`${updated.name} agora é nível ${updated.level}.`);
+      await load();
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao subir o nível.",
+      );
+    } finally {
+      setMasterBusy(false);
+    }
+  }
+
   const canMoveCurrent =
     Boolean(currentCombatant) &&
     (isMaster ||
@@ -1223,6 +1413,24 @@ function ImmersiveContent() {
         >
           <RefreshCw className="size-3.5" /> Atualizar
         </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          onClick={() => setDiceOpen(true)}
+        >
+          <Dices className="size-3.5" /> Dados
+        </Button>
+        {isMaster ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => setNarrationOpen(true)}
+          >
+            <MessageSquare className="size-3.5" /> Narrar
+          </Button>
+        ) : null}
         <Button
           size="sm"
           className="gap-1"
@@ -1494,6 +1702,7 @@ function ImmersiveContent() {
               ["chronicle", ScrollText, "Crônica"],
               ["combat", Swords, "Combate"],
               ["npc", MapPin, "NPCs"],
+              ...(isMaster ? [["master", Crown, "Mestre"] as const] : []),
             ] as const
           ).map(([id, Icon, label]) => (
             <Button
@@ -1614,6 +1823,211 @@ function ImmersiveContent() {
                 render={<Link href={`/campaigns/${params.id}/play`} />}
               >
                 <Users className="size-4" /> Vincular ficha na Mesa
+              </Button>
+            </div>
+          ) : null}
+
+          {tab === "master" ? (
+            <div className="space-y-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                Console do Mestre
+              </p>
+              {masterMessage ? (
+                <p className="rounded border border-primary/25 bg-primary/10 px-2 py-1 text-xs">
+                  {masterMessage}
+                </p>
+              ) : null}
+
+              <div className="grid grid-cols-2 gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1"
+                  onClick={() => setNarrationOpen(true)}
+                >
+                  <MessageSquare className="size-3.5" /> Narrar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1"
+                  onClick={() => setDiceOpen(true)}
+                >
+                  <Dices className="size-3.5" /> Dados
+                </Button>
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-destructive/35 p-2">
+                <p className="text-xs font-semibold">Invocar boss</p>
+                <Input
+                  value={bossName}
+                  onChange={(event) => setBossName(event.target.value)}
+                  className="h-8 text-xs"
+                  placeholder="Nome do boss"
+                />
+                <div className="grid grid-cols-2 gap-1">
+                  <Input
+                    value={bossHp}
+                    onChange={(event) => setBossHp(event.target.value)}
+                    type="number"
+                    min={1}
+                    className="h-8 text-xs"
+                    aria-label="PV do boss"
+                  />
+                  <Input
+                    value={bossInitiative}
+                    onChange={(event) => setBossInitiative(event.target.value)}
+                    type="number"
+                    min={1}
+                    className="h-8 text-xs"
+                    aria-label="Iniciativa do boss"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="w-full gap-1"
+                  disabled={masterBusy || !selected}
+                  onClick={() => void summonBoss()}
+                >
+                  <Swords className="size-3.5" /> Invocar no centro do mapa
+                </Button>
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                <p className="text-xs font-semibold">Dar item do jogo</p>
+                {party?.characters.length ? (
+                  <>
+                    <select
+                      value={itemTarget}
+                      onChange={(event) => setItemTarget(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Personagem que recebe o item"
+                    >
+                      {party.characters.map((character) => (
+                        <option
+                          key={character.characterId}
+                          value={character.characterId}
+                        >
+                          {character.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Input
+                      value={itemSearch}
+                      onChange={(event) => setItemSearch(event.target.value)}
+                      className="h-8 text-xs"
+                      placeholder="Buscar no catálogo SRD…"
+                    />
+                    <select
+                      value={itemChoice}
+                      onChange={(event) => setItemChoice(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Item para entregar"
+                    >
+                      <option value="">Escolha um item…</option>
+                      {catalogItems
+                        .filter((entry) =>
+                          entry.name
+                            .toLowerCase()
+                            .includes(itemSearch.trim().toLowerCase()),
+                        )
+                        .slice(0, 40)
+                        .map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="flex gap-1">
+                      <Input
+                        value={itemQuantity}
+                        onChange={(event) =>
+                          setItemQuantity(event.target.value)
+                        }
+                        type="number"
+                        min={1}
+                        max={99}
+                        className="h-8 w-20 text-xs"
+                        aria-label="Quantidade"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-8 flex-1"
+                        disabled={masterBusy || !itemTarget || !itemChoice}
+                        onClick={() => void grantMasterItem()}
+                      >
+                        Entregar
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Nenhum personagem vinculado à campanha.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                <p className="text-xs font-semibold">Subir nível / classe</p>
+                {party?.characters.length ? (
+                  <>
+                    <select
+                      value={levelTarget}
+                      onChange={(event) => setLevelTarget(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Personagem que sobe de nível"
+                    >
+                      {party.characters.map((character) => (
+                        <option
+                          key={character.characterId}
+                          value={character.characterId}
+                        >
+                          {character.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="grid grid-cols-2 gap-1">
+                      <Input
+                        value={levelValue}
+                        onChange={(event) => setLevelValue(event.target.value)}
+                        type="number"
+                        min={1}
+                        max={20}
+                        className="h-8 text-xs"
+                        aria-label="Novo nível"
+                      />
+                      <Input
+                        value={levelClass}
+                        onChange={(event) => setLevelClass(event.target.value)}
+                        className="h-8 text-xs"
+                        placeholder="Classe (opcional)"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      className="h-8 w-full"
+                      disabled={masterBusy || !levelTarget}
+                      onClick={() => void levelMasterCharacter()}
+                    >
+                      Aplicar nível
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Vincule um personagem para evoluir.
+                  </p>
+                )}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full gap-1 text-[10px]"
+                nativeButton={false}
+                render={<Link href="/library/ragnarok/characters" />}
+              >
+                <Crown className="size-3.5" /> Fichas e classes Ragnarok
               </Button>
             </div>
           ) : null}
@@ -1875,6 +2289,47 @@ function ImmersiveContent() {
           onCast={submitSpellCast}
         />
       ) : null}
+
+      <Dialog open={narrationOpen} onOpenChange={setNarrationOpen}>
+        <DialogContent className="max-h-[88dvh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Narrar sem sair do mapa</DialogTitle>
+            <DialogDescription>
+              A narração é enviada para os jogadores e pode ser registrada no
+              diário, com o mapa atual.
+            </DialogDescription>
+          </DialogHeader>
+          <NarrationComposer
+            campaignId={params.id}
+            currentMap={
+              selected ? { id: selected.id, name: selected.name } : null
+            }
+            requestedDraftId={null}
+            onRequestHandled={() => undefined}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={diceOpen} onOpenChange={setDiceOpen}>
+        <DialogContent className="max-h-[88dvh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Dados da mesa</DialogTitle>
+            <DialogDescription>
+              Rolagem autoritativa no servidor; o resultado aparece para quem
+              pode ver.
+            </DialogDescription>
+          </DialogHeader>
+          <TableDiceControls
+            campaignId={params.id}
+            isMaster={isMaster}
+            characterId={myCharacter?.id ?? null}
+            rolls={diceRolls}
+            onRolled={(roll) =>
+              setDiceRolls((current) => [roll, ...current].slice(0, 20))
+            }
+          />
+        </DialogContent>
+      </Dialog>
 
       {!frameReady && slug ? (
         <div className="absolute inset-0 z-20 grid place-items-center bg-background/60 text-sm text-muted-foreground">

@@ -2800,6 +2800,72 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/master/grant-item": {
+      "post": {
+        "operationId": "MasterActionsController_grantItem",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "MasterActions"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/master/level-up": {
+      "post": {
+        "operationId": "MasterActionsController_levelUp",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LevelUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "MasterActions"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/world/entries": {
       "get": {
         "operationId": "WorldController_findEntries",
@@ -6954,6 +7020,50 @@
       "UpdateCampaignDto": {
         "type": "object",
         "properties": {}
+      },
+      "GrantItemDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "itemId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "characterId",
+          "itemId"
+        ]
+      },
+      "LevelUpDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "maxLength": 191
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "className": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "characterId",
+          "level"
+        ]
       },
       "CreateWorldEntryDto": {
         "type": "object",
