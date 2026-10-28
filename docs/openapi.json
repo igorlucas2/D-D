@@ -3619,6 +3619,117 @@
         ]
       }
     },
+    "/api/ragnarok/characters": {
+      "get": {
+        "operationId": "RagnarokCharactersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      },
+      "post": {
+        "operationId": "RagnarokCharactersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRagnarokCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
+    "/api/ragnarok/characters/{id}": {
+      "patch": {
+        "operationId": "RagnarokCharactersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRagnarokCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      },
+      "delete": {
+        "operationId": "RagnarokCharactersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
       "get": {
         "operationId": "ExplorationController_getState",
@@ -6897,6 +7008,67 @@
             }
           }
         }
+      },
+      "CreateRagnarokCharacterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "jobId": {
+            "type": "number",
+            "minimum": 0
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "agility": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "vitality": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "intelligence": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "dexterity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "luck": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "appearance": {
+            "type": "string",
+            "maxLength": 5000
+          }
+        },
+        "required": [
+          "name",
+          "jobId"
+        ]
+      },
+      "UpdateRagnarokCharacterDto": {
+        "type": "object",
+        "properties": {}
       },
       "TravelDto": {
         "type": "object",

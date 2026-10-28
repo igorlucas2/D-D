@@ -1268,6 +1268,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ragnarok/characters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RagnarokCharactersController_list"];
+        put?: never;
+        post: operations["RagnarokCharactersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ragnarok/characters/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["RagnarokCharactersController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["RagnarokCharactersController_update"];
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
         parameters: {
             query?: never;
@@ -2365,6 +2397,19 @@ export interface components {
         SyncSrdDto: {
             endpoints?: string[];
         };
+        CreateRagnarokCharacterDto: {
+            name: string;
+            jobId: number;
+            level?: number;
+            strength?: number;
+            agility?: number;
+            vitality?: number;
+            intelligence?: number;
+            dexterity?: number;
+            luck?: number;
+            appearance?: string;
+        };
+        UpdateRagnarokCharacterDto: Record<string, never>;
         TravelDto: {
             hotspotId: string;
         };
@@ -4813,6 +4858,92 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    RagnarokCharactersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRagnarokCharacterDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RagnarokCharactersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRagnarokCharacterDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };

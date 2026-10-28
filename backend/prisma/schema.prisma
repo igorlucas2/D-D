@@ -48,6 +48,7 @@ model User {
   automationPolicies     WorldAutomationPolicy[]
   auditLogs              AuditLog[]              @relation("AuditActor")
   combatActions          CombatAction[]          @relation("CombatActor")
+  ragnarokCharacters     RagnarokCharacter[]
 }
 
 model Achievement {
@@ -1615,11 +1616,12 @@ model OutboxEvent {
 // =====================================================================
 
 model RagnarokJob {
-  id        Int      @id
-  jt        String
-  name      String
-  hasIcon   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id                 Int                 @id
+  jt                 String
+  name               String
+  hasIcon            Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  ragnarokCharacters RagnarokCharacter[]
 
   @@index([name])
 }
@@ -1659,4 +1661,27 @@ model RagnarokItem {
 model RagnarokMap {
   name      String   @id
   createdAt DateTime @default(now())
+}
+
+model RagnarokCharacter {
+  id           String   @id @default(cuid())
+  userId       String
+  jobId        Int
+  name         String
+  level        Int      @default(1)
+  strength     Int      @default(1)
+  agility      Int      @default(1)
+  vitality     Int      @default(1)
+  intelligence Int      @default(1)
+  dexterity    Int      @default(1)
+  luck         Int      @default(1)
+  appearance   String?  @db.LongText
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  RagnarokJob @relation(fields: [jobId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([jobId])
 }

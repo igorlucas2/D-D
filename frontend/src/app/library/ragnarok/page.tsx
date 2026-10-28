@@ -158,14 +158,24 @@ function RagnarokContent() {
             catálogo separado: não altera as fichas SRD da mesa narrada.
           </p>
         </div>
-        <Button
-          variant="outline"
-          className="gap-2"
-          nativeButton={false}
-          render={<Link href="/library" />}
-        >
-          <ArrowLeft className="size-4" /> Biblioteca
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            nativeButton={false}
+            render={<Link href="/library/ragnarok/characters" />}
+          >
+            <UserRound className="size-4" /> Fichas
+          </Button>
+          <Button
+            variant="outline"
+            className="gap-2"
+            nativeButton={false}
+            render={<Link href="/library" />}
+          >
+            <ArrowLeft className="size-4" /> Biblioteca
+          </Button>
+        </div>
       </div>
 
       {summary ? (

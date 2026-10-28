@@ -1,0 +1,21 @@
+CREATE TABLE `RagnarokCharacter` (
+  `id` VARCHAR(191) NOT NULL,
+  `userId` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin NOT NULL,
+  `jobId` INTEGER NOT NULL,
+  `name` VARCHAR(191) NOT NULL,
+  `level` INTEGER NOT NULL DEFAULT 1,
+  `strength` INTEGER NOT NULL DEFAULT 1,
+  `agility` INTEGER NOT NULL DEFAULT 1,
+  `vitality` INTEGER NOT NULL DEFAULT 1,
+  `intelligence` INTEGER NOT NULL DEFAULT 1,
+  `dexterity` INTEGER NOT NULL DEFAULT 1,
+  `luck` INTEGER NOT NULL DEFAULT 1,
+  `appearance` LONGTEXT NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `RagnarokCharacter_userId_idx`(`userId`),
+  INDEX `RagnarokCharacter_jobId_idx`(`jobId`),
+  CONSTRAINT `RagnarokCharacter_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `RagnarokCharacter_jobId_fkey` FOREIGN KEY (`jobId`) REFERENCES `RagnarokJob`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
