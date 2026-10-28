@@ -313,6 +313,9 @@ export function SpellDialog({
                       />
                       <span className="min-w-0 flex-1 truncate">
                         {target.name}
+                        {target.distanceFeet != null
+                          ? ` · ${target.distanceFeet} pés`
+                          : ""}
                       </span>
                       {typeof target.currentHp === "number" &&
                       typeof target.maxHp === "number" ? (

@@ -167,6 +167,9 @@ export function WeaponAttackDialog({
                       typeof item.maxHp === "number"
                         ? ` (${item.currentHp}/${item.maxHp})`
                         : ""}
+                      {item.distanceFeet != null
+                        ? ` · ${item.distanceFeet} pés`
+                        : ""}
                     </option>
                   ))}
                 </select>

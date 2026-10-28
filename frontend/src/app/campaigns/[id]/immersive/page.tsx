@@ -884,19 +884,28 @@ function ImmersiveContent() {
     };
   }, [myCharacter, party]);
 
-  const combatTargets = useMemo<ActionTarget[]>(
-    () =>
-      (combat?.participants ?? []).map((participant) => ({
-        kind: "PARTICIPANT",
-        id: participant.id,
-        name: participant.name,
-        characterId: participant.characterId,
-        currentHp: participant.currentHp,
-        maxHp: participant.maxHp,
-        isAlly: participant.isAlly,
-      })),
-    [combat?.participants],
-  );
+  const combatTargets = useMemo<ActionTarget[]>(() => {
+    const current = combat?.participants[combat.turnIndex];
+    return (combat?.participants ?? []).map((participant) => ({
+      kind: "PARTICIPANT",
+      id: participant.id,
+      name: participant.name,
+      characterId: participant.characterId,
+      currentHp: participant.currentHp,
+      maxHp: participant.maxHp,
+      isAlly: participant.isAlly,
+      distanceFeet:
+        current?.x != null &&
+        current.y != null &&
+        participant.x != null &&
+        participant.y != null
+          ? Math.max(
+              Math.abs(current.x - participant.x),
+              Math.abs(current.y - participant.y),
+            ) * 5
+          : null,
+    }));
+  }, [combat?.participants, combat?.turnIndex]);
 
   const isMaster = campaign?.masterId === currentUserId;
   const currentCombatant = combat?.participants[combat.turnIndex] ?? null;

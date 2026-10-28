@@ -26,6 +26,7 @@ export interface ActionTarget {
   currentHp?: number | null;
   maxHp?: number | null;
   isAlly?: boolean;
+  distanceFeet?: number | null;
 }
 
 export interface MechanicalActionInput {
