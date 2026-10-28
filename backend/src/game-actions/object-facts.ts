@@ -70,12 +70,11 @@ export async function initializeDomain(tx: Tx, campaignId: string) {
     include: { packVersion: true },
   });
   if (lore.domainVersion === 1) return;
+  // Pacotes sem o perfil ELDORIA_1 continuam jogáveis com o motor genérico.
+  if (lore.packVersion.packKey !== 'eldoria-tres-sinos') return;
   if (!lore.storySequence)
     throw new ConflictException('Prepare a memória do cenário primeiro.');
-  if (
-    lore.packVersion.packKey !== 'eldoria-tres-sinos' ||
-    !['1.0.0', '1.0.1'].includes(lore.packVersion.version)
-  )
+  if (!['1.0.0', '1.0.1'].includes(lore.packVersion.version))
     throw new ConflictException(
       'Este pacote ainda não possui um perfil de comandos.',
     );

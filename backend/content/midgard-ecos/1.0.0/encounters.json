@@ -1,0 +1,13 @@
+[
+  {
+    "id": "encontro-cripta",
+    "placeId": "glast-heim-entrada",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "skeleton"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Um guardião seco bloqueia a passagem para o selo; combate manual."
+  }
+]

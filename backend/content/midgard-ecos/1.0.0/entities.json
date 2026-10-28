@@ -1,0 +1,697 @@
+{
+  "places": [
+    {
+      "id": "midgard",
+      "name": "Midgard",
+      "parentId": null,
+      "description": "O continente central, unido pelas três estradas antigas e pelas raízes de Yggdrasil."
+    },
+    {
+      "id": "prontera",
+      "name": "Prontera",
+      "parentId": null,
+      "description": "Capital do reino central, encruzilhada de estradas e sede da Guarda de Prata."
+    },
+    {
+      "id": "prontera-praca",
+      "name": "Praça Central",
+      "parentId": "prontera",
+      "description": "Pregoeiros, cartazes de missão e o sino da guarda."
+    },
+    {
+      "id": "prontera-kafra",
+      "name": "Kafra de Prontera",
+      "parentId": "prontera",
+      "description": "Balcão de viagens, baús e recados entre reinos."
+    },
+    {
+      "id": "prontera-forja",
+      "name": "Forja de Ferro",
+      "parentId": "prontera",
+      "description": "Equipamento, reparos e rumores de mercadores."
+    },
+    {
+      "id": "prontera-templo",
+      "name": "Templo de Odin",
+      "parentId": "prontera",
+      "description": "Bênçãos, registros e o coral que canta ao amanhecer."
+    },
+    {
+      "id": "prontera-portao",
+      "name": "Portão Sul",
+      "parentId": "prontera",
+      "description": "Saída para as estradas do sul e posto da guarda."
+    },
+    {
+      "id": "cais",
+      "name": "Cais de Prontera",
+      "parentId": "prontera",
+      "description": "Barcos de rio, carga e o primeiro cheiro de aventura."
+    },
+    {
+      "id": "izlude",
+      "name": "Izlude",
+      "parentId": null,
+      "description": "Cidade-porto de pedra clara, ligada a Prontera por uma ponte de saveiros."
+    },
+    {
+      "id": "izlude-portao",
+      "name": "Portão de Izlude",
+      "parentId": "izlude",
+      "description": "Entrada da cidade-porto e balcão de aventureiros."
+    },
+    {
+      "id": "izlude-kafra",
+      "name": "Kafra de Izlude",
+      "parentId": "izlude",
+      "description": "Armazém e ponto de encontro dos grupos."
+    },
+    {
+      "id": "izlude-doca",
+      "name": "Doca dos Saveiros",
+      "parentId": "izlude",
+      "description": "Barcos rápidos para Alberta e o arquipélago."
+    },
+    {
+      "id": "izlude-arena",
+      "name": "Arena de Izlude",
+      "parentId": "izlude",
+      "description": "Duelos de treino e cartazes de torneio."
+    },
+    {
+      "id": "izlude-taverna",
+      "name": "Taverna do Farol",
+      "parentId": "izlude",
+      "description": "Peixe, histórias e contrabando discreto."
+    },
+    {
+      "id": "alberta",
+      "name": "Alberta",
+      "parentId": null,
+      "description": "Porto franco de velas vermelhas, alfândega e mercadores de mapas."
+    },
+    {
+      "id": "alberta-porto",
+      "name": "Porto de Alberta",
+      "parentId": "alberta",
+      "description": "Navios, guindastes e a alfândega mais barulhenta."
+    },
+    {
+      "id": "alberta-mercado",
+      "name": "Mercado das Velas",
+      "parentId": "alberta",
+      "description": "Especiarias, mapas e ofertas boas demais."
+    },
+    {
+      "id": "alberta-estaleiro",
+      "name": "Estaleiro",
+      "parentId": "alberta",
+      "description": "Carpinteiros e cascos em reparo."
+    },
+    {
+      "id": "alberta-taverna",
+      "name": "Taverna da Âncora",
+      "parentId": "alberta",
+      "description": "Mesa de capitães e dívidas antigas."
+    },
+    {
+      "id": "alberta-kafra",
+      "name": "Kafra de Alberta",
+      "parentId": "alberta",
+      "description": "Baú, correio e passagens para o continente."
+    },
+    {
+      "id": "geffen",
+      "name": "Geffen",
+      "parentId": null,
+      "description": "Cidade arcana aos pés da torre, cercada por campos de energia."
+    },
+    {
+      "id": "geffen-torre",
+      "name": "Torre de Geffen",
+      "parentId": "geffen",
+      "description": "Laboratório arcano e o selo que ninguém comenta."
+    },
+    {
+      "id": "geffen-praca",
+      "name": "Praça dos Ecos",
+      "parentId": "geffen",
+      "description": "Pedra central que repete sons por alguns segundos."
+    },
+    {
+      "id": "geffen-biblioteca",
+      "name": "Biblioteca Arcana",
+      "parentId": "geffen",
+      "description": "Códices, mapas e um arquivista desconfiado."
+    },
+    {
+      "id": "geffen-alquimista",
+      "name": "Boticário de Geffen",
+      "parentId": "geffen",
+      "description": "Poções, reagentes e receitas proibidas."
+    },
+    {
+      "id": "geffen-portal",
+      "name": "Portal Sul",
+      "parentId": "geffen",
+      "description": "Círculo de pedra para as ruínas de Glast Heim."
+    },
+    {
+      "id": "payon",
+      "name": "Payon",
+      "parentId": null,
+      "description": "Vila de arqueiros no bosque, guardiã das cavernas do sul."
+    },
+    {
+      "id": "payon-portao",
+      "name": "Portão de Payon",
+      "parentId": "payon",
+      "description": "Arco de madeira e guardas que ouvem o bosque."
+    },
+    {
+      "id": "payon-arco",
+      "name": "Arco dos Caçadores",
+      "parentId": "payon",
+      "description": "Treino, peles e trilhas marcadas."
+    },
+    {
+      "id": "payon-mercado",
+      "name": "Mercado do Bosque",
+      "parentId": "payon",
+      "description": "Ervas, arcos e histórias de espíritos."
+    },
+    {
+      "id": "payon-caverna",
+      "name": "Caverna de Payon",
+      "parentId": "payon",
+      "description": "Entrada úmida para as galerias antigas."
+    },
+    {
+      "id": "payon-taverna",
+      "name": "Taverna da Coruja",
+      "parentId": "payon",
+      "description": "Sopa quente e notícias da fronteira."
+    },
+    {
+      "id": "morroc",
+      "name": "Morroc",
+      "parentId": null,
+      "description": "Cidade de arenito no deserto, onde a água vale mais que o ouro."
+    },
+    {
+      "id": "morroc-portao",
+      "name": "Portão de Morroc",
+      "parentId": "morroc",
+      "description": "Muralhas de arenito e o vento do deserto."
+    },
+    {
+      "id": "morroc-mercado",
+      "name": "Bazar de Morroc",
+      "parentId": "morroc",
+      "description": "Tecidos, água e informação têm preço."
+    },
+    {
+      "id": "morroc-guilda",
+      "name": "Guilda dos Mercadores",
+      "parentId": "morroc",
+      "description": "Contratos, escoltas e caravanas."
+    },
+    {
+      "id": "morroc-piramide",
+      "name": "Pirâmide Antiga",
+      "parentId": "morroc",
+      "description": "Entrada soterrada e inscrições que mudam."
+    },
+    {
+      "id": "morroc-oasis",
+      "name": "Oásis de Morroc",
+      "parentId": "morroc",
+      "description": "Água doce, palmeiras e uma vigília silenciosa."
+    },
+    {
+      "id": "al-de-baran",
+      "name": "Al De Baran",
+      "parentId": null,
+      "description": "Cidade dos relojoeiros, sob uma torre que mede um tempo errado."
+    },
+    {
+      "id": "al-de-baran-relogio",
+      "name": "Torre do Relógio",
+      "parentId": "al-de-baran",
+      "description": "Engrenagens gigantes que marcam outra hora."
+    },
+    {
+      "id": "al-de-baran-praca",
+      "name": "Praça das Horas",
+      "parentId": "al-de-baran",
+      "description": "Relojoeiros, correios e o sino partido."
+    },
+    {
+      "id": "al-de-baran-oficina",
+      "name": "Oficina de Precisão",
+      "parentId": "al-de-baran",
+      "description": "Peças, autômatos e aprendizes nervosos."
+    },
+    {
+      "id": "al-de-baran-templo",
+      "name": "Templo de Balder",
+      "parentId": "al-de-baran",
+      "description": "Vitrais e um coro que nunca desafina."
+    },
+    {
+      "id": "al-de-baran-portal",
+      "name": "Portal das Engrenagens",
+      "parentId": "al-de-baran",
+      "description": "Acesso baixo para a Torre do Relógio."
+    },
+    {
+      "id": "comodo",
+      "name": "Comodo",
+      "parentId": null,
+      "description": "Enseada de praias escuras, cassinos e cavernas de maré."
+    },
+    {
+      "id": "comodo-praia",
+      "name": "Praia de Comodo",
+      "parentId": "comodo",
+      "description": "Areia escura, fogueiras e barcos encalhados."
+    },
+    {
+      "id": "comodo-cassino",
+      "name": "Casa das Apostas",
+      "parentId": "comodo",
+      "description": "Dados, crédito e sorrisos perigosos."
+    },
+    {
+      "id": "comodo-mercado",
+      "name": "Mercado de Comodo",
+      "parentId": "comodo",
+      "description": "Conchas, mapas e objetos sem procedência."
+    },
+    {
+      "id": "comodo-caverna",
+      "name": "Caverna das Marés",
+      "parentId": "comodo",
+      "description": "Gruta costeira que seca na maré baixa."
+    },
+    {
+      "id": "comodo-kafra",
+      "name": "Kafra de Comodo",
+      "parentId": "comodo",
+      "description": "Armazém e passagens para o arquipélago."
+    },
+    {
+      "id": "juno",
+      "name": "Juno",
+      "parentId": null,
+      "description": "Cidade dos sábios, bibliotecas e observatórios sobre a copa de Yggdrasil."
+    },
+    {
+      "id": "juno-academia",
+      "name": "Academia de Juno",
+      "parentId": "juno",
+      "description": "Sábios, telescópios e discussões acaloradas."
+    },
+    {
+      "id": "juno-biblioteca",
+      "name": "Grande Biblioteca",
+      "parentId": "juno",
+      "description": "O maior arquivo de mapas do continente."
+    },
+    {
+      "id": "juno-praca",
+      "name": "Praça dos Sábios",
+      "parentId": "juno",
+      "description": "Estátuas, debates e mensageiros."
+    },
+    {
+      "id": "juno-observatorio",
+      "name": "Observatório",
+      "parentId": "juno",
+      "description": "Lentes que estudam a copa de Yggdrasil."
+    },
+    {
+      "id": "juno-portao",
+      "name": "Portão de Juno",
+      "parentId": "juno",
+      "description": "Estrada para o norte e para o deserto."
+    },
+    {
+      "id": "umbala",
+      "name": "Umbala",
+      "parentId": null,
+      "description": "Aldeia da floresta profunda, onde as raízes são estradas."
+    },
+    {
+      "id": "umbala-arvore",
+      "name": "Grande Árvore",
+      "parentId": "umbala",
+      "description": "Raízes vivas e o som de um coração lento."
+    },
+    {
+      "id": "umbala-xama",
+      "name": "Círculo do Xamã",
+      "parentId": "umbala",
+      "description": "Ervas, máscaras e conversas com antepassados."
+    },
+    {
+      "id": "umbala-mercado",
+      "name": "Mercado das Raízes",
+      "parentId": "umbala",
+      "description": "Tintas, penas e alimento da floresta."
+    },
+    {
+      "id": "umbala-ponte",
+      "name": "Ponte Suspensa",
+      "parentId": "umbala",
+      "description": "Travessia de cordas sobre o abismo."
+    },
+    {
+      "id": "umbala-portal",
+      "name": "Portal de Umbala",
+      "parentId": "umbala",
+      "description": "Pedra coberta de musgo e oferendas."
+    },
+    {
+      "id": "niflheim",
+      "name": "Niflheim",
+      "parentId": null,
+      "description": "Reino de névoa e neve, alcançável por barqueiros e pactos."
+    },
+    {
+      "id": "niflheim-porto",
+      "name": "Porto das Almas",
+      "parentId": "niflheim",
+      "description": "Barqueiro, névoa e moedas para a travessia."
+    },
+    {
+      "id": "niflheim-neve",
+      "name": "Campo de Neve",
+      "parentId": "niflheim",
+      "description": "Pegadas que somem antes do próximo passo."
+    },
+    {
+      "id": "niflheim-salao",
+      "name": "Salão de Hel",
+      "parentId": "niflheim",
+      "description": "Portas frias e uma rainha que não recebe visitas."
+    },
+    {
+      "id": "niflheim-portal",
+      "name": "Portal de Niflheim",
+      "parentId": "niflheim",
+      "description": "Retorno ao mundo dos vivos."
+    },
+    {
+      "id": "niflheim-arvore",
+      "name": "Árvore Sem Folhas",
+      "parentId": "niflheim",
+      "description": "Galhos que apontam para algo sob a terra."
+    },
+    {
+      "id": "glast-heim",
+      "name": "Glast Heim",
+      "parentId": null,
+      "description": "Ruínas de uma abadia militar, selada após a Noite dos Corvos."
+    },
+    {
+      "id": "glast-heim-entrada",
+      "name": "Entrada de Glast Heim",
+      "parentId": "glast-heim",
+      "description": "Arco quebrado e o cheiro de pedra velha."
+    },
+    {
+      "id": "glast-heim-patio",
+      "name": "Pátio das Estátuas",
+      "parentId": "glast-heim",
+      "description": "Santos sem rosto e corvos que observam."
+    },
+    {
+      "id": "glast-heim-cripta",
+      "name": "Cripta dos Reis",
+      "parentId": "glast-heim",
+      "description": "Túmulos, inscrições e frio sob a pele."
+    },
+    {
+      "id": "glast-heim-sino",
+      "name": "Sino Partido",
+      "parentId": "glast-heim",
+      "description": "Um bronze que ainda vibra sem badalo."
+    },
+    {
+      "id": "glast-heim-selo",
+      "name": "Selo da Raiz",
+      "parentId": "glast-heim",
+      "description": "Círculo de ferro sob o altar; algo respira embaixo."
+    },
+    {
+      "id": "clock-tower",
+      "name": "Torre do Relógio",
+      "parentId": null,
+      "description": "Torre de engrenagens que se move entre as horas."
+    },
+    {
+      "id": "clock-tower-entrada",
+      "name": "Entrada da Torre",
+      "parentId": "clock-tower",
+      "description": "Portão de bronze e um relógio que atrasa."
+    },
+    {
+      "id": "clock-tower-engrenagem",
+      "name": "Sala das Engrenagens",
+      "parentId": "clock-tower",
+      "description": "Rodas dentadas e passagens entre os dentes."
+    },
+    {
+      "id": "clock-tower-biblioteca",
+      "name": "Arquivo do Tempo",
+      "parentId": "clock-tower",
+      "description": "Livros que registram horas que não existiram."
+    },
+    {
+      "id": "clock-tower-topo",
+      "name": "Cume do Relógio",
+      "parentId": "clock-tower",
+      "description": "Vista do vale e um sino que toca sozinho."
+    },
+    {
+      "id": "clock-tower-portal",
+      "name": "Portal de Retorno",
+      "parentId": "clock-tower",
+      "description": "Círculo instável para Al De Baran."
+    },
+    {
+      "id": "payon-cave",
+      "name": "Caverna de Payon",
+      "parentId": null,
+      "description": "Galerias sob Payon, com ossadas e altares anteriores ao reino."
+    },
+    {
+      "id": "payon-cave-entrada",
+      "name": "Entrada da Caverna",
+      "parentId": "payon-cave",
+      "description": "Escada de pedra e marcas de garra."
+    },
+    {
+      "id": "payon-cave-ossada",
+      "name": "Ossada Antiga",
+      "parentId": "payon-cave",
+      "description": "Restos de uma expedição e ferramentas enferrujadas."
+    },
+    {
+      "id": "payon-cave-altar",
+      "name": "Altar do Bosque",
+      "parentId": "payon-cave",
+      "description": "Pedra coberta de musgo e oferendas recentes."
+    },
+    {
+      "id": "payon-cave-lago",
+      "name": "Lago Subterrâneo",
+      "parentId": "payon-cave",
+      "description": "Água negra que reflete tochas distantes."
+    },
+    {
+      "id": "payon-cave-camara",
+      "name": "Câmara do Eco",
+      "parentId": "payon-cave",
+      "description": "Sala circular onde toda voz volta errada."
+    },
+    {
+      "id": "amatsu",
+      "name": "Amatsu",
+      "parentId": null,
+      "description": "Ilha de templos lacrados e pontes sobre o mar."
+    },
+    {
+      "id": "ayothaya",
+      "name": "Ayothaya",
+      "parentId": null,
+      "description": "Cidade de pedra e rios, guardiã de uma coroa antiga."
+    },
+    {
+      "id": "louyang",
+      "name": "Louyang",
+      "parentId": null,
+      "description": "Vale de mosteiros e muralhas contra o norte."
+    },
+    {
+      "id": "rachel",
+      "name": "Rachel",
+      "parentId": null,
+      "description": "Cidade de peregrinos aos pés das montanhas santas."
+    },
+    {
+      "id": "veins",
+      "name": "Veins",
+      "parentId": null,
+      "description": "Oásis de mineração e caravanas no coração de Arunafeltz."
+    },
+    {
+      "id": "moscovia",
+      "name": "Moscóvia",
+      "parentId": null,
+      "description": "Principado de neve, florestas e acordos antigos com os povos do norte."
+    }
+  ],
+  "factions": [
+    {
+      "id": "guarda-prata",
+      "name": "Guarda de Prata",
+      "objective": "Manter as estradas e conter a Ressonância até entender sua causa.",
+      "limits": "Não pode abandonar Prontera; desconfia de mercadores e do Culto."
+    },
+    {
+      "id": "liga-velas",
+      "name": "Liga das Velas",
+      "objective": "Controlar as rotas comerciais e lucrar com a crise.",
+      "limits": "Precisa de portos e acordos; não tem exército próprio."
+    },
+    {
+      "id": "culto-ecos",
+      "name": "Culto do Eco",
+      "objective": "Abrir a Raiz e ouvir Yggdrasil, custe o que custar.",
+      "limits": "Age em células pequenas e não controla os mortos de Glast Heim."
+    }
+  ],
+  "npcs": [
+    {
+      "id": "lyra",
+      "name": "Lyra Voss",
+      "placeId": "prontera-praca",
+      "factionId": "guarda-prata",
+      "objective": "Mapear a Ressonância antes que a Guarda feche todas as estradas.",
+      "voice": "Prática, direta, desenha enquanto fala.",
+      "knowledgeBoundary": "Sabe do mapa e do cais; não sabe o que há sob o selo.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "oren",
+      "name": "Oren Malick",
+      "placeId": "geffen-torre",
+      "factionId": null,
+      "objective": "Provar que a torre não causou a Ressonância.",
+      "voice": "Cansado, preciso, interrompe com correções.",
+      "knowledgeBoundary": "Sabe da vibração sob o cais; não confia na Guarda.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "mira",
+      "name": "Mira Sal",
+      "placeId": "alberta-porto",
+      "factionId": "liga-velas",
+      "objective": "Garantir que o porto continue aberto durante a crise.",
+      "voice": "Rápida, irônica, sempre com uma saída.",
+      "knowledgeBoundary": "Sabe de cargas e subornos; não conhece o fragmento.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "sirv",
+      "name": "Sirv",
+      "placeId": "payon-portao",
+      "factionId": null,
+      "objective": "Proteger o bosque e descobrir por que os animais estão fugindo.",
+      "voice": "Baixa, observadora, responde com perguntas.",
+      "knowledgeBoundary": "Sabe das trilhas e da caverna; não entra em Glast Heim.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "talia",
+      "name": "Talia Ren",
+      "placeId": "juno-biblioteca",
+      "factionId": null,
+      "objective": "Catalogar os ecos e preservar o conhecimento se as cidades caírem.",
+      "voice": "Formal, entusiasmada com detalhes, impaciente com pressa.",
+      "knowledgeBoundary": "Sabe da história antiga; não tem acesso ao selo.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "bran",
+      "name": "Bran",
+      "placeId": "niflheim-porto",
+      "factionId": "culto-ecos",
+      "objective": "Levar o fragmento à Raiz antes que a Guarda o destrua.",
+      "voice": "Calmo, quase gentil, nunca levanta a voz.",
+      "knowledgeBoundary": "Sabe do Culto e da Raiz; não revela o ritual completo.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "farol",
+      "name": "Farol do Cais",
+      "placeId": "cais",
+      "state": "Apagado desde o início da Ressonância; a lente está intacta."
+    },
+    {
+      "id": "selo",
+      "name": "Selo da Raiz",
+      "placeId": "glast-heim-selo",
+      "state": "Ferro frio, rachaduras novas e um pulso lento sob a pedra."
+    }
+  ],
+  "relations": [
+    {
+      "from": "lyra",
+      "to": "oren",
+      "kind": "RESPECTS"
+    },
+    {
+      "from": "oren",
+      "to": "talia",
+      "kind": "TRUSTS"
+    },
+    {
+      "from": "mira",
+      "to": "lyra",
+      "kind": "DISTRUSTS"
+    },
+    {
+      "from": "bran",
+      "to": "talia",
+      "kind": "DISTRUSTS"
+    },
+    {
+      "from": "sirv",
+      "to": "lyra",
+      "kind": "FRIEND"
+    }
+  ]
+}

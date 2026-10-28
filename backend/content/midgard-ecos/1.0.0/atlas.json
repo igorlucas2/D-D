@@ -1,0 +1,1170 @@
+{
+  "coordinateSystem": "zero-based grid; origin top-left; north up",
+  "geometry": [
+    {
+      "mapId": "midgard",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "prontera",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "izlude",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "alberta",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "geffen",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "payon",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "morroc",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "al-de-baran",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "comodo",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "juno",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "umbala",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "niflheim",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "glast-heim",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "clock-tower",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "mapId": "payon-cave",
+      "walls": [],
+      "entry": {
+        "x": 2,
+        "y": 2
+      }
+    }
+  ],
+  "maps": [
+    {
+      "id": "midgard",
+      "name": "Midgard",
+      "kind": "REGION",
+      "parentId": null,
+      "width": 48,
+      "height": 32,
+      "gridSize": 1,
+      "asset": "assets/midgard.svg",
+      "texture": "assets/midgard.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "one cell ≈ one day of road; use routes for time"
+    },
+    {
+      "id": "prontera",
+      "name": "Prontera",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 24,
+      "height": 18,
+      "gridSize": 1,
+      "asset": "assets/prontera.svg",
+      "texture": "assets/prontera.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "izlude",
+      "name": "Izlude",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/izlude.svg",
+      "texture": "assets/izlude.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "alberta",
+      "name": "Alberta",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/alberta.svg",
+      "texture": "assets/alberta.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "geffen",
+      "name": "Geffen",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/geffen.svg",
+      "texture": "assets/geffen.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "payon",
+      "name": "Payon",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/payon.svg",
+      "texture": "assets/payon.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "morroc",
+      "name": "Morroc",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/morroc.svg",
+      "texture": "assets/morroc.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "al-de-baran",
+      "name": "Al De Baran",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/al-de-baran.svg",
+      "texture": "assets/al-de-baran.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "comodo",
+      "name": "Comodo",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/comodo.svg",
+      "texture": "assets/comodo.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "juno",
+      "name": "Juno",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/juno.svg",
+      "texture": "assets/juno.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "umbala",
+      "name": "Umbala",
+      "kind": "SETTLEMENT",
+      "parentId": "midgard",
+      "width": 20,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/umbala.svg",
+      "texture": "assets/umbala.png",
+      "visibility": "PUBLIC_AT_START",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "niflheim",
+      "name": "Niflheim",
+      "kind": "INTERIOR",
+      "parentId": "midgard",
+      "width": 20,
+      "height": 16,
+      "gridSize": 1,
+      "asset": "assets/niflheim.svg",
+      "texture": "assets/niflheim.png",
+      "visibility": "KNOWN_PLAN_ON_DISCOVERY",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "glast-heim",
+      "name": "Glast Heim",
+      "kind": "INTERIOR",
+      "parentId": "midgard",
+      "width": 26,
+      "height": 20,
+      "gridSize": 1,
+      "asset": "assets/glast-heim.svg",
+      "texture": "assets/glast-heim.png",
+      "visibility": "KNOWN_PLAN_ON_DISCOVERY",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "clock-tower",
+      "name": "Torre do Relógio",
+      "kind": "INTERIOR",
+      "parentId": "midgard",
+      "width": 22,
+      "height": 18,
+      "gridSize": 1,
+      "asset": "assets/clock-tower.svg",
+      "texture": "assets/clock-tower.png",
+      "visibility": "KNOWN_PLAN_ON_DISCOVERY",
+      "scale": "schematic; use routes/local travel for time"
+    },
+    {
+      "id": "payon-cave",
+      "name": "Caverna de Payon",
+      "kind": "INTERIOR",
+      "parentId": "midgard",
+      "width": 24,
+      "height": 18,
+      "gridSize": 1,
+      "asset": "assets/payon-cave.svg",
+      "texture": "assets/payon-cave.png",
+      "visibility": "KNOWN_PLAN_ON_DISCOVERY",
+      "scale": "schematic; use routes/local travel for time"
+    }
+  ],
+  "places": [
+    {
+      "id": "prontera",
+      "name": "Prontera",
+      "mapId": "midgard",
+      "x": 18,
+      "y": 10,
+      "targetMapId": "prontera"
+    },
+    {
+      "id": "prontera-praca",
+      "name": "Praça Central",
+      "mapId": "prontera",
+      "x": 12,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "prontera-kafra",
+      "name": "Kafra de Prontera",
+      "mapId": "prontera",
+      "x": 7,
+      "y": 6,
+      "targetMapId": null
+    },
+    {
+      "id": "prontera-forja",
+      "name": "Forja de Ferro",
+      "mapId": "prontera",
+      "x": 18,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "prontera-templo",
+      "name": "Templo de Odin",
+      "mapId": "prontera",
+      "x": 15,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "prontera-portao",
+      "name": "Portão Sul",
+      "mapId": "prontera",
+      "x": 12,
+      "y": 17,
+      "targetMapId": null
+    },
+    {
+      "id": "cais",
+      "name": "Cais de Prontera",
+      "mapId": "prontera",
+      "x": 4,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "izlude",
+      "name": "Izlude",
+      "mapId": "midgard",
+      "x": 19,
+      "y": 13,
+      "targetMapId": "izlude"
+    },
+    {
+      "id": "izlude-portao",
+      "name": "Portão de Izlude",
+      "mapId": "izlude",
+      "x": 11,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "izlude-kafra",
+      "name": "Kafra de Izlude",
+      "mapId": "izlude",
+      "x": 7,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "izlude-doca",
+      "name": "Doca dos Saveiros",
+      "mapId": "izlude",
+      "x": 17,
+      "y": 11,
+      "targetMapId": null
+    },
+    {
+      "id": "izlude-arena",
+      "name": "Arena de Izlude",
+      "mapId": "izlude",
+      "x": 14,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "izlude-taverna",
+      "name": "Taverna do Farol",
+      "mapId": "izlude",
+      "x": 5,
+      "y": 11,
+      "targetMapId": null
+    },
+    {
+      "id": "alberta",
+      "name": "Alberta",
+      "mapId": "midgard",
+      "x": 16,
+      "y": 16,
+      "targetMapId": "alberta"
+    },
+    {
+      "id": "alberta-porto",
+      "name": "Porto de Alberta",
+      "mapId": "alberta",
+      "x": 5,
+      "y": 12,
+      "targetMapId": null
+    },
+    {
+      "id": "alberta-mercado",
+      "name": "Mercado das Velas",
+      "mapId": "alberta",
+      "x": 11,
+      "y": 8,
+      "targetMapId": null
+    },
+    {
+      "id": "alberta-estaleiro",
+      "name": "Estaleiro",
+      "mapId": "alberta",
+      "x": 17,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "alberta-taverna",
+      "name": "Taverna da Âncora",
+      "mapId": "alberta",
+      "x": 8,
+      "y": 6,
+      "targetMapId": null
+    },
+    {
+      "id": "alberta-kafra",
+      "name": "Kafra de Alberta",
+      "mapId": "alberta",
+      "x": 14,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "geffen",
+      "name": "Geffen",
+      "mapId": "midgard",
+      "x": 10,
+      "y": 9,
+      "targetMapId": "geffen"
+    },
+    {
+      "id": "geffen-torre",
+      "name": "Torre de Geffen",
+      "mapId": "geffen",
+      "x": 11,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "geffen-praca",
+      "name": "Praça dos Ecos",
+      "mapId": "geffen",
+      "x": 11,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "geffen-biblioteca",
+      "name": "Biblioteca Arcana",
+      "mapId": "geffen",
+      "x": 6,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "geffen-alquimista",
+      "name": "Boticário de Geffen",
+      "mapId": "geffen",
+      "x": 17,
+      "y": 8,
+      "targetMapId": null
+    },
+    {
+      "id": "geffen-portal",
+      "name": "Portal Sul",
+      "mapId": "geffen",
+      "x": 11,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "payon",
+      "name": "Payon",
+      "mapId": "midgard",
+      "x": 27,
+      "y": 19,
+      "targetMapId": "payon"
+    },
+    {
+      "id": "payon-portao",
+      "name": "Portão de Payon",
+      "mapId": "payon",
+      "x": 11,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-arco",
+      "name": "Arco dos Caçadores",
+      "mapId": "payon",
+      "x": 11,
+      "y": 6,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-mercado",
+      "name": "Mercado do Bosque",
+      "mapId": "payon",
+      "x": 6,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-caverna",
+      "name": "Caverna de Payon",
+      "mapId": "payon",
+      "x": 17,
+      "y": 11,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-taverna",
+      "name": "Taverna da Coruja",
+      "mapId": "payon",
+      "x": 5,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "morroc",
+      "name": "Morroc",
+      "mapId": "midgard",
+      "x": 15,
+      "y": 25,
+      "targetMapId": "morroc"
+    },
+    {
+      "id": "morroc-portao",
+      "name": "Portão de Morroc",
+      "mapId": "morroc",
+      "x": 11,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "morroc-mercado",
+      "name": "Bazar de Morroc",
+      "mapId": "morroc",
+      "x": 7,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "morroc-guilda",
+      "name": "Guilda dos Mercadores",
+      "mapId": "morroc",
+      "x": 16,
+      "y": 8,
+      "targetMapId": null
+    },
+    {
+      "id": "morroc-piramide",
+      "name": "Pirâmide Antiga",
+      "mapId": "morroc",
+      "x": 17,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "morroc-oasis",
+      "name": "Oásis de Morroc",
+      "mapId": "morroc",
+      "x": 5,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "al-de-baran",
+      "name": "Al De Baran",
+      "mapId": "midgard",
+      "x": 24,
+      "y": 5,
+      "targetMapId": "al-de-baran"
+    },
+    {
+      "id": "al-de-baran-relogio",
+      "name": "Torre do Relógio",
+      "mapId": "al-de-baran",
+      "x": 11,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "al-de-baran-praca",
+      "name": "Praça das Horas",
+      "mapId": "al-de-baran",
+      "x": 11,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "al-de-baran-oficina",
+      "name": "Oficina de Precisão",
+      "mapId": "al-de-baran",
+      "x": 5,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "al-de-baran-templo",
+      "name": "Templo de Balder",
+      "mapId": "al-de-baran",
+      "x": 17,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "al-de-baran-portal",
+      "name": "Portal das Engrenagens",
+      "mapId": "al-de-baran",
+      "x": 11,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "comodo",
+      "name": "Comodo",
+      "mapId": "midgard",
+      "x": 35,
+      "y": 23,
+      "targetMapId": "comodo"
+    },
+    {
+      "id": "comodo-praia",
+      "name": "Praia de Comodo",
+      "mapId": "comodo",
+      "x": 5,
+      "y": 12,
+      "targetMapId": null
+    },
+    {
+      "id": "comodo-cassino",
+      "name": "Casa das Apostas",
+      "mapId": "comodo",
+      "x": 11,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "comodo-mercado",
+      "name": "Mercado de Comodo",
+      "mapId": "comodo",
+      "x": 17,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "comodo-caverna",
+      "name": "Caverna das Marés",
+      "mapId": "comodo",
+      "x": 17,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "comodo-kafra",
+      "name": "Kafra de Comodo",
+      "mapId": "comodo",
+      "x": 8,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "juno",
+      "name": "Juno",
+      "mapId": "midgard",
+      "x": 35,
+      "y": 8,
+      "targetMapId": "juno"
+    },
+    {
+      "id": "juno-academia",
+      "name": "Academia de Juno",
+      "mapId": "juno",
+      "x": 7,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "juno-biblioteca",
+      "name": "Grande Biblioteca",
+      "mapId": "juno",
+      "x": 16,
+      "y": 6,
+      "targetMapId": null
+    },
+    {
+      "id": "juno-praca",
+      "name": "Praça dos Sábios",
+      "mapId": "juno",
+      "x": 11,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "juno-observatorio",
+      "name": "Observatório",
+      "mapId": "juno",
+      "x": 17,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "juno-portao",
+      "name": "Portão de Juno",
+      "mapId": "juno",
+      "x": 11,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "umbala",
+      "name": "Umbala",
+      "mapId": "midgard",
+      "x": 22,
+      "y": 29,
+      "targetMapId": "umbala"
+    },
+    {
+      "id": "umbala-arvore",
+      "name": "Grande Árvore",
+      "mapId": "umbala",
+      "x": 10,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "umbala-xama",
+      "name": "Círculo do Xamã",
+      "mapId": "umbala",
+      "x": 5,
+      "y": 8,
+      "targetMapId": null
+    },
+    {
+      "id": "umbala-mercado",
+      "name": "Mercado das Raízes",
+      "mapId": "umbala",
+      "x": 15,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "umbala-ponte",
+      "name": "Ponte Suspensa",
+      "mapId": "umbala",
+      "x": 10,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "umbala-portal",
+      "name": "Portal de Umbala",
+      "mapId": "umbala",
+      "x": 4,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "niflheim",
+      "name": "Niflheim",
+      "mapId": "midgard",
+      "x": 40,
+      "y": 28,
+      "targetMapId": "niflheim"
+    },
+    {
+      "id": "niflheim-porto",
+      "name": "Porto das Almas",
+      "mapId": "niflheim",
+      "x": 10,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "niflheim-neve",
+      "name": "Campo de Neve",
+      "mapId": "niflheim",
+      "x": 6,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "niflheim-salao",
+      "name": "Salão de Hel",
+      "mapId": "niflheim",
+      "x": 15,
+      "y": 7,
+      "targetMapId": null
+    },
+    {
+      "id": "niflheim-portal",
+      "name": "Portal de Niflheim",
+      "mapId": "niflheim",
+      "x": 16,
+      "y": 14,
+      "targetMapId": null
+    },
+    {
+      "id": "niflheim-arvore",
+      "name": "Árvore Sem Folhas",
+      "mapId": "niflheim",
+      "x": 10,
+      "y": 4,
+      "targetMapId": null
+    },
+    {
+      "id": "glast-heim",
+      "name": "Glast Heim",
+      "mapId": "midgard",
+      "x": 7,
+      "y": 6,
+      "targetMapId": "glast-heim"
+    },
+    {
+      "id": "glast-heim-entrada",
+      "name": "Entrada de Glast Heim",
+      "mapId": "glast-heim",
+      "x": 13,
+      "y": 18,
+      "targetMapId": null
+    },
+    {
+      "id": "glast-heim-patio",
+      "name": "Pátio das Estátuas",
+      "mapId": "glast-heim",
+      "x": 13,
+      "y": 13,
+      "targetMapId": null
+    },
+    {
+      "id": "glast-heim-cripta",
+      "name": "Cripta dos Reis",
+      "mapId": "glast-heim",
+      "x": 6,
+      "y": 9,
+      "targetMapId": null
+    },
+    {
+      "id": "glast-heim-sino",
+      "name": "Sino Partido",
+      "mapId": "glast-heim",
+      "x": 20,
+      "y": 8,
+      "targetMapId": null
+    },
+    {
+      "id": "glast-heim-selo",
+      "name": "Selo da Raiz",
+      "mapId": "glast-heim",
+      "x": 19,
+      "y": 16,
+      "targetMapId": null
+    },
+    {
+      "id": "clock-tower",
+      "name": "Torre do Relógio",
+      "mapId": "midgard",
+      "x": 28,
+      "y": 2,
+      "targetMapId": "clock-tower"
+    },
+    {
+      "id": "clock-tower-entrada",
+      "name": "Entrada da Torre",
+      "mapId": "clock-tower",
+      "x": 11,
+      "y": 16,
+      "targetMapId": null
+    },
+    {
+      "id": "clock-tower-engrenagem",
+      "name": "Sala das Engrenagens",
+      "mapId": "clock-tower",
+      "x": 6,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "clock-tower-biblioteca",
+      "name": "Arquivo do Tempo",
+      "mapId": "clock-tower",
+      "x": 16,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "clock-tower-topo",
+      "name": "Cume do Relógio",
+      "mapId": "clock-tower",
+      "x": 11,
+      "y": 4,
+      "targetMapId": null
+    },
+    {
+      "id": "clock-tower-portal",
+      "name": "Portal de Retorno",
+      "mapId": "clock-tower",
+      "x": 4,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-cave",
+      "name": "Caverna de Payon",
+      "mapId": "midgard",
+      "x": 30,
+      "y": 21,
+      "targetMapId": "payon-cave"
+    },
+    {
+      "id": "payon-cave-entrada",
+      "name": "Entrada da Caverna",
+      "mapId": "payon-cave",
+      "x": 12,
+      "y": 16,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-cave-ossada",
+      "name": "Ossada Antiga",
+      "mapId": "payon-cave",
+      "x": 7,
+      "y": 11,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-cave-altar",
+      "name": "Altar do Bosque",
+      "mapId": "payon-cave",
+      "x": 17,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-cave-lago",
+      "name": "Lago Subterrâneo",
+      "mapId": "payon-cave",
+      "x": 18,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "payon-cave-camara",
+      "name": "Câmara do Eco",
+      "mapId": "payon-cave",
+      "x": 7,
+      "y": 5,
+      "targetMapId": null
+    },
+    {
+      "id": "amatsu",
+      "name": "Amatsu",
+      "mapId": "midgard",
+      "x": 44,
+      "y": 10,
+      "targetMapId": null
+    },
+    {
+      "id": "ayothaya",
+      "name": "Ayothaya",
+      "mapId": "midgard",
+      "x": 42,
+      "y": 20,
+      "targetMapId": null
+    },
+    {
+      "id": "louyang",
+      "name": "Louyang",
+      "mapId": "midgard",
+      "x": 37,
+      "y": 4,
+      "targetMapId": null
+    },
+    {
+      "id": "rachel",
+      "name": "Rachel",
+      "mapId": "midgard",
+      "x": 37,
+      "y": 15,
+      "targetMapId": null
+    },
+    {
+      "id": "veins",
+      "name": "Veins",
+      "mapId": "midgard",
+      "x": 43,
+      "y": 17,
+      "targetMapId": null
+    },
+    {
+      "id": "moscovia",
+      "name": "Moscóvia",
+      "mapId": "midgard",
+      "x": 7,
+      "y": 3,
+      "targetMapId": null
+    }
+  ],
+  "rooms": [],
+  "routes": [
+    {
+      "from": "prontera",
+      "to": "izlude",
+      "minutes": 60,
+      "bidirectional": true
+    },
+    {
+      "from": "izlude",
+      "to": "alberta",
+      "minutes": 45,
+      "bidirectional": true
+    },
+    {
+      "from": "alberta",
+      "to": "geffen",
+      "minutes": 90,
+      "bidirectional": true
+    },
+    {
+      "from": "geffen",
+      "to": "payon",
+      "minutes": 120,
+      "bidirectional": true
+    },
+    {
+      "from": "payon",
+      "to": "morroc",
+      "minutes": 150,
+      "bidirectional": true
+    },
+    {
+      "from": "morroc",
+      "to": "al-de-baran",
+      "minutes": 120,
+      "bidirectional": true
+    },
+    {
+      "from": "al-de-baran",
+      "to": "juno",
+      "minutes": 100,
+      "bidirectional": true
+    },
+    {
+      "from": "juno",
+      "to": "comodo",
+      "minutes": 90,
+      "bidirectional": true
+    },
+    {
+      "from": "comodo",
+      "to": "umbala",
+      "minutes": 120,
+      "bidirectional": true
+    },
+    {
+      "from": "umbala",
+      "to": "niflheim",
+      "minutes": 180,
+      "bidirectional": true
+    },
+    {
+      "from": "geffen",
+      "to": "glast-heim",
+      "minutes": 60,
+      "bidirectional": true
+    },
+    {
+      "from": "al-de-baran",
+      "to": "clock-tower",
+      "minutes": 45,
+      "bidirectional": true
+    },
+    {
+      "from": "payon",
+      "to": "payon-cave",
+      "minutes": 50,
+      "bidirectional": true
+    },
+    {
+      "from": "juno",
+      "to": "rachel",
+      "minutes": 80,
+      "bidirectional": true
+    },
+    {
+      "from": "rachel",
+      "to": "veins",
+      "minutes": 70,
+      "bidirectional": true
+    },
+    {
+      "from": "juno",
+      "to": "louyang",
+      "minutes": 120,
+      "bidirectional": true
+    },
+    {
+      "from": "alberta",
+      "to": "moscovia",
+      "minutes": 180,
+      "bidirectional": true
+    },
+    {
+      "from": "izlude",
+      "to": "amatsu",
+      "minutes": 120,
+      "bidirectional": true
+    },
+    {
+      "from": "alberta",
+      "to": "ayothaya",
+      "minutes": 90,
+      "bidirectional": true
+    }
+  ],
+  "localTravel": []
+}

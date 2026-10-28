@@ -1,0 +1,109 @@
+{
+  "facts": [
+    {
+      "id": "F01",
+      "text": "Midgard é o continente central, unido por três estradas antigas e pelas raízes de Yggdrasil.",
+      "mutability": "FIXED",
+      "audience": "PUBLIC",
+      "subjects": [
+        "midgard",
+        "prontera"
+      ]
+    },
+    {
+      "id": "F02",
+      "text": "A copa de Yggdrasil cobre o norte; suas raízes aparecem em rios, grutas e ruínas de todo o continente.",
+      "mutability": "FIXED",
+      "audience": "PUBLIC",
+      "subjects": [
+        "midgard"
+      ]
+    },
+    {
+      "id": "F03",
+      "text": "Há quarenta dias, uma Ressonância começou a repetir sons e memórias nas cidades. Ninguém sabe a causa.",
+      "mutability": "INITIAL_STATE",
+      "audience": "PUBLIC",
+      "subjects": [
+        "prontera",
+        "geffen",
+        "juno"
+      ]
+    },
+    {
+      "id": "F04",
+      "text": "A Ressonância vem de um fragmento da raiz sob o Cais de Prontera; o fragmento está desperto e incompleto.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "prontera",
+        "glast-heim",
+        "culto-ecos"
+      ]
+    },
+    {
+      "id": "F05",
+      "text": "O Culto do Eco quer usar o fragmento para abrir a Raiz e ouvir a voz de Yggdrasil, mesmo que o continente pague o preço.",
+      "mutability": "FIXED",
+      "audience": "MASTER",
+      "subjects": [
+        "culto-ecos",
+        "niflheim"
+      ]
+    },
+    {
+      "id": "F06",
+      "text": "O selo de Glast Heim está cedendo porque a Ressonância atravessa a raiz sob a cripta. Os mortos não obedecem ao Culto.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "glast-heim",
+        "selo"
+      ]
+    },
+    {
+      "id": "F07",
+      "text": "Lyra Voss encontrou um pedaço de mapa que antecede o reino e esconde a entrada do Cais.",
+      "mutability": "INITIAL_STATE",
+      "audience": "MASTER",
+      "subjects": [
+        "lyra",
+        "prontera"
+      ]
+    },
+    {
+      "id": "F08",
+      "text": "As cidades disputam quem guardará o fragmento: a Guarda de Prata, a Liga das Velas ou o Arquivo de Juno.",
+      "mutability": "INITIAL_STATE",
+      "audience": "PUBLIC",
+      "subjects": [
+        "alberta",
+        "juno",
+        "morroc"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "C01",
+      "text": "A Ressonância é um castigo dos deuses contra os mercadores.",
+      "truth": "FALSE",
+      "factIds": [
+        "F02"
+      ]
+    }
+  ],
+  "knowledge": [],
+  "improvisation": {
+    "allowed": [
+      "Criar nomes, tavernas, ruas e moradores locais coerentes com a cidade.",
+      "Descrever sons, cheiros, clima e multidões sem alterar fatos canônicos.",
+      "Oferecer rumores que podem ser falsos se a fonte for incerta."
+    ],
+    "requiresValidatedEvent": [
+      "Mover o fragmento de lugar.",
+      "Abrir ou quebrar o selo de Glast Heim.",
+      "Revelar a localização do fragmento sem pista registrada."
+    ]
+  }
+}

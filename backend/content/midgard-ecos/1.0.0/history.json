@@ -1,0 +1,29 @@
+[
+  {
+    "id": "H01",
+    "timeLabel": "Há cerca de 300 anos",
+    "relativeMinutes": null,
+    "precision": "APPROXIMATE_YEARS",
+    "text": "As três estradas foram pavimentadas para unir Prontera, Juno e o porto de Alberta. Cada cidade guarda uma cópia do mapa.",
+    "audience": "PUBLIC",
+    "knowledgeNote": "Conhecimento comum; detalhes variam por cidade."
+  },
+  {
+    "id": "H02",
+    "timeLabel": "Há 40 dias",
+    "relativeMinutes": -57600,
+    "precision": "DAY",
+    "text": "A Ressonância começou no Cais de Prontera e se espalhou pelas rotas antigas. A Guarda fechou o cais, mas não explicou por quê.",
+    "audience": "PUBLIC",
+    "knowledgeNote": "O fechamento é público; a causa não."
+  },
+  {
+    "id": "H03",
+    "timeLabel": "Há 12 anos",
+    "relativeMinutes": null,
+    "precision": "APPROXIMATE_YEARS",
+    "text": "A Noite dos Corvos destruiu a guarnição de Glast Heim. O selo foi reforçado, mas nunca totalmente compreendido.",
+    "audience": "MASTER",
+    "knowledgeNote": "Registros incompletos; a Guarda de Prata controla a versão oficial."
+  }
+]

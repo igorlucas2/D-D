@@ -12,4 +12,10 @@ export const BUNDLED_PACKS = [
     manifestSha256:
       '6687c672d529db9595839f9ca310c53bcfc541b15af57ee0eca16374538a8ec7',
   },
+  {
+    packId: 'midgard-ecos',
+    version: '1.0.0',
+    manifestSha256:
+      '94ef9a34dd1005350920ba3f52e0eecf87dd9625e47d0051108e7acefcacc188',
+  },
 ];

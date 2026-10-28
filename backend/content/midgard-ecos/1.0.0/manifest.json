@@ -1,0 +1,215 @@
+{
+  "formatVersion": 1,
+  "packId": "midgard-ecos",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "files": [
+    {
+      "path": "public.json",
+      "audience": "PUBLIC",
+      "sha256": "f856149e5122517c192b6fd0b9314ce9c9e5b1c34299152b9da0f48abe9f149f"
+    },
+    {
+      "path": "entities.json",
+      "audience": "MASTER",
+      "sha256": "8e7c392d8f4d3109fc5b4a77ba49dfbaa5509a2c476590b7e8dabfb71b4af8a6"
+    },
+    {
+      "path": "facts.json",
+      "audience": "MASTER",
+      "sha256": "017a1a2d4946f08cf2366be02cdac669f10fab34d5db85a450865e10dd90ab94"
+    },
+    {
+      "path": "history.json",
+      "audience": "MASTER",
+      "sha256": "ffa1a06e4135f24d58e824211c20573d61e6d766684e1c619fa4a7655ceca63f"
+    },
+    {
+      "path": "threads.json",
+      "audience": "MASTER",
+      "sha256": "6b6cab8c7f5fbd23a9f1638b082e6025c731ab5277f17f6b46a943abefe7a9fb"
+    },
+    {
+      "path": "atlas.json",
+      "audience": "MASTER",
+      "sha256": "042bb7c0d950e12c7c7b806327c5bb7277c8664d4ccba18bb2e84d54a2086d25"
+    },
+    {
+      "path": "encounters.json",
+      "audience": "MASTER",
+      "sha256": "2b45a0fd9e52c3b346b8da7b02e41ea2234a2f05b7ea43cfc6eb86f19d0a30ae"
+    },
+    {
+      "path": "assets/midgard.png",
+      "audience": "MASTER",
+      "sha256": "7aafc11b5fddc06eccb5f3cb7a1d82aa7e5cd125b69c23a85cf40f38ab513c57"
+    },
+    {
+      "path": "assets/midgard.svg",
+      "audience": "MASTER",
+      "sha256": "1f18368da92862fa2677491f8187b4a3752558f7aeddd1bb85dfd0dad56d248d"
+    },
+    {
+      "path": "assets/prontera.png",
+      "audience": "MASTER",
+      "sha256": "2b2be8a510d9ed0dabbeb81c115f51c758e25e6c6f72dcea412c34bee8642d5f"
+    },
+    {
+      "path": "assets/prontera.svg",
+      "audience": "MASTER",
+      "sha256": "d1d99a93c2b463b3bd1fc79f60ba190b1bd448819f8fa074ae12182fd35e84a4"
+    },
+    {
+      "path": "assets/izlude.png",
+      "audience": "MASTER",
+      "sha256": "17030fa946777428692116f4ad7eb50a2ad98d6f3b2cb7e0caf1ef352488f56b"
+    },
+    {
+      "path": "assets/izlude.svg",
+      "audience": "MASTER",
+      "sha256": "c700b922cc421e7c659b85050dd8502f5e60097e4976c6a61423f7aa308810b7"
+    },
+    {
+      "path": "assets/alberta.png",
+      "audience": "MASTER",
+      "sha256": "63c7d84c37d9a7610eb576303fa46d01fdae30bea1dbfde18ed942f2b77cefbc"
+    },
+    {
+      "path": "assets/alberta.svg",
+      "audience": "MASTER",
+      "sha256": "6a3d4ce4e8c35316823f675f0b4feb60753cdebaeab0b555d95052818af6f789"
+    },
+    {
+      "path": "assets/geffen.png",
+      "audience": "MASTER",
+      "sha256": "b1671a8a819d262f00d92d85e05da6519907736df05838759ea6d6d039cb1f70"
+    },
+    {
+      "path": "assets/geffen.svg",
+      "audience": "MASTER",
+      "sha256": "be37a25bd21d3941c57086f5b7ed639e82c2829cb8178fca39b6757c8f70333b"
+    },
+    {
+      "path": "assets/payon.png",
+      "audience": "MASTER",
+      "sha256": "224f472cf648d14999082a37f70d386c7e8b6790aa4c870026d217570d9b530b"
+    },
+    {
+      "path": "assets/payon.svg",
+      "audience": "MASTER",
+      "sha256": "7736622776c46a1d35e94916a80721e0781d5e5285d7d637449103aeae98ddea"
+    },
+    {
+      "path": "assets/morroc.png",
+      "audience": "MASTER",
+      "sha256": "e6968a5de60b82551ed633a6c6a42b0ea43bfacab2d72d3a828d9a401b7ec0df"
+    },
+    {
+      "path": "assets/morroc.svg",
+      "audience": "MASTER",
+      "sha256": "d198e87b3f0c9de1e92abed37066fbb9c88fd83e6a41dee2ede68872952a92fa"
+    },
+    {
+      "path": "assets/al-de-baran.png",
+      "audience": "MASTER",
+      "sha256": "1b718ffb9990448c26c60f78715a448c6db5428a535fecb8ace02a6a970bd5c6"
+    },
+    {
+      "path": "assets/al-de-baran.svg",
+      "audience": "MASTER",
+      "sha256": "6cb0904a7fc1c5b7dda5e9e97d1022e440325c45e6301eabbde559ef186b72dc"
+    },
+    {
+      "path": "assets/comodo.png",
+      "audience": "MASTER",
+      "sha256": "85c2b0e99fa48c9a065779b59c8effc0b14cda49d7d645cc25f61e0960c83924"
+    },
+    {
+      "path": "assets/comodo.svg",
+      "audience": "MASTER",
+      "sha256": "b03bcb71f02098058f9bc80c80f692b5713791dc806bf23368ffd9ef6e2f83bc"
+    },
+    {
+      "path": "assets/juno.png",
+      "audience": "MASTER",
+      "sha256": "67357b4d068cc30ec402aa48a909aac1bc6c256bb12b2be308a1a2407d60cd68"
+    },
+    {
+      "path": "assets/juno.svg",
+      "audience": "MASTER",
+      "sha256": "0eee4b069209b105d623cec114206f153a971dba4a616df7dcd34457075fee2a"
+    },
+    {
+      "path": "assets/umbala.png",
+      "audience": "MASTER",
+      "sha256": "afcb5bcaee6ba7b5622680eff2660fbeb7dece62fc0309235bbee197a0b1e1ff"
+    },
+    {
+      "path": "assets/umbala.svg",
+      "audience": "MASTER",
+      "sha256": "f345ea722fa5b7f845a23e12ff7e2a440a9723f006dc41d8d075302d9857d2d1"
+    },
+    {
+      "path": "assets/niflheim.png",
+      "audience": "MASTER",
+      "sha256": "a929651373efaae295682effdea52d507b4bd0b5b04a0427af156d6ff70fea2a"
+    },
+    {
+      "path": "assets/niflheim.svg",
+      "audience": "MASTER",
+      "sha256": "af368298d4a8165aea57aeee4628707b56a0dada0fe9e7aeb84659948969bf4b"
+    },
+    {
+      "path": "assets/glast-heim.png",
+      "audience": "MASTER",
+      "sha256": "bdbfd4bb1a3a61b9dc7b4f23c3381e8461d0a59d2bbab24579297920bdbf842a"
+    },
+    {
+      "path": "assets/glast-heim.svg",
+      "audience": "MASTER",
+      "sha256": "ad70dc340a40cb45d090a8fc4046a4acc4a7f814adbcd0fabfa2b5204bcfdd99"
+    },
+    {
+      "path": "assets/clock-tower.png",
+      "audience": "MASTER",
+      "sha256": "48c76383281a928d4f30bb28db48daab77e5eef08baed400db183563ce338c66"
+    },
+    {
+      "path": "assets/clock-tower.svg",
+      "audience": "MASTER",
+      "sha256": "1fd182174f97d5d6d8b10caea45ffc6e326547f59cbfa90c6ce5e4bcea3d115e"
+    },
+    {
+      "path": "assets/payon-cave.png",
+      "audience": "MASTER",
+      "sha256": "dc0a46e2d40f159871401ab42de56bf1dba593c2db650955e3d1e820c75bd329"
+    },
+    {
+      "path": "assets/payon-cave.svg",
+      "audience": "MASTER",
+      "sha256": "66db63fe3fe40bbf685eb8a9488aabcb637660da12e2cda05b2fcade43a1647c"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Referência de geografia e nomes de Ragnarok Online (Midgard)",
+      "reference": "https://ragnarok.fandom.com/wiki/World_Map",
+      "sha256": null
+    },
+    {
+      "title": "Representação cartográfica original gerada para esta mesa",
+      "reference": "backend/content/midgard-ecos/1.0.0",
+      "sha256": null
+    }
+  ],
+  "rules": {
+    "profile": "SRD_2014",
+    "combat": "MANUAL",
+    "moneyEnabled": false,
+    "publicationBlockers": [
+      "Balancear encontros para 2–5 personagens de níveis 1–5.",
+      "Revisar nomes e referências antes de publicar o cenário.",
+      "Definir recompensas monetárias antes de habilitar dinheiro."
+    ]
+  }
+}

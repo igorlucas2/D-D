@@ -1,0 +1,28 @@
+{
+  "title": "Midgard — Ecos de Yggdrasil",
+  "premise": "Midgard vive sob a copa de Yggdrasil. Há quarenta dias, uma Ressonância começou a repetir sons e memórias nas cidades, e o selo de Glast Heim voltou a pulsar. As três estradas antigas ainda ligam os reinos, mas cada cidade quer guardar o fragmento que apareceu sob o Cais de Prontera — ou destruí-lo.",
+  "tone": "Fantasia de estrada e investigação, com cidades vibrantes, ruínas e escolhas políticas. Perigo real, humor de taverna e consequências persistentes.",
+  "hooks": [
+    "Escoltar uma caravana entre Prontera e Geffen",
+    "Investigar o sino que toca sozinho em Al De Baran",
+    "Procurar um mapa antigo no Arquivo de Juno",
+    "Ajudar os pescadores de Alberta com uma carga desaparecida",
+    "Seguir o rastro de um eco até Glast Heim"
+  ],
+  "playerHistoryPolicy": "Cada jogador escolhe um vínculo inicial. Nenhum passado, dívida ou amizade é atribuído automaticamente.",
+  "opening": "A chuva cai fina sobre a Praça Central de Prontera quando o sino da guarda toca fora de hora. No Cais, a água sobe sem vento. Lyra Voss desenrola um mapa que parece mais velho que o reino — e o mapa aponta para baixo dos seus pés.",
+  "start": {
+    "year": 1,
+    "month": 1,
+    "monthName": "Primavera",
+    "day": 1,
+    "hour": 8,
+    "minute": 0
+  },
+  "party": {
+    "minPlayers": 2,
+    "maxPlayers": 5,
+    "startLevel": 1,
+    "endLevel": 5
+  }
+}

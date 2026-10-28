@@ -1,0 +1,74 @@
+{
+  "threads": [
+    {
+      "id": "fio-ecos",
+      "objective": "Descobrir a fonte da Ressonância e decidir o destino do fragmento.",
+      "completion": "A origem é confirmada e o grupo registra uma escolha sobre o fragmento.",
+      "consequence": "A escolha altera a relação entre as cidades e o Culto do Eco."
+    },
+    {
+      "id": "fio-estrada",
+      "objective": "Reabrir a Estrada Real entre Prontera, Geffen e Juno.",
+      "completion": "As três cidades concordam com uma rota segura ou impõem uma solução.",
+      "consequence": "A mesa ganha viagem estável e novos contratos."
+    },
+    {
+      "id": "fio-selo",
+      "objective": "Impedir que o selo de Glast Heim se rompa.",
+      "completion": "O selo é estabilizado, substituído ou conscientemente abandonado.",
+      "consequence": "Mortos-vivos e a Guarda de Prata reagem ao resultado."
+    }
+  ],
+  "clues": [
+    {
+      "id": "pista-cais",
+      "conclusion": "O mapa de Lyra aponta para uma câmara sob o Cais de Prontera.",
+      "factIds": [
+        "F04",
+        "F07"
+      ],
+      "alternatives": [
+        {
+          "holderId": "lyra",
+          "text": "O mapa foi desenhado antes do reino e mostra uma escada sob o cais."
+        },
+        {
+          "holderId": "oren",
+          "text": "A torre registra uma vibração que desce sob o cais."
+        }
+      ]
+    }
+  ],
+  "pressures": [
+    {
+      "id": "pressao-eco",
+      "afterMinutes": 1440,
+      "afterEventId": null,
+      "condition": "Se o grupo não registrar uma decisão sobre o fragmento, a Ressonância cresce.",
+      "effect": "Uma nova cena pública: sinos tocam sozinhos e uma rota fica instável.",
+      "subjects": [
+        "prontera",
+        "glast-heim"
+      ]
+    }
+  ],
+  "repairs": [],
+  "rewards": [
+    {
+      "threadId": "fio-ecos",
+      "kind": "LODGING",
+      "quantity": 3,
+      "unit": "DAYS",
+      "beneficiary": "GROUP",
+      "enabled": true
+    }
+  ],
+  "resolutions": [
+    "O fragmento pode ser guardado, devolvido à raiz ou entregue a uma facção.",
+    "Nenhuma facção é automaticamente heroica ou vilanesca."
+  ],
+  "guidance": [
+    "Use os mapas como pontos de interesse, não como grade tática obrigatória.",
+    "Cada cidade deve ter um cheiro, um som e um problema próprio."
+  ]
+}
