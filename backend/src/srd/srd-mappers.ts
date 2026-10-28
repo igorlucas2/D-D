@@ -505,6 +505,20 @@ export function mapMonster(data: DataRecord) {
     mapFeature,
   );
   const speed = asRecord(data.speed);
+  const damageDefenses = [
+    ...stringArrayField(data, 'damage_resistances').map((damageType) => ({
+      damageType,
+      type: 'RESISTANCE' as const,
+    })),
+    ...stringArrayField(data, 'damage_immunities').map((damageType) => ({
+      damageType,
+      type: 'IMMUNITY' as const,
+    })),
+    ...stringArrayField(data, 'damage_vulnerabilities').map((damageType) => ({
+      damageType,
+      type: 'VULNERABILITY' as const,
+    })),
+  ];
   const description = [
     stringField(data, 'alignment')
       ? `Alinhamento: ${translateAlignment(stringField(data, 'alignment'))}.`
@@ -543,6 +557,9 @@ export function mapMonster(data: DataRecord) {
     traits: traits.length ? JSON.stringify(traits) : null,
     actions: [...actions, ...reactions, ...legendaryActions].length
       ? JSON.stringify([...actions, ...reactions, ...legendaryActions])
+      : null,
+    damageDefenses: damageDefenses.length
+      ? JSON.stringify(damageDefenses)
       : null,
     description: description || null,
     imageUrl: imageUrl(data),

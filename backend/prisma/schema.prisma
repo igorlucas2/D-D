@@ -657,6 +657,7 @@ model Monster {
   xp              Int       @default(0)
   traits          String? @db.LongText // JSON serializado (lista de {name, description})
   actions         String? @db.LongText // JSON serializado (lista de {name, description})
+  damageDefenses  String? @db.LongText // JSON: [{damageType,type}]
   description     String? @db.LongText
   imageUrl        String? @db.Text
   isNpc           Boolean   @default(false)

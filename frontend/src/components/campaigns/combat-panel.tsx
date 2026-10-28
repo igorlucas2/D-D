@@ -224,6 +224,13 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
     setAddError(null);
     setAdding(true);
     try {
+      const selectedMonster = monsters.find(
+        (monster) => monster.id === selectedMonsterId,
+      );
+      let damageDefenses: ParticipantDefense[] | undefined;
+      if (selectedMonster?.damageDefenses) {
+        damageDefenses = defensesOf(selectedMonster.damageDefenses);
+      }
       await api.post(
         `/campaigns/${campaignId}/combat/participants`,
         {
@@ -231,6 +238,7 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
           initiative: Number(initiative) || 0,
           maxHp: Number(maxHp) || 1,
           isAlly: side === "ally",
+          ...(damageDefenses?.length ? { damageDefenses } : {}),
         },
         token,
       );

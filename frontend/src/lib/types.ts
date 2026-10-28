@@ -417,6 +417,7 @@ export interface Monster {
   xp: number;
   traits: MonsterFeature[];
   actions: MonsterFeature[];
+  damageDefenses?: string | null;
   description: string | null;
   imageUrl?: string | null;
   isNpc: boolean;

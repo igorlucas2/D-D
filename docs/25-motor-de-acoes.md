@@ -311,6 +311,10 @@ Defesas de participantes em `docs/42-defesas-de-participantes.md`.
 
 Editor de resistências na ficha em `docs/43-editor-de-resistencias.md`.
 
+## 9.21 Fase V
+
+Defesas SRD de monstros em `docs/44-defesas-srd.md`.
+
 ## 10. Testes e aceite
 
 Unitários:
