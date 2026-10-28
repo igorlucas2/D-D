@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Compass,
   Map,
+  MapPin,
   ScrollText,
   Sparkles,
   Swords,
@@ -93,9 +94,17 @@ export function CampaignWorkspace({
         <Button
           variant="outline"
           className="h-10 gap-2"
+          nativeButton={false}
+          render={<Link href={`/campaigns/${campaign.id}/immersive`} />}
+        >
+          <Map className="size-4" aria-hidden="true" /> Modo imersivo
+        </Button>
+        <Button
+          variant="outline"
+          className="h-10 gap-2"
           onClick={() => setWorldOpen(true)}
         >
-          <Map className="size-4" aria-hidden="true" /> Mapa-múndi
+          <MapPin className="size-4" aria-hidden="true" /> Mapa-múndi
         </Button>
         <Button
           variant="outline"

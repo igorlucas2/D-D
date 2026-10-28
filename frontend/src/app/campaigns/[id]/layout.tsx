@@ -15,11 +15,12 @@ export default function CampaignLayout({ children }: { children: ReactNode }) {
   const token = useAuthStore((state) => state.token);
   const isRoot = pathname === `/campaigns/${id}`;
   const isPlay = pathname === `/campaigns/${id}/play`;
+  const isImmersive = pathname === `/campaigns/${id}/immersive`;
 
   return (
     <>
       {children}
-      {token && id && !isRoot && !isPlay ? (
+      {token && id && !isRoot && !isPlay && !isImmersive ? (
         <CampaignPartyWidget campaignId={id} />
       ) : null}
     </>

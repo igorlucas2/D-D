@@ -1,0 +1,6 @@
+﻿Viewer: https://github.com/adsonpleal/latamvisuais
+Commit: 89c02f8e13ac535f215d95291f214a73e7c505d4
+License: MIT (see LICENSE)
+Built with: npx vite build --base=./
+Modifications: window.__eldoria actor bridge, local map NPC sprites and movement lock for the Eldoria immersive route.
+Ragnarok Online assets: (c) Gravity Interactive; personal/fan use.
