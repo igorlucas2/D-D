@@ -148,6 +148,7 @@ interface ImmersiveWindow extends Window {
       mapHeight: number,
     ) => void;
     setSelectedActor: (id: string | null) => void;
+    pulseActor: (id: string, kind?: "hit" | "heal") => void;
   };
 }
 
@@ -225,6 +226,7 @@ function ImmersiveContent() {
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
   const lastCombatTurn = useRef("");
+  const lastPulsedAction = useRef("");
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
@@ -511,6 +513,18 @@ function ImmersiveContent() {
       selectedTargetId ? `combat-${selectedTargetId}` : null,
     );
   }, [frameReady, selectedTargetId]);
+
+  useEffect(() => {
+    if (!frameReady || !actionLog.length) return;
+    const latest = actionLog[0];
+    if (lastPulsedAction.current === latest.actionId) return;
+    lastPulsedAction.current = latest.actionId;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    win?.__eldoria?.pulseActor(
+      `combat-${latest.target.id}`,
+      latest.kind === "HEAL" ? "heal" : "hit",
+    );
+  }, [actionLog, frameReady]);
 
   useEffect(() => {
     if (!frameReady) return;
