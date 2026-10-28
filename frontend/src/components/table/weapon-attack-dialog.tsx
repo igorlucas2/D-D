@@ -33,6 +33,34 @@ function weaponDamage(item: HudItem): string {
   }
 }
 
+const RANGED_RANGE_FEET: Record<string, number> = {
+  shortbow: 80,
+  longbow: 150,
+  lightcrossbow: 80,
+  heavycrossbow: 100,
+  handcrossbow: 30,
+  sling: 30,
+  dart: 20,
+  javelin: 30,
+  blowgun: 25,
+};
+
+function weaponRange(item: HudItem): string {
+  if (!item.properties) return "5 pés";
+  try {
+    const data = JSON.parse(item.properties) as Record<string, unknown>;
+    const ranged =
+      typeof data.weaponRange === "string" &&
+      data.weaponRange.toLowerCase() === "ranged";
+    if (!ranged) return "5 pés";
+    const index =
+      typeof data.srdIndex === "string" ? data.srdIndex.toLowerCase() : "";
+    return `${RANGED_RANGE_FEET[index] ?? 60} pés`;
+  } catch {
+    return "5 pés";
+  }
+}
+
 export function WeaponAttackDialog({
   character,
   targets,
@@ -114,7 +142,7 @@ export function WeaponAttackDialog({
                     key={item.inventoryItemId}
                     value={item.inventoryItemId}
                   >
-                    {item.name} ({weaponDamage(item)})
+                    {item.name} ({weaponDamage(item)} · {weaponRange(item)})
                   </option>
                 ))}
               </select>
@@ -152,7 +180,7 @@ export function WeaponAttackDialog({
             {weapon ? (
               <div className="flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
                 <span>
-                  {weapon.name} · {weaponDamage(weapon)}
+                  {weapon.name} · {weaponDamage(weapon)} · {weaponRange(weapon)}
                 </span>
                 <Badge variant="outline" className="font-mono text-[10px]">
                   d20 + prof. + mod.
