@@ -28,6 +28,7 @@ import {
   type HpSnapshot,
 } from './combat-action.types';
 import { canonical } from '../game-actions/game-action.types';
+import type { DamageDefense } from './damage-defense.types';
 import { CastSpellDto } from './spell-cast.dto';
 import {
   abilityModifier,
@@ -395,6 +396,7 @@ export class SpellCastService {
           amount: 0,
           applied: 0,
           absorbedByTempHp: 0,
+          defense: null,
         });
         continue;
       }
@@ -450,6 +452,7 @@ export class SpellCastService {
           applied: tempHpAmount,
           absorbedByTempHp: 0,
           tempHpAmount,
+          defense: null,
         });
         continue;
       }
@@ -524,6 +527,16 @@ export class SpellCastService {
       let hpAfter = hpBefore;
       let applied = 0;
       let absorbedByTempHp = 0;
+      let defense: DamageDefense | null = null;
+      if (mechanics.kind === 'DAMAGE' && character) {
+        defense = await this.combat.resolveDamageDefense(
+          tx,
+          character.id,
+          mechanics.damageType,
+          amount,
+        );
+        amount = defense.adjusted;
+      }
       if (mechanics.kind === 'HEAL') {
         hpAfter = applyHeal(hpBefore, amount);
         applied = hpAfter.current - hpBefore.current;
@@ -582,6 +595,7 @@ export class SpellCastService {
         amount,
         applied,
         absorbedByTempHp,
+        defense,
       });
     }
 

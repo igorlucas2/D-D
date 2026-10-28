@@ -12,6 +12,7 @@ import { parseJson } from '../common/json';
 import { DiceService } from '../dice/dice.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CombatService, hpStatus } from './combat.service';
+import type { DamageDefense } from './damage-defense.types';
 import {
   applyDamage,
   applyHeal,
@@ -202,6 +203,16 @@ export class ItemUseService {
     let hpAfter = hpBefore;
     let applied = 0;
     let absorbedByTempHp = 0;
+    let defense: DamageDefense | null = null;
+    if (effect.kind === 'DAMAGE') {
+      defense = await this.combat.resolveDamageDefense(
+        tx,
+        character.id,
+        effect.damageType,
+        amount,
+      );
+      amount = defense.adjusted;
+    }
     if (effect.kind === 'HEAL') {
       hpAfter = applyHeal(hpBefore, amount);
       applied = hpAfter.current - hpBefore.current;
@@ -288,6 +299,7 @@ export class ItemUseService {
       hpAfter,
       applied,
       absorbedByTempHp,
+      defense,
       item: {
         inventoryItemId: inventory.id,
         itemId: inventory.itemId,

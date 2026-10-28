@@ -112,6 +112,13 @@ export interface HudCharacter {
   spellSlots: HudSpellSlot[];
 }
 
+export interface DamageDefense {
+  type: "RESISTANCE" | "IMMUNITY" | "VULNERABILITY" | null;
+  original: number;
+  adjusted: number;
+  multiplier: number;
+}
+
 export interface CombatActionResult {
   actionId: string;
   requestKey: string;
@@ -129,6 +136,7 @@ export interface CombatActionResult {
   hpAfter: { current: number; max: number; temp: number } | null;
   applied: number;
   absorbedByTempHp: number;
+  defense: DamageDefense | null;
   conditionsBefore: string[];
   conditionsAfter: string[];
   durationRounds: number | null;
@@ -156,6 +164,7 @@ export interface ItemUseResult {
   hpAfter: { current: number; max: number; temp: number };
   applied: number;
   absorbedByTempHp: number;
+  defense: DamageDefense | null;
   item: {
     inventoryItemId: string;
     itemId: string;
@@ -213,6 +222,7 @@ export interface SpellCastResult {
     applied: number;
     absorbedByTempHp: number;
     tempHpAmount?: number;
+    defense: DamageDefense | null;
   }>;
   damageType: string | null;
   effectKind: "HEAL" | "DAMAGE" | "MARK" | "BUFF";
@@ -266,6 +276,7 @@ export interface WeaponAttackResult {
     critical: boolean;
     markFormula: string | null;
     markAmount: number;
+    defense: DamageDefense | null;
   };
   hpBefore: { current: number; max: number; temp: number } | null;
   hpAfter: { current: number; max: number; temp: number } | null;

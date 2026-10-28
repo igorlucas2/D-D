@@ -1,6 +1,8 @@
 export type CombatActionKind = 'DAMAGE' | 'HEAL' | 'TEMP_HP' | 'CONDITION';
 export type CombatTargetKind = 'CHARACTER' | 'PARTICIPANT';
 
+import type { DamageDefense } from './damage-defense.types';
+
 export const DAMAGE_TYPES = [
   'acid',
   'bludgeoning',
@@ -118,6 +120,7 @@ export interface CombatActionResult {
   hpAfter: HpSnapshot | null;
   applied: number;
   absorbedByTempHp: number;
+  defense: DamageDefense | null;
   conditionsBefore: string[];
   conditionsAfter: string[];
   durationRounds: number | null;

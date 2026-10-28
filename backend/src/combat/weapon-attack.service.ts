@@ -21,6 +21,7 @@ import {
   weaponAbilityScore,
   type WeaponAttackResult,
 } from './weapon-attack.types';
+import type { DamageDefense } from './damage-defense.types';
 
 type Tx = Prisma.TransactionClient;
 
@@ -273,6 +274,16 @@ export class WeaponAttackService {
       }
       amount = Math.max(0, amount);
     }
+    let defense: DamageDefense | null = null;
+    if (targetCharacter && hit) {
+      defense = await this.combat.resolveDamageDefense(
+        tx,
+        targetCharacter.id,
+        mechanics.damageType,
+        amount,
+      );
+      amount = defense.adjusted;
+    }
     const damage = applyDamage(hpBefore, amount);
     const hpAfter = damage.hp;
 
@@ -368,6 +379,7 @@ export class WeaponAttackService {
         critical,
         markFormula,
         markAmount,
+        defense,
       },
       hpBefore: hidden ? null : hpBefore,
       hpAfter: hidden ? null : hpAfter,

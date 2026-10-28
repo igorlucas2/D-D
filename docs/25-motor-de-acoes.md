@@ -299,6 +299,10 @@ Escudo Arcano e reação em `docs/39-escudo-arcano.md`.
 
 Heroísmo e PV temporários em `docs/40-heroismo.md`.
 
+## 9.18 Fase S
+
+Resistências, imunidades e vulnerabilidades em `docs/41-resistencias.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

@@ -38,6 +38,20 @@ const EFFECT_LABELS = {
   CONDITION: "condição",
 } as const;
 
+const DAMAGE_DEFENSE_LABELS = {
+  RESISTANCE: "resistiu (metade)",
+  IMMUNITY: "imune",
+  VULNERABILITY: "vulnerável (dobro)",
+} as const;
+
+function defenseText(
+  defense: {
+    type: "RESISTANCE" | "IMMUNITY" | "VULNERABILITY" | null;
+  } | null,
+): string {
+  return defense?.type ? ` · ${DAMAGE_DEFENSE_LABELS[defense.type]}` : "";
+}
+
 function HpBadge({
   hp,
 }: {
@@ -84,8 +98,7 @@ function SpellCard({
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {first?.name ?? "Alvo"}:{" "}
-                {result.mark?.condition ?? ward?.condition ?? (marked ? "Marcado" : "Abençoado")}{" "}
-                ·{" "}
+                {result.mark?.condition ?? ward?.condition ?? (marked ? "Marcado" : "Abençoado")}{" "}                ·{" "}
                 {heroism
                   ? `+${tempHp} PV temp`
                   : ward
@@ -141,7 +154,7 @@ function SpellCard({
                           : target.save
                             ? ` · ${target.save.success ? "passou" : "falhou"} (${target.save.total} vs CD ${target.save.dc})`
                             : ""
-                      }`
+                      }${defenseText(target.defense)}`
                     : `+${formatNumber(target.applied)} PV`}
                 </p>
               ))}
@@ -264,6 +277,7 @@ function WeaponCard({
               {result.damage.markAmount > 0
                 ? ` · +${formatNumber(result.damage.markAmount)} da Marca`
                 : ""}
+              {defenseText(result.damage.defense)}
               {result.absorbedByTempHp
                 ? ` · ${formatNumber(result.absorbedByTempHp)} absorvido por PV temporário`
                 : ""}
@@ -362,6 +376,7 @@ export function ResolutionCard({
               {result.absorbedByTempHp
                 ? ` · ${formatNumber(result.absorbedByTempHp)} absorvido por PV temporário`
                 : ""}
+              {defenseText(result.defense)}
               {result.kind === "USE_ITEM"
                 ? ` · ${result.item.quantityAfter} restante${result.item.quantityAfter === 1 ? "" : "s"}`
                 : ""}

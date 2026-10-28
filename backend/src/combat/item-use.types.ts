@@ -1,4 +1,5 @@
 import { parseJson } from '../common/json';
+import type { DamageDefense } from './damage-defense.types';
 import {
   DAMAGE_TYPES,
   type DamageType,
@@ -97,6 +98,7 @@ export interface ItemUseResult {
   hpAfter: HpSnapshot;
   applied: number;
   absorbedByTempHp: number;
+  defense: DamageDefense | null;
   item: {
     inventoryItemId: string;
     itemId: string;

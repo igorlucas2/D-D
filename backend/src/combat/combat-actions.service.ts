@@ -28,6 +28,7 @@ import {
   removeTimedCondition,
 } from './condition-duration.types';
 import { canonical } from '../game-actions/game-action.types';
+import type { DamageDefense } from './damage-defense.types';
 
 type Tx = Prisma.TransactionClient;
 
@@ -263,6 +264,7 @@ export class CombatActionsService {
     let breakdown: CombatActionResult['breakdown'] = null;
     let applied = 0;
     let absorbedByTempHp = 0;
+    let defense: DamageDefense | null = null;
 
     if (dto.kind === 'DAMAGE' || dto.kind === 'HEAL') {
       if (dto.formula) {
@@ -273,6 +275,16 @@ export class CombatActionsService {
       }
     } else if (dto.kind === 'TEMP_HP') {
       amount = dto.amount ?? 0;
+    }
+
+    if (dto.kind === 'DAMAGE' && character) {
+      defense = await this.combat.resolveDamageDefense(
+        tx,
+        character.id,
+        dto.damageType,
+        amount,
+      );
+      amount = defense.adjusted;
     }
 
     if (dto.kind === 'DAMAGE') {
@@ -391,6 +403,7 @@ export class CombatActionsService {
       hpAfter: dto.kind === 'CONDITION' ? null : hpAfter,
       applied,
       absorbedByTempHp,
+      defense,
       conditionsBefore,
       conditionsAfter,
       durationRounds:

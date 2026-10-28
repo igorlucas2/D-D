@@ -1,4 +1,5 @@
 import { parseJson } from '../common/json';
+import type { DamageDefense } from './damage-defense.types';
 import {
   DAMAGE_TYPES,
   type DamageType,
@@ -50,6 +51,7 @@ export interface WeaponAttackResult {
     critical: boolean;
     markFormula: string | null;
     markAmount: number;
+    defense: DamageDefense | null;
   };
   hpBefore: HpSnapshot | null;
   hpAfter: HpSnapshot | null;

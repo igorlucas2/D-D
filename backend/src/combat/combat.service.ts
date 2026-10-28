@@ -19,6 +19,10 @@ import {
   parseTimedConditions,
   tickTimedConditions,
 } from './condition-duration.types';
+import {
+  resolveDamageDefense,
+  type DamageDefense,
+} from './damage-defense.types';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -660,6 +664,19 @@ export class CombatService {
     if (conditions.some((item) => normalizedCondition(item) === 'escudado'))
       bonus += 5;
     return bonus;
+  }
+
+  async resolveDamageDefense(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+    damageType: string | null | undefined,
+    amount: number,
+  ): Promise<DamageDefense> {
+    const entries = await tx.characterResistance.findMany({
+      where: { characterId },
+      select: { damageType: true, type: true },
+    });
+    return resolveDamageDefense(amount, damageType, entries);
   }
 
   async saveRollBonus(

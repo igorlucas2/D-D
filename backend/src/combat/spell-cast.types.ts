@@ -1,4 +1,5 @@
 import { parseJson } from '../common/json';
+import type { DamageDefense } from './damage-defense.types';
 import {
   DAMAGE_TYPES,
   type DamageType,
@@ -102,6 +103,7 @@ export interface SpellCastResult {
     applied: number;
     absorbedByTempHp: number;
     tempHpAmount?: number;
+    defense: DamageDefense | null;
   }>;
   damageType: DamageType | null;
   effectKind: SpellEffectKind;
