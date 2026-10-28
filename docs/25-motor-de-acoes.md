@@ -279,6 +279,10 @@ Abençoar e bônus de concentração em `docs/34-bencao.md`.
 
 Descanso longo e concentração em `docs/35-descanso-concentracao.md`.
 
+## 9.13 Fase N
+
+Condições com duração em `docs/36-condicoes-com-duracao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

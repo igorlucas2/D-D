@@ -120,6 +120,8 @@ export interface CombatActionResult {
   absorbedByTempHp: number;
   conditionsBefore: string[];
   conditionsAfter: string[];
+  durationRounds: number | null;
+  remainingRounds: number | null;
   source: string | null;
   alreadyApplied: boolean;
   createdAt: string;

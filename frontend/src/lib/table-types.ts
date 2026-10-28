@@ -37,6 +37,7 @@ export interface MechanicalActionInput {
   damageType?: DamageType;
   condition?: string;
   conditionMode?: "ADD" | "REMOVE";
+  durationRounds?: number;
   source?: string;
 }
 
@@ -99,6 +100,11 @@ export interface HudCharacter {
   tempHp: number;
   armorClass: number;
   conditions: string[];
+  conditionTimers: Array<{
+    name: string;
+    remainingRounds: number;
+    source: string | null;
+  }>;
   concentration: HudConcentration | null;
   items: HudItem[];
   spells: HudSpell[];
@@ -124,6 +130,8 @@ export interface CombatActionResult {
   absorbedByTempHp: number;
   conditionsBefore: string[];
   conditionsAfter: string[];
+  durationRounds: number | null;
+  remainingRounds: number | null;
   source: string | null;
   alreadyApplied: boolean;
   createdAt: string;

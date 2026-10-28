@@ -15,6 +15,10 @@ import {
   parseConcentrationState,
   type ConcentrationState,
 } from './concentration.types';
+import {
+  parseTimedConditions,
+  tickTimedConditions,
+} from './condition-duration.types';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -678,6 +682,7 @@ export class CombatService {
     const next = encounter.participants[turnIndex];
 
     await this.prisma.$transaction(async (tx) => {
+      await this.tickConditionDurations(tx, next.id);
       await tx.combatEncounter.update({
         where: { id: encounter.id },
         data: { turnIndex, round, revision: { increment: 1 } },
@@ -697,6 +702,34 @@ export class CombatService {
       type: 'turn',
       participantId: next.id,
       round,
+    });
+  }
+
+  private async tickConditionDurations(
+    tx: Prisma.TransactionClient,
+    participantId: string,
+  ) {
+    const participant = await tx.combatParticipant.findUnique({
+      where: { id: participantId },
+      select: { conditions: true, timedConditions: true },
+    });
+    if (!participant) return;
+    const timers = parseTimedConditions(participant.timedConditions);
+    if (!timers.length) return;
+    const { remaining, expired } = tickTimedConditions(timers);
+    const conditions = parseStringArray(participant.conditions).filter(
+      (condition) =>
+        !expired.some(
+          (name) =>
+            normalizedCondition(condition) === normalizedCondition(name),
+        ),
+    );
+    await tx.combatParticipant.update({
+      where: { id: participantId },
+      data: {
+        conditions: conditions.length ? JSON.stringify(conditions) : null,
+        timedConditions: remaining.length ? JSON.stringify(remaining) : null,
+      },
     });
   }
 

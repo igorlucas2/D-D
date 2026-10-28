@@ -1990,6 +1990,7 @@ export interface components {
             condition?: string;
             /** @enum {string} */
             conditionMode?: "ADD" | "REMOVE";
+            durationRounds?: number;
             source?: string;
         };
         StartEncounterDto: {

@@ -22,6 +22,11 @@ import {
   type CombatActionResult,
   type HpSnapshot,
 } from './combat-action.types';
+import {
+  addTimedCondition,
+  parseTimedConditions,
+  removeTimedCondition,
+} from './condition-duration.types';
 import { canonical } from '../game-actions/game-action.types';
 
 type Tx = Prisma.TransactionClient;
@@ -247,9 +252,13 @@ export class CombatActionsService {
     const conditionsBefore = participant
       ? parseStringArray(participant.conditions)
       : [];
+    const timersBefore = participant
+      ? parseTimedConditions(participant.timedConditions)
+      : [];
 
     let hpAfter = hpBefore;
     let conditionsAfter = conditionsBefore;
+    let timersAfter = timersBefore;
     let amount = 0;
     let breakdown: CombatActionResult['breakdown'] = null;
     let applied = 0;
@@ -284,6 +293,17 @@ export class CombatActionsService {
           dto.conditionMode === 'REMOVE'
             ? removeCondition(conditionsBefore, condition)
             : addCondition(conditionsBefore, condition);
+        timersAfter =
+          dto.conditionMode === 'REMOVE'
+            ? removeTimedCondition(timersBefore, condition)
+            : dto.durationRounds
+              ? addTimedCondition(
+                  timersBefore,
+                  condition,
+                  dto.durationRounds,
+                  dto.source ?? null,
+                )
+              : removeTimedCondition(timersBefore, condition);
       } catch (error) {
         throw new BadRequestException(
           error instanceof Error ? error.message : 'Condição inválida.',
@@ -303,6 +323,9 @@ export class CombatActionsService {
             ? {
                 conditions: conditionsAfter.length
                   ? JSON.stringify(conditionsAfter)
+                  : null,
+                timedConditions: timersAfter.length
+                  ? JSON.stringify(timersAfter)
                   : null,
               }
             : {}),
@@ -370,6 +393,18 @@ export class CombatActionsService {
       absorbedByTempHp,
       conditionsBefore,
       conditionsAfter,
+      durationRounds:
+        dto.kind === 'CONDITION' && dto.conditionMode !== 'REMOVE'
+          ? (dto.durationRounds ?? null)
+          : null,
+      remainingRounds:
+        dto.kind === 'CONDITION'
+          ? (timersAfter.find(
+              (item) =>
+                item.name.toLowerCase() ===
+                (dto.condition ?? '').trim().toLowerCase(),
+            )?.remainingRounds ?? null)
+          : null,
       source: input.payload.source as string | null,
       alreadyApplied: false,
     };

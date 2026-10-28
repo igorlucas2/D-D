@@ -13,6 +13,7 @@ import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseStringArray } from '../common/json';
 import { parseItemEffect } from '../combat/item-use.types';
 import { parseConcentrationState } from '../combat/concentration.types';
+import { parseTimedConditions } from '../combat/condition-duration.types';
 import { spellToHud, type SpellHud } from '../combat/spell-cast.types';
 import {
   describeMechanicalResult,
@@ -125,14 +126,26 @@ export class AiMasterService {
               characterId: { in: characterIds },
               encounter: { campaignId },
             },
-            select: { characterId: true, conditions: true },
+            select: {
+              characterId: true,
+              conditions: true,
+              timedConditions: true,
+            },
           });
     const conditionsByCharacter = new Map<string, string[]>();
+    const timersByCharacter = new Map<
+      string,
+      Array<{ name: string; remainingRounds: number; source: string | null }>
+    >();
     for (const participant of participants) {
       if (participant.characterId) {
         conditionsByCharacter.set(
           participant.characterId,
           parseStringArray(participant.conditions),
+        );
+        timersByCharacter.set(
+          participant.characterId,
+          parseTimedConditions(participant.timedConditions),
         );
       }
     }
@@ -162,6 +175,7 @@ export class AiMasterService {
         tempHp: row.character.tempHp,
         armorClass: row.character.armorClass,
         conditions: conditionsByCharacter.get(row.characterId) ?? [],
+        conditionTimers: timersByCharacter.get(row.characterId) ?? [],
         concentration: parseConcentrationState(row.character.concentration),
         items: row.character.inventory.map((entry) => ({
           inventoryItemId: entry.id,

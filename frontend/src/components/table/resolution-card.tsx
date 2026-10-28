@@ -303,6 +303,9 @@ export function ResolutionCard({
               {result.conditionsAfter.length
                 ? result.conditionsAfter.join(" · ")
                 : "Nenhuma condição ativa"}
+              {result.remainingRounds
+                ? ` · ${result.remainingRounds} rodada(s) restante(s)`
+                : ""}
             </p>
           </div>
         </div>

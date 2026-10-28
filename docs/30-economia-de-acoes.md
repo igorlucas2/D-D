@@ -78,6 +78,8 @@ As ações continuam incrementando `revision`; a UI usa CAS em
 
 ## 6. Limites
 
+Condições temporárias em rodadas estão em `docs/36-condicoes-com-duracao.md`.
+
 - Ação bônus e reação têm campos, mas nenhuma ação as consome ainda.
 - Não há movimento, dash, prontidão ou ação livre.
 - Ações de arma/magia/item são todas tratadas como **ação principal**.

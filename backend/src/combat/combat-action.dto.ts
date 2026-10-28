@@ -62,6 +62,12 @@ export class CombatActionDto {
   conditionMode?: 'ADD' | 'REMOVE';
 
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  durationRounds?: number;
+
+  @IsOptional()
   @IsString()
   @MaxLength(80)
   @Matches(/\S/)

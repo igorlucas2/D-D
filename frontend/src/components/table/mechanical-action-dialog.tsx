@@ -58,6 +58,7 @@ export function MechanicalActionDialog({
   const [damageType, setDamageType] = useState<DamageType>("untyped");
   const [condition, setCondition] = useState("");
   const [conditionMode, setConditionMode] = useState<"ADD" | "REMOVE">("ADD");
+  const [durationRounds, setDurationRounds] = useState("0");
   const [source, setSource] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -84,6 +85,17 @@ export function MechanicalActionDialog({
       }
       input.condition = condition.trim();
       input.conditionMode = conditionMode;
+      if (conditionMode === "ADD") {
+        const rounds = Number(durationRounds);
+        if (
+          durationRounds.trim() &&
+          (!Number.isInteger(rounds) || rounds < 0 || rounds > 50)
+        ) {
+          setLocalError("Duração deve ser um inteiro entre 0 e 50 rodadas.");
+          return;
+        }
+        if (rounds > 0) input.durationRounds = rounds;
+      }
     } else if (kind === "TEMP_HP" || valueMode === "amount") {
       const parsed = Number(amount);
       if (!Number.isInteger(parsed) || parsed < 1 || parsed > 999) {
@@ -240,6 +252,19 @@ export function MechanicalActionDialog({
                   Remover
                 </Button>
               </div>
+              {conditionMode === "ADD" ? (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="action-duration">
+                    Duração em rodadas (0 = sem prazo)
+                  </Label>
+                  <Input
+                    id="action-duration"
+                    inputMode="numeric"
+                    value={durationRounds}
+                    onChange={(event) => setDurationRounds(event.target.value)}
+                  />
+                </div>
+              ) : null}
             </>
           )}
 

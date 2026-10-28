@@ -207,6 +207,17 @@ export function CharacterHud({
                   character.conditions.slice(0, 6).map((condition) => (
                     <Badge key={condition} variant="outline" className="text-[10px]">
                       {condition}
+                      {character.conditionTimers.find(
+                        (timer) =>
+                          timer.name.toLowerCase() ===
+                          condition.toLowerCase(),
+                      )
+                        ? ` · ${character.conditionTimers.find(
+                            (timer) =>
+                              timer.name.toLowerCase() ===
+                              condition.toLowerCase(),
+                          )!.remainingRounds}r`
+                        : ""}
                     </Badge>
                   ))
                 ) : (

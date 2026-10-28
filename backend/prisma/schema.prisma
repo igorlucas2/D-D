@@ -401,6 +401,7 @@ model CombatParticipant {
   currentHp   Int     @default(1)
   tempHp      Int     @default(0)
   conditions  String? @db.LongText // JSON serializado (lista de strings)
+  timedConditions String? @db.LongText // JSON: [{name,remainingRounds,source}]
   actionUsed  Boolean @default(false)
   bonusUsed   Boolean @default(false)
   reactionUsed Boolean @default(false)
