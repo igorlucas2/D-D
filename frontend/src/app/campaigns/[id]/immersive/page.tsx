@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api, ApiError } from "@/lib/api";
-import type { Campaign, Character, VttMap } from "@/lib/types";
+import type { Campaign, Character, CombatEncounter, VttMap } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 
 const LIVE_SLUG: Record<string, string> = {
@@ -136,12 +136,14 @@ function frameCss() {
 function ImmersiveContent() {
   const params = useParams<{ id: string }>();
   const token = useAuthStore((state) => state.token);
+  const currentUserId = useAuthStore((state) => state.user?.id);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [maps, setMaps] = useState<VttMap[]>([]);
   const [myCharacter, setMyCharacter] = useState<Character | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
-  const [combatActive, setCombatActive] = useState(false);
+  const [combat, setCombat] = useState<CombatEncounter | null>(null);
+  const combatActive = Boolean(combat);
   const [tab, setTab] = useState<SideTab>("party");
   const [error, setError] = useState<string | null>(null);
   const [npcName, setNpcName] = useState("");
@@ -210,11 +212,11 @@ function ImmersiveContent() {
     if (!token) return;
     const timer = window.setInterval(async () => {
       try {
-        const encounter = await api.get<unknown | null>(
+        const encounter = await api.get<CombatEncounter | null>(
           `/campaigns/${params.id}/combat`,
           token,
         );
-        setCombatActive(Boolean(encounter));
+        setCombat(encounter);
       } catch {
         // sem combate
       }
@@ -243,6 +245,38 @@ function ImmersiveContent() {
 
   const actors = useMemo(() => {
     if (!selected) return [];
+    if (combat) {
+      const byCharacter = new Map(
+        selected.tokens
+          .filter((entry) => entry.characterId)
+          .map((entry) => [entry.characterId, entry]),
+      );
+      const currentId = combat.participants[combat.turnIndex]?.id;
+      const ownId = myCharacter
+        ? combat.participants.find(
+            (participant) => participant.characterId === myCharacter.id,
+          )?.id
+        : null;
+      return combat.participants
+        .filter((participant) => participant.id !== ownId)
+        .map((participant, index) => {
+          const entry = participant.characterId
+            ? byCharacter.get(participant.characterId)
+            : null;
+          const isCurrent = participant.id === currentId;
+          return {
+            id: `combat-${participant.id}`,
+            x: entry
+              ? (entry.x + 0.5) / selected.width
+              : 0.48 + (index % 2) * 0.035,
+            y: entry
+              ? (entry.y + 0.5) / selected.height
+              : 0.47 + Math.floor(index / 2) * 0.035,
+            imageUrl: entry?.imageUrl ?? NPC_IMAGES[participant.isAlly ? 0 : 2],
+            size: isCurrent ? 2.5 : 2,
+          };
+        });
+    }
     const tokens = npcTokens.map((npc) => ({
       id: npc.id,
       x: (npc.x + 0.5) / selected.width,
@@ -270,7 +304,7 @@ function ImmersiveContent() {
       size: 1.7,
     }));
     return [...tokens, ...players, ...ambient];
-  }, [npcTokens, otherPlayerTokens, selected]);
+  }, [combat, myCharacter, npcTokens, otherPlayerTokens, selected]);
 
   const applyFrame = useCallback(() => {
     const win = iframe.current?.contentWindow as ImmersiveWindow | null;
@@ -408,8 +442,28 @@ function ImmersiveContent() {
     }
   }
 
-  const isMaster =
-    campaign?.masterId === useAuthStore((state) => state.user?.id);
+  async function advanceTurn() {
+    if (!token || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await api.post<CombatEncounter>(
+        `/campaigns/${params.id}/combat/next-turn`,
+        undefined,
+        token,
+      );
+      setCombat(updated);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao avançar o turno.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const isMaster = campaign?.masterId === currentUserId;
+  const currentCombatant = combat?.participants[combat.turnIndex] ?? null;
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
@@ -492,6 +546,60 @@ function ImmersiveContent() {
           <ScrollText className="size-4" /> Crônica
         </Button>
       </header>
+
+      {combat ? (
+        <section className="absolute left-3 top-20 z-30 w-[min(19rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-primary/40 bg-card/94 shadow-2xl backdrop-blur">
+          <div className="flex items-center justify-between gap-2 border-b border-border/70 px-3 py-2">
+            <div>
+              <p className="font-heading text-sm">
+                Combate · rodada {combat.round}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {currentCombatant
+                  ? `Turno de ${currentCombatant.name}`
+                  : "Aguardando participantes"}
+              </p>
+            </div>
+            <Swords className="size-4 text-primary" aria-hidden="true" />
+          </div>
+          <ol className="max-h-72 space-y-0.5 overflow-y-auto p-2">
+            {combat.participants.map((participant, index) => {
+              const isCurrent = index === combat.turnIndex;
+              return (
+                <li
+                  key={participant.id}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
+                    isCurrent ? "bg-primary/15 ring-1 ring-primary/40" : ""
+                  }`}
+                >
+                  <span className="w-5 text-center font-mono text-[9px] text-muted-foreground">
+                    {participant.initiative}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {participant.name}
+                    {participant.isAlly ? "" : " · inimigo"}
+                  </span>
+                  <span className="font-mono text-[9px] text-muted-foreground">
+                    {participant.currentHp ?? "?"}/{participant.maxHp ?? "?"}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+          {isMaster ? (
+            <div className="border-t border-border/70 p-2">
+              <Button
+                size="sm"
+                className="w-full gap-1"
+                onClick={() => void advanceTurn()}
+                disabled={busy}
+              >
+                <Swords className="size-3.5" /> Próximo turno
+              </Button>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       <aside className="absolute bottom-3 right-3 top-20 z-30 flex w-[min(23rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border border-primary/30 bg-card/92 shadow-2xl backdrop-blur">
         <div className="flex gap-1 border-b border-border/70 p-2">
