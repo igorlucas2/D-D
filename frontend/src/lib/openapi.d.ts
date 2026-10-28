@@ -4988,7 +4988,9 @@ export interface operations {
     };
     LoreController_image: {
         parameters: {
-            query?: never;
+            query?: {
+                mode?: string;
+            };
             header?: never;
             path: {
                 id: string;

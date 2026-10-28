@@ -4055,6 +4055,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "mode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
