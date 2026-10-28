@@ -1,0 +1,56 @@
+[
+  {
+    "id": "H01",
+    "timeLabel": "87 anos atrás",
+    "relativeMinutes": null,
+    "precision": "APPROXIMATE_YEARS",
+    "text": "A Noite do Leito Seco rompeu antigas obras sob o vale; as três comunidades fundaram o Pacto.",
+    "audience": "PUBLIC",
+    "knowledgeNote": "História pública; detalhes técnicos preservados na abadia"
+  },
+  {
+    "id": "H02",
+    "timeLabel": "20 anos atrás",
+    "relativeMinutes": null,
+    "precision": "APPROXIMATE_YEARS",
+    "text": "A abadia perdeu moradores e passou a ser mantida por uma pequena guarda laica.",
+    "audience": "PUBLIC",
+    "knowledgeNote": "Público"
+  },
+  {
+    "id": "H03",
+    "timeLabel": "30 dias antes de T0",
+    "relativeMinutes": -43200,
+    "precision": "DAY",
+    "text": "Oren contratou a recuperação clandestina de peças antigas para cobrir dívidas.",
+    "audience": "MASTER",
+    "knowledgeNote": "Oren e Mara conhecem partes diferentes do acordo"
+  },
+  {
+    "id": "H04",
+    "timeLabel": "2 dias antes de T0",
+    "relativeMinutes": -2880,
+    "precision": "DAY",
+    "text": "Mara removeu o badajo do Vigia e o levou à mina. Bento testemunhou a carga e ficou preso quando uma passagem cedeu.",
+    "audience": "MASTER",
+    "knowledgeNote": "Mara sabe do roubo; não sabe onde Bento ficou preso"
+  },
+  {
+    "id": "H05",
+    "timeLabel": "1 dia antes de T0",
+    "relativeMinutes": -1440,
+    "precision": "DAY",
+    "text": "Dália encontrou um registro ligando a afinação dos três sinos à estabilidade da Galeria Funda.",
+    "audience": "MASTER",
+    "knowledgeNote": "Dália"
+  },
+  {
+    "id": "H06",
+    "timeLabel": "T0",
+    "relativeMinutes": 0,
+    "precision": "MINUTE",
+    "text": "O grupo chega; o sino da ponte está mudo e a balsa retorna vazia.",
+    "audience": "PUBLIC",
+    "knowledgeNote": "Cena de abertura"
+  }
+]

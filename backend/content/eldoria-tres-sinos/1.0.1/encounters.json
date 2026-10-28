@@ -1,0 +1,90 @@
+[
+  {
+    "id": "wolf",
+    "placeId": "mata",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "wolf"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Evitar, alimentar ou afastar; confronto opcional."
+  },
+  {
+    "id": "bandit",
+    "placeId": "mina",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "bandit"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Trabalhadores e guardas; não presumir hostilidade."
+  },
+  {
+    "id": "giant-rat",
+    "placeId": "mina",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "giant-rat"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Fauna local."
+  },
+  {
+    "id": "skeleton",
+    "placeId": "abadia",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "skeleton"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Vigias antigos; calibrar quantidade."
+  },
+  {
+    "id": "zombie",
+    "placeId": "abadia",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "zombie"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Vigias antigos; calibrar quantidade."
+  },
+  {
+    "id": "giant-spider",
+    "placeId": "brejo",
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "giant-spider"
+    },
+    "availability": "OPTIONAL",
+    "resolution": "MANUAL",
+    "usage": "Anunciar teias e restos antes do confronto."
+  },
+  {
+    "id": "specter",
+    "placeId": null,
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "specter"
+    },
+    "availability": "LATER_ARC",
+    "resolution": "MANUAL",
+    "usage": "Reservado para arco posterior."
+  },
+  {
+    "id": "dire-wolf",
+    "placeId": null,
+    "catalog": {
+      "source": "dnd5eapi-2014",
+      "srdIndex": "dire-wolf"
+    },
+    "availability": "LATER_ARC",
+    "resolution": "MANUAL",
+    "usage": "Reservado para arco posterior."
+  }
+]

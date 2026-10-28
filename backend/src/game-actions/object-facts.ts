@@ -74,7 +74,7 @@ export async function initializeDomain(tx: Tx, campaignId: string) {
     throw new ConflictException('Prepare a memória do cenário primeiro.');
   if (
     lore.packVersion.packKey !== 'eldoria-tres-sinos' ||
-    lore.packVersion.version !== '1.0.0'
+    !['1.0.0', '1.0.1'].includes(lore.packVersion.version)
   )
     throw new ConflictException(
       'Este pacote ainda não possui um perfil de comandos.',

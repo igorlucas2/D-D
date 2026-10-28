@@ -1,0 +1,303 @@
+{
+  "places": [
+    {
+      "id": "porto",
+      "name": "Porto das Cinzas",
+      "parentId": null,
+      "description": "Casas de pedra cinza, fumaça de fornos e estacas na margem. Base do grupo e ponto de encontro das facções."
+    },
+    {
+      "id": "ponte",
+      "name": "Ponte Velha",
+      "parentId": null,
+      "description": "Ponte de dois arcos, torre do Vigia e marcas recentes de carroça. Posto de passagem, não pedágio obrigatório."
+    },
+    {
+      "id": "mata",
+      "name": "Mata do Cervo",
+      "parentId": null,
+      "description": "Trilhas úmidas, carvoarias abandonadas e rastros de animais deslocados pela instabilidade."
+    },
+    {
+      "id": "mina",
+      "name": "Mina da Vigília",
+      "parentId": null,
+      "description": "Extração antiga de ferro, oficina de desmontagem e abrigos secos. Local do caixote e de Bento no início."
+    },
+    {
+      "id": "abadia",
+      "name": "Abadia do Terceiro Sino",
+      "parentId": null,
+      "description": "Pátio aberto, arquivo, claustro, campanário e acesso lacrado à Galeria Funda."
+    },
+    {
+      "id": "brejo",
+      "name": "Brejo das Lanternas",
+      "parentId": null,
+      "description": "Passarelas, pesca e luzes de gás; algumas aparições têm causa sobrenatural, outras não."
+    },
+    {
+      "id": "taverna",
+      "name": "Taverna da Última Brasa",
+      "parentId": "porto",
+      "description": "Taverna da Última Brasa"
+    },
+    {
+      "id": "mercado",
+      "name": "Mercado das Cordas",
+      "parentId": "porto",
+      "description": "Mercado das Cordas"
+    },
+    {
+      "id": "guarda",
+      "name": "Casa da Guarda",
+      "parentId": "porto",
+      "description": "Casa da Guarda"
+    },
+    {
+      "id": "capela",
+      "name": "Capela do Junco",
+      "parentId": "porto",
+      "description": "Capela do Junco"
+    },
+    {
+      "id": "cais",
+      "name": "Cais do Lume",
+      "parentId": "porto",
+      "description": "Cais do Lume"
+    },
+    {
+      "id": "vau",
+      "name": "Torre do Vau",
+      "parentId": "porto",
+      "description": "Torre do Vau"
+    },
+    {
+      "id": "A1",
+      "name": "Pátio",
+      "parentId": "abadia",
+      "description": "Pátio"
+    },
+    {
+      "id": "A2",
+      "name": "Arquivo",
+      "parentId": "abadia",
+      "description": "Arquivo"
+    },
+    {
+      "id": "A3",
+      "name": "Claustro",
+      "parentId": "abadia",
+      "description": "Claustro"
+    },
+    {
+      "id": "A4",
+      "name": "Campanário",
+      "parentId": "abadia",
+      "description": "Campanário"
+    },
+    {
+      "id": "A5",
+      "name": "Oficina",
+      "parentId": "abadia",
+      "description": "Oficina"
+    }
+  ],
+  "factions": [
+    {
+      "id": "pacto",
+      "name": "Conselho do Pacto",
+      "objective": "Manter passagem, água e abrigo; restabelecer o Vigia.",
+      "limits": "Iria exige segurança; Dália exige preservar os registros. Não é uma mente coletiva onisciente."
+    },
+    {
+      "id": "liga",
+      "name": "Liga das Cordas",
+      "objective": "Restaurar comércio e pagar contratos de inverno.",
+      "limits": "Oren oculta dívidas. Outros comerciantes não conhecem seu crime."
+    },
+    {
+      "id": "margem",
+      "name": "Gente da Margem",
+      "objective": "Pescar, circular e não ser expulsa do brejo.",
+      "limits": "Sofre acusações falsas; Sava negocia provas, não obediência automática ao grupo."
+    },
+    {
+      "id": "ferrugem",
+      "name": "Companhia Ferrugem",
+      "objective": "Receber pagamento e sair do vale com seus trabalhadores.",
+      "limits": "Mara aceita negociação; ameaça ou violência pode mudar sua posição. Não luta até a morte por padrão."
+    }
+  ],
+  "npcs": [
+    {
+      "id": "nara",
+      "name": "Nara Braseiro",
+      "placeId": "taverna",
+      "factionId": null,
+      "objective": "manter abrigo e alimentação.",
+      "voice": "Direta, chama as pessoas pelo nome, conta cobertores antes de moedas.",
+      "knowledgeBoundary": "Viu uma carroça da Liga sair à noite; não sabe da encomenda ou do caixote.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    },
+    {
+      "id": "iria",
+      "name": "Iria Voss",
+      "placeId": "guarda",
+      "factionId": "pacto",
+      "objective": "reabrir a travessia com segurança.",
+      "voice": "Frases curtas, pede fatos e nomes de testemunhas.",
+      "knowledgeBoundary": "Sabe do sino mudo e do desaparecimento de Bento; acredita inicialmente no rumor contra a Margem, mas aceita provas.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "guard"
+      }
+    },
+    {
+      "id": "dalia",
+      "name": "Dália do Junco",
+      "placeId": "capela",
+      "factionId": "pacto",
+      "objective": "recuperar o registro completo do mecanismo.",
+      "voice": "Precisa, paciente; distingue tradição de observação.",
+      "knowledgeBoundary": "Conhece C03/C14 por um fragmento e suspeita da remoção de peça; não sabe quem roubou.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "acolyte"
+      }
+    },
+    {
+      "id": "teo",
+      "name": "Téo Salgueiro",
+      "placeId": "cais",
+      "factionId": null,
+      "objective": "encontrar Bento, seu amigo.",
+      "voice": "Observador, descreve rastros antes de tirar conclusões.",
+      "knowledgeBoundary": "Reconhece a marca das rodas da Companhia Ferrugem; não sabe a motivação de Oren.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "scout"
+      }
+    },
+    {
+      "id": "oren",
+      "name": "Oren Vilar",
+      "placeId": "mercado",
+      "factionId": "liga",
+      "objective": "recuperar a solvência e esconder a encomenda.",
+      "voice": "Cortês, evita responder datas, oferece soluções práticas.",
+      "knowledgeBoundary": "Conhece C05/C06, acha que o metal já saiu do vale; desconhece C03/C08.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "noble"
+      }
+    },
+    {
+      "id": "mara",
+      "name": "Mara Ferrugem",
+      "placeId": "mina",
+      "factionId": "ferrugem",
+      "objective": "receber pagamento e proteger sua equipe.",
+      "voice": "Fala de contratos, ferramentas e riscos; prefere uma saída negociada.",
+      "knowledgeBoundary": "Conhece C05/C07; não conhece C03, C08 ou o total das dívidas de Oren.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "bandit-captain"
+      }
+    },
+    {
+      "id": "sava",
+      "name": "Sava da Margem",
+      "placeId": "brejo",
+      "factionId": "margem",
+      "objective": "limpar a acusação e preservar a pesca.",
+      "voice": "Irônica, específica, pede que promessas sejam repetidas na frente de testemunhas.",
+      "knowledgeBoundary": "Sabe C09 e viu tecido da Liga perto da ponte; não sabe quem ordenou o roubo.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "goblin"
+      }
+    },
+    {
+      "id": "bento",
+      "name": "Bento Reis",
+      "placeId": "mina",
+      "factionId": null,
+      "objective": "sair vivo e alertar a vila.",
+      "voice": "Cansado, prático, lembra sons e marcas da carga.",
+      "knowledgeBoundary": "Viu Mara mover o caixote C07, não ouviu a negociação com Oren.",
+      "catalog": {
+        "source": "dnd5eapi-2014",
+        "srdIndex": "commoner"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "sino-vau",
+      "name": "Sino Vau",
+      "placeId": "vau",
+      "state": "Intacto; regulagem pendente."
+    },
+    {
+      "id": "sino-vigia",
+      "name": "Sino Vigia",
+      "placeId": "ponte",
+      "state": "Sem badajo; regulagem pendente."
+    },
+    {
+      "id": "sino-guarda",
+      "name": "Sino Guarda",
+      "placeId": "A4",
+      "state": "Intacto; regulagem pendente."
+    },
+    {
+      "id": "badajo",
+      "name": "Badajo do Vigia",
+      "placeId": "mina",
+      "state": "Dentro do caixote de três listras."
+    },
+    {
+      "id": "caixote",
+      "name": "Caixote de três listras",
+      "placeId": "mina",
+      "state": "Contém o badajo; ainda não está em trânsito."
+    },
+    {
+      "id": "galeria",
+      "name": "Galeria Funda",
+      "placeId": "abadia",
+      "state": "Instável, acesso lacrado; entrada dispensável para o reparo."
+    }
+  ],
+  "relations": [
+    {
+      "from": "nara",
+      "to": "teo",
+      "kind": "TRUSTS"
+    },
+    {
+      "from": "teo",
+      "to": "bento",
+      "kind": "FRIEND"
+    },
+    {
+      "from": "iria",
+      "to": "dalia",
+      "kind": "RESPECTS"
+    },
+    {
+      "from": "oren",
+      "to": "mara",
+      "kind": "OWES_PAYMENT"
+    },
+    {
+      "from": "sava",
+      "to": "iria",
+      "kind": "DISTRUSTS"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "packId": "eldoria-tres-sinos",
+  "version": "1.0.1",
+  "status": "DRAFT",
+  "files": [
+    {
+      "path": "assets/abadia-do-terceiro-sino.png",
+      "sha256": "eef5d36bd56fd48b7ad23d137a68d7edf0997b2721814b52da8ccfce7f08077c",
+      "audience": "MASTER"
+    },
+    {
+      "path": "assets/abadia-do-terceiro-sino.svg",
+      "sha256": "7758a330ae3e38995126df3c90ff9f9da97fe9aa1dc06112dc7c16c7613486d7",
+      "audience": "MASTER"
+    },
+    {
+      "path": "assets/porto-das-cinzas.png",
+      "sha256": "1c4c8d397d0023887e5c00fd5f18777d168dbd216c6c58127d1a555534541174",
+      "audience": "MASTER"
+    },
+    {
+      "path": "assets/porto-das-cinzas.svg",
+      "sha256": "525529220c76abc3650b6cf3e531dfc518c6d3488a42d975c6b66eb5fa82cc99",
+      "audience": "MASTER"
+    },
+    {
+      "path": "assets/vale-do-lume.png",
+      "sha256": "c774d3ddeea125c53b0f859f1d8b5eb34cb14936f3e1e30779666a0a3e6a5a0b",
+      "audience": "MASTER"
+    },
+    {
+      "path": "assets/vale-do-lume.svg",
+      "sha256": "12448ba355bd84706ca018a75b33f9dc3a28d3d407e0c4823504ebbe615afa23",
+      "audience": "MASTER"
+    },
+    {
+      "path": "atlas.json",
+      "sha256": "b3455ba62708dfe8ea2afd477fc5d937978bd63704968a20f603333bf9a1c896",
+      "audience": "MASTER"
+    },
+    {
+      "path": "encounters.json",
+      "sha256": "ebdcf2049cfd9ed3a438a60484f9c2a0253763bd8621fe0818e10c3fd715d647",
+      "audience": "MASTER"
+    },
+    {
+      "path": "entities.json",
+      "sha256": "b5a3c71251d27ffb9c9c40dae0a69e49e09d25fe88488d3d083e92e44d818ba9",
+      "audience": "MASTER"
+    },
+    {
+      "path": "facts.json",
+      "sha256": "eaf6e16e802b0f48fb13c225cedb18bb062997eb01776c50e3dd0edabf01e1c8",
+      "audience": "MASTER"
+    },
+    {
+      "path": "history.json",
+      "sha256": "1530bb7ad7e1eddb79663dbc0313500f5ed109659a9ef982b2d68a81f28b1537",
+      "audience": "MASTER"
+    },
+    {
+      "path": "public.json",
+      "sha256": "cf9525d05bc67d43fcc6582f95acc10fc7ffa4143b8ac9dbd3d1da2abcbb4be4",
+      "audience": "PUBLIC"
+    },
+    {
+      "path": "threads.json",
+      "sha256": "8a28d4d1e44d218fd91931c20a4abeb3de20a3c7df7ec0d64b76c19083fee850",
+      "audience": "MASTER"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Lore original — O Pacto dos Três Sinos",
+      "reference": "docs/lore/01-pacto-dos-tres-sinos.md",
+      "sha256": "f6192b9844fe2493b9e24c2e5d212aa8097d0ad8f0abc0b7c0272e02c14a8194"
+    },
+    {
+      "title": "Atlas e mapas esquemáticos originais",
+      "reference": "docs/lore/atlas.json",
+      "sha256": "3754ced5a9fac9d506a9c5eaa0ebe6b13f02633c9a7fe2b2508a86eda5b8ea24"
+    },
+    {
+      "title": "Catálogo existente dnd5eapi-2014; conferir atribuição do SRD 5.1 antes de publicação",
+      "reference": "https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1.pdf",
+      "sha256": null
+    }
+  ],
+  "rules": {
+    "profile": "SRD_2014",
+    "combat": "MANUAL",
+    "moneyEnabled": false,
+    "publicationBlockers": [
+      "Calibrar encontros com 3–4 personagens de níveis 1–3.",
+      "Definir recompensa monetária e sua transferência transacional antes de habilitar dinheiro.",
+      "Revisar atribuição das fichas e procedência antes de publicar."
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Eldoria — O Pacto dos Três Sinos",
+  "premise": "Há oitenta e sete anos, três comunidades ergueram sinos ao longo do Rio Lume. O pacto que os uniu prometia passagem segura, manutenção das pontes e abrigo a viajantes em noites de cheia. Agora o sino da Ponte Velha está mudo. A balsa chega vazia, cargas desaparecem e luzes azuis se movem no brejo. Em Porto das Cinzas, as pessoas discutem se precisam de guardas, de reparos ou de alguém disposto a fazer perguntas.",
+  "tone": "Fantasia de fronteira, investigação, negociação e consequências persistentes.",
+  "hooks": [
+    "Trabalhar numa caravana",
+    "Procurar trabalho no porto",
+    "Visitar alguém da região",
+    "Pesquisar a abadia",
+    "Acompanhar outro personagem"
+  ],
+  "playerHistoryPolicy": "Cada jogador escolhe seu vínculo. Nenhum passado é atribuído automaticamente.",
+  "start": {
+    "year": 87,
+    "month": 1,
+    "monthName": "Bruma",
+    "day": 1,
+    "hour": 8,
+    "minute": 0
+  },
+  "party": {
+    "minPlayers": 3,
+    "maxPlayers": 4,
+    "startLevel": 1,
+    "endLevel": 3
+  },
+  "opening": "A balsa encosta sem ninguém no convés. Uma corda solta bate na madeira, e a praça espera a resposta do sino da ponte. Ela não vem. Nara sai da taverna com um cobertor nos braços; Iria pede que ninguém toque na embarcação antes de examiná-la. Téo procura um nome entre os recém-chegados: Bento. Na torre de Porto, o sino Vau dá uma única badalada."
+}

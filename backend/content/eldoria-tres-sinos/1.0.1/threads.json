@@ -1,0 +1,254 @@
+{
+  "threads": [
+    {
+      "id": "fio-sino",
+      "objective": "Recuperar o Vigia",
+      "completion": "Peça correta recuperada e reparo aplicado por ação válida.",
+      "consequence": "Travessia segura e gratidão do Conselho."
+    },
+    {
+      "id": "fio-bento",
+      "objective": "Encontrar Bento",
+      "completion": "Localizado e retirado da mina, ou destino confirmado.",
+      "consequence": "Amizade de Téo; perdas também entram no histórico."
+    },
+    {
+      "id": "fio-divida",
+      "objective": "Resolver a encomenda",
+      "completion": "Evidências apresentadas e acordo, julgamento ou outra resolução registrada.",
+      "consequence": "Liga reformada, conflito aberto ou encobrimento escolhido pelo grupo."
+    },
+    {
+      "id": "fio-galeria",
+      "objective": "Estabilizar a Galeria Funda",
+      "completion": "Diagnóstico obtido e manutenção dos três pontos concluída.",
+      "consequence": "Fecha o arco sem impor que o grupo mate Mara ou Oren."
+    }
+  ],
+  "clues": [
+    {
+      "id": "pista-retirada",
+      "conclusion": "A Companhia retirou a peça.",
+      "factIds": [
+        "F09"
+      ],
+      "alternatives": [
+        {
+          "holderId": "teo",
+          "text": "Marcas de rodas reconhecidas na ponte."
+        },
+        {
+          "holderId": "bento",
+          "text": "Testemunho sobre a carga."
+        },
+        {
+          "holderId": "mara",
+          "text": "Identificação das ferramentas usadas."
+        }
+      ]
+    },
+    {
+      "id": "pista-financiamento",
+      "conclusion": "A Liga financiou o trabalho.",
+      "factIds": [
+        "C05",
+        "C06"
+      ],
+      "alternatives": [
+        {
+          "holderId": "mercado",
+          "text": "Ordem de serviço obtida por investigação."
+        },
+        {
+          "holderId": "mara",
+          "text": "Registro de pagamento obtido por negociação."
+        },
+        {
+          "holderId": "oren",
+          "text": "Admissão ao ser confrontado com evidência."
+        }
+      ]
+    },
+    {
+      "id": "pista-mecanismo",
+      "conclusion": "Os sinos estabilizam a galeria.",
+      "factIds": [
+        "C03",
+        "C14"
+      ],
+      "alternatives": [
+        {
+          "holderId": "dalia",
+          "text": "Fragmento e explicação."
+        },
+        {
+          "holderId": "A2",
+          "text": "Instruções de manutenção."
+        },
+        {
+          "holderId": "A5",
+          "text": "Encaixes e marcas de afinação."
+        }
+      ]
+    },
+    {
+      "id": "pista-inocencia",
+      "conclusion": "Sava é inocente.",
+      "factIds": [
+        "C09"
+      ],
+      "alternatives": [
+        {
+          "holderId": "brejo",
+          "text": "Pescadores testemunham o horário."
+        },
+        {
+          "holderId": "ponte",
+          "text": "Ferramentas incompatíveis com a acusação."
+        },
+        {
+          "holderId": "teo",
+          "text": "Evidência do trajeto da Companhia."
+        }
+      ]
+    }
+  ],
+  "pressures": [
+    {
+      "id": "preparo",
+      "afterMinutes": 720,
+      "afterEventId": null,
+      "condition": "Caixote na mina e Mara pode agir.",
+      "effect": "Equipe prepara transporte.",
+      "subjects": [
+        "caixote",
+        "mara",
+        "mina"
+      ]
+    },
+    {
+      "id": "partida",
+      "afterMinutes": 1440,
+      "afterEventId": null,
+      "condition": "Transporte preparado, caixote na mina, Mara capaz e trajeto não interrompido.",
+      "effect": "Partida pela rota Mina–Abadia; caixote em trânsito.",
+      "subjects": [
+        "caixote",
+        "mara",
+        "mina",
+        "abadia"
+      ]
+    },
+    {
+      "id": "chegada",
+      "afterMinutes": 90,
+      "afterEventId": "partida",
+      "condition": "Viagem efetivamente iniciada e não interrompida; ajustar atraso por evento.",
+      "effect": "Chegada ao pátio A1; Mara suspende coleta se perceber risco. Sem combate automático.",
+      "subjects": [
+        "caixote",
+        "mara",
+        "A1"
+      ]
+    },
+    {
+      "id": "interdicao",
+      "afterMinutes": 2160,
+      "afterEventId": null,
+      "condition": "Vigia continua inativo.",
+      "effect": "Ponte interditada; rotas alternativas permanecem.",
+      "subjects": [
+        "ponte",
+        "sino-vigia"
+      ]
+    },
+    {
+      "id": "agua-turva",
+      "afterMinutes": 2880,
+      "afterEventId": null,
+      "condition": "Galeria não estabilizada.",
+      "effect": "Água turva no cais; Conselho oferece ajuda. Sem morte automática.",
+      "subjects": [
+        "galeria",
+        "cais",
+        "pacto"
+      ]
+    }
+  ],
+  "repairs": [
+    {
+      "id": "repor-badajo",
+      "placeId": "ponte",
+      "objectId": "sino-vigia",
+      "minutes": 30,
+      "conditions": [
+        "Badajo correto recuperado ou substituto fabricado em tarefa aprovada.",
+        "Ferramentas comuns e acesso."
+      ],
+      "effect": "Vigia tem badajo funcional."
+    },
+    {
+      "id": "regular-sino-vau",
+      "placeId": "vau",
+      "objectId": "sino-vau",
+      "minutes": 20,
+      "conditions": [
+        "Instruções, ferramentas comuns e acesso."
+      ],
+      "effect": "Mecanismo regulado por evento confirmado."
+    },
+    {
+      "id": "regular-sino-vigia",
+      "placeId": "ponte",
+      "objectId": "sino-vigia",
+      "minutes": 20,
+      "conditions": [
+        "Instruções, ferramentas comuns e acesso."
+      ],
+      "effect": "Mecanismo regulado por evento confirmado."
+    },
+    {
+      "id": "regular-sino-guarda",
+      "placeId": "A4",
+      "objectId": "sino-guarda",
+      "minutes": 20,
+      "conditions": [
+        "Instruções, ferramentas comuns e acesso."
+      ],
+      "effect": "Mecanismo regulado por evento confirmado."
+    }
+  ],
+  "rewards": [
+    {
+      "threadId": "fio-sino",
+      "kind": "LODGING",
+      "quantity": 7,
+      "unit": "DAYS",
+      "beneficiary": "GROUP",
+      "enabled": true
+    },
+    {
+      "threadId": "fio-sino",
+      "kind": "MONEY",
+      "quantity": null,
+      "unit": "UNDEFINED",
+      "beneficiary": "GROUP",
+      "enabled": false
+    }
+  ],
+  "resolutions": [
+    "Restituição negociada com Oren e Mara.",
+    "Denúncia pública e reparo pelo Conselho.",
+    "Cooperação com a Margem e negociação política."
+  ],
+  "guidance": [
+    "Alternativas consistentes são permitidas; não exigir combate para pistas ou conclusão.",
+    "Falhas podem custar tempo ou exigir outra abordagem; não mudar o culpado.",
+    "Inspeção básica da balsa revela corda puída e saco comum da Liga; isso não prova crime ou presença de Bento.",
+    "Três mecanismos regulados e Vigia funcional estabilizam a galeria. Entrada na galeria não é obrigatória.",
+    "Oficina pode emprestar ferramentas mediante acordo registrado. Reparos com condições cumpridas não exigem teste aleatório.",
+    "Bento exige avaliação explícita quando o tempo avança; nunca morrer automaticamente por silêncio no chat.",
+    "Relógio avança por ações e aprovação; tempo de parede não movimenta o mundo.",
+    "Abadia é o ponto combinado com o transportador da Liga. Mara ignora os vigias; Oren não recebeu confirmação da coleta."
+  ]
+}
