@@ -2,5 +2,5 @@ Viewer: https://github.com/adsonpleal/latamvisuais
 Commit: 89c02f8e13ac535f215d95291f214a73e7c505d4
 License: MIT (see LICENSE)
 Built with: npx vite build --base=./
-Modifications: window.__eldoria actors, getPlayerPosition, setPlayerCell, actor raycast, NPC sprites and movement lock for Eldoria.
+Modifications: window.__eldoria actors, getPlayerPosition, setPlayerCell, actor raycast, range ring, target tint, NPC sprites and movement lock for Eldoria.
 Ragnarok Online assets: (c) Gravity Interactive; personal/fan use.

@@ -132,6 +132,14 @@ interface ImmersiveWindow extends Window {
       mapHeight: number,
     ) => void;
     onActorClick?: (id: string) => void;
+    setRange: (
+      x: number | null,
+      y: number | null,
+      cells: number,
+      mapWidth: number,
+      mapHeight: number,
+    ) => void;
+    setSelectedActor: (id: string | null) => void;
   };
 }
 
@@ -389,6 +397,42 @@ function ImmersiveContent() {
       if (win.__eldoria) win.__eldoria.onActorClick = undefined;
     };
   }, [frameReady]);
+
+  useEffect(() => {
+    if (!frameReady) return;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    if (!win?.__eldoria) return;
+    const current = combat?.participants[combat.turnIndex];
+    if (
+      !combat ||
+      !selected ||
+      !current ||
+      current.x == null ||
+      current.y == null
+    ) {
+      win.__eldoria.setRange(null, null, 0, 1, 1);
+      return;
+    }
+    const remainingCells = Math.max(
+      0,
+      Math.floor(((current.speed ?? 30) - (current.movementUsed ?? 0)) / 5),
+    );
+    win.__eldoria.setRange(
+      current.x,
+      current.y,
+      remainingCells,
+      selected.width,
+      selected.height,
+    );
+  }, [combat, frameReady, selected]);
+
+  useEffect(() => {
+    if (!frameReady) return;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    win?.__eldoria?.setSelectedActor(
+      selectedTargetId ? `combat-${selectedTargetId}` : null,
+    );
+  }, [frameReady, selectedTargetId]);
 
   useEffect(() => {
     if (!frameReady) return;
