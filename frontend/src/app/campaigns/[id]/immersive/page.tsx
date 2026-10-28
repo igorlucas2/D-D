@@ -20,7 +20,6 @@ import { CombatPanel } from "@/components/campaigns/combat-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { api, ApiError } from "@/lib/api";
 import type { Campaign, VttMap } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
@@ -183,6 +182,7 @@ function ImmersiveContent() {
   }, [params.id, token]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial da mesa
     void load();
   }, [load]);
 
@@ -253,7 +253,6 @@ function ImmersiveContent() {
 
   useEffect(() => {
     if (!slug) return;
-    setFrameReady(false);
     let cancelled = false;
     const timer = window.setInterval(() => {
       if (cancelled) return;
