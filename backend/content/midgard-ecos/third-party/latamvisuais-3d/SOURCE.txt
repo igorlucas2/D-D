@@ -1,0 +1,6 @@
+﻿Repository: https://github.com/adsonpleal/latamvisuais
+Commit: 89c02f8e13ac535f215d95291f214a73e7c505d4
+License: MIT (see LICENSE)
+Captured with local Vite viewer against https://assets.latam-tools.com.br/maps/.
+Character hidden, UI hidden, fog disabled, camera distance 78.
+Ragnarok Online assets are (c) Gravity Interactive; screenshots are for this personal/fan table.

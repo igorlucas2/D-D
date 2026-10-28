@@ -98,10 +98,14 @@ export class LoreController {
     @Param('mapId') mapId: string,
     @CurrentUser() user: { userId: string },
   ) {
-    return new StreamableFile(
-      await this.installer.image(id, mapId, user.userId),
-      { type: 'image/png' },
-    );
+    const buffer = await this.installer.image(id, mapId, user.userId);
+    const type =
+      buffer[0] === 0xff && buffer[1] === 0xd8
+        ? 'image/jpeg'
+        : buffer.subarray(0, 4).toString('ascii') === 'RIFF'
+          ? 'image/webp'
+          : 'image/png';
+    return new StreamableFile(buffer, { type });
   }
 
   @Get('lore-packs')

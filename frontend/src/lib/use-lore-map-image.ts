@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const protectedMap = /^\/api\/campaigns\/[^/]+\/lore\/maps\/[^/]+\/image$/;
+const protectedMap =
+  /^\/api\/campaigns\/[^/]+\/lore\/maps\/[^/]+\/image(?:\?.*)?$/;
 // Bearer-authenticated assets become local blob URLs for CSS, Image and WebGL.
 export function useLoreMapImage(
   url: string | null | undefined,
