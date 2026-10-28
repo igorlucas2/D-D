@@ -118,9 +118,11 @@ function spellSummary(character: LiveCharacter): string {
 export function CampaignTableDock({
   campaignId,
   showParty = true,
+  showChronicle = true,
 }: {
   campaignId: string;
   showParty?: boolean;
+  showChronicle?: boolean;
 }) {
   const token = useAuthStore((state) => state.token);
   const [state, setState] = useState<LiveState | null>(null);
@@ -165,47 +167,49 @@ export function CampaignTableDock({
       <section
         className={cn(
           "min-w-0 gap-3",
-          showParty
+          showParty && showChronicle
             ? "grid lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]"
             : "block",
         )}
       >
-        <article className="relative overflow-hidden rounded-xl border border-primary/25 bg-card/90 p-4 shadow-md shadow-black/15">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-14 -top-16 size-48 rounded-full bg-primary/8 blur-2xl"
-          />
-          <div className="relative flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-                <BookOpen className="size-3.5" aria-hidden="true" /> Crônica
-                pública
-              </p>
-              <h2 className="mt-1 font-heading text-xl text-foreground">
-                {latest ? `Cena #${latest.sequence}` : "A aventura começa"}
-              </h2>
+        {showChronicle ? (
+          <article className="relative overflow-hidden rounded-xl border border-primary/25 bg-card/90 p-4 shadow-md shadow-black/15">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-14 -top-16 size-48 rounded-full bg-primary/8 blur-2xl"
+            />
+            <div className="relative flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  <BookOpen className="size-3.5" aria-hidden="true" /> Crônica
+                  pública
+                </p>
+                <h2 className="mt-1 font-heading text-xl text-foreground">
+                  {latest ? `Cena #${latest.sequence}` : "A aventura começa"}
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 shrink-0 gap-1 text-[11px]"
+                nativeButton={false}
+                render={<Link href={`/campaigns/${campaignId}/play`} />}
+              >
+                Mesa narrada{" "}
+                <ChevronRight className="size-3" aria-hidden="true" />
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0 gap-1 text-[11px]"
-              nativeButton={false}
-              render={<Link href={`/campaigns/${campaignId}/play`} />}
-            >
-              Mesa narrada{" "}
-              <ChevronRight className="size-3" aria-hidden="true" />
-            </Button>
-          </div>
-          <p className="relative mt-3 line-clamp-5 whitespace-pre-line font-narrative text-base leading-7 text-foreground/90">
-            {latest?.narration?.trim() ||
-              latest?.summary ||
-              "Abra a mesa narrada para iniciar a crônica. Tudo o que for narrado ali é público para os jogadores."}
-          </p>
-          <p className="relative mt-3 text-[11px] text-muted-foreground">
-            Visível para todos os jogadores da campanha. Regras, dados e PV são
-            aplicados pelo motor.
-          </p>
-        </article>
+            <p className="relative mt-3 line-clamp-5 whitespace-pre-line font-narrative text-base leading-7 text-foreground/90">
+              {latest?.narration?.trim() ||
+                latest?.summary ||
+                "Abra a mesa narrada para iniciar a crônica. Tudo o que for narrado ali é público para os jogadores."}
+            </p>
+            <p className="relative mt-3 text-[11px] text-muted-foreground">
+              Visível para todos os jogadores da campanha. Regras, dados e PV
+              são aplicados pelo motor.
+            </p>
+          </article>
+        ) : null}
 
         {showParty ? (
           <article className="rounded-xl border border-border/70 bg-card/85 p-4">

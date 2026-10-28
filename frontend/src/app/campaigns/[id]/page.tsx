@@ -1,11 +1,9 @@
 "use client";
-import { LoreScenePanel } from "@/components/campaigns/lore-scene-panel";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/auth/require-auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,16 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CombatPanel } from "@/components/campaigns/combat-panel";
-import { CampaignTableDock } from "@/components/campaigns/campaign-table-dock";
-import { CampaignPartyWidget } from "@/components/campaigns/campaign-party-widget";
-import { ExplorationHud } from "@/components/campaigns/exploration-hud";
-import { VttPanel } from "@/components/campaigns/vtt-panel";
-import { WorldClockWidget } from "@/components/campaigns/world-clock-widget";
-import { ReturnChronicle } from "@/components/campaigns/return-chronicle";
-import { SessionWorkspace } from "@/components/campaigns/session-workspace";
+import { CampaignWorkspace } from "@/components/campaigns/campaign-workspace";
 import { api, ApiError } from "@/lib/api";
-import type { Campaign, CharacterExplorationState } from "@/lib/types";
+import type { Campaign } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   ArrowLeft,
@@ -40,9 +31,7 @@ import {
   Maximize2,
   Minimize2,
   Sparkles,
-  Swords,
   Users,
-  X,
 } from "lucide-react";
 
 function CampaignDetailContent() {
@@ -62,11 +51,6 @@ function CampaignDetailContent() {
   } | null>(null);
   const [acting, setActing] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [explorationCharacterId, setExplorationCharacterId] = useState<
-    string | null
-  >(null);
-  const [explorationState, setExplorationState] =
-    useState<CharacterExplorationState | null>(null);
 
   async function refresh() {
     if (!token) return;
@@ -250,9 +234,6 @@ function CampaignDetailContent() {
         </div>
       </header>
 
-      {!focusMode && (
-        <LoreScenePanel key={campaign.id} campaignId={campaign.id} />
-      )}
       <div
         className={`${focusMode ? "hidden" : "flex"} flex-col gap-3 rounded-xl border border-border/70 bg-card/75 p-2 shadow-md shadow-black/15 lg:flex-row lg:items-center lg:justify-between`}
       >
@@ -411,135 +392,13 @@ function CampaignDetailContent() {
           {actionError}
         </p>
       ) : null}
-      <CampaignTableDock campaignId={campaign.id} showParty={false} />
-      <ReturnChronicle campaignId={campaign.id} />
 
-      <SessionWorkspace
-        panels={[
-          {
-            id: "company",
-            label: "Companhia",
-            icon: Users,
-            content: (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">
-                  {campaign.members.length} participantes na campanha
-                </p>
-                {campaign.members.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/40 p-2"
-                  >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <Avatar className="size-10 shrink-0 ring-1 ring-primary/35">
-                        <AvatarFallback>
-                          {member.user.displayName.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p
-                          className="truncate text-sm font-medium"
-                          title={member.user.displayName}
-                        >
-                          {member.user.displayName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {member.role === "MASTER" ? "Mestre" : "Jogador"}
-                        </p>
-                      </div>
-                    </div>
-                    {isMaster && member.role !== "MASTER" ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-11 shrink-0 text-destructive"
-                        aria-label={`Remover ${member.user.displayName} da campanha`}
-                        onClick={() => {
-                          setActionError(null);
-                          setPendingAction({
-                            kind: "member",
-                            userId: member.userId,
-                            name: member.user.displayName,
-                          });
-                        }}
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
-                <div className="border-t border-border pt-3">
-                  <p className="mb-2 text-xs text-muted-foreground">
-                    Gerenciar participação
-                  </p>
-                  <Button
-                    variant="destructive"
-                    className="min-h-11"
-                    onClick={() => {
-                      setActionError(null);
-                      setPendingAction({
-                        kind: isMaster ? "delete" : "leave",
-                        name: campaign.name,
-                      });
-                    }}
-                  >
-                    {isMaster ? "Excluir campanha" : "Sair da campanha"}
-                  </Button>
-                </div>
-              </div>
-            ),
-          },
-          {
-            id: "combat",
-            label: "Combate",
-            icon: Swords,
-            content: (
-              <CombatPanel campaignId={campaign.id} isMaster={isMaster} />
-            ),
-          },
-          {
-            id: "journey",
-            label: "Jornada",
-            icon: Compass,
-            content: (
-              <div className="space-y-3">
-                <WorldClockWidget
-                  campaignId={campaign.id}
-                  isMaster={isMaster}
-                />
-                <ExplorationHud
-                  campaignId={campaign.id}
-                  characterId={explorationCharacterId}
-                  state={explorationState}
-                  onCharacterChange={setExplorationCharacterId}
-                  onStateChange={setExplorationState}
-                />
-                <Button
-                  variant="outline"
-                  className="h-11 w-full"
-                  nativeButton={false}
-                  render={<Link href={`/campaigns/${campaign.id}/journal`} />}
-                >
-                  <BookOpen className="size-4" aria-hidden="true" /> Abrir
-                  diário
-                </Button>
-              </div>
-            ),
-          },
-        ]}
-      >
-        <div className="relative min-w-0">
-          <CampaignPartyWidget campaignId={campaign.id} mode="map" />
-          <VttPanel
-            campaignId={campaign.id}
-            isMaster={isMaster}
-            compact={focusMode}
-            explorationCharacterId={explorationCharacterId}
-            explorationState={explorationState}
-            onExplorationStateChange={setExplorationState}
-          />
-        </div>
-      </SessionWorkspace>
+      <CampaignWorkspace
+        campaign={campaign}
+        isMaster={isMaster}
+        compact={focusMode}
+      />
+
       <Dialog
         open={pendingAction !== null}
         onOpenChange={(open) => {
