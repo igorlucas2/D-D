@@ -1,0 +1,1 @@
+ALTER TABLE `RagnarokItem` MODIFY `viewKind` VARCHAR(191) NULL;

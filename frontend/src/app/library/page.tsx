@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { abilityModifier, formatModifier } from "@/lib/character-rules";
 import { api, ApiError } from "@/lib/api";
-import { getItemIcon, getRarityBorderColor, getRarityColor, getSpellIcon } from "@/lib/game-icons";
+import {
+  getItemIcon,
+  getRarityBorderColor,
+  getRarityColor,
+  getSpellIcon,
+} from "@/lib/game-icons";
 import {
   ITEM_CATEGORY_LABELS,
   MONSTER_TYPE_LABELS,
@@ -47,7 +53,18 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const ABILITY_LABELS: { key: keyof Pick<Monster, "strength" | "dexterity" | "constitution" | "intelligence" | "wisdom" | "charisma">; label: string }[] = [
+const ABILITY_LABELS: {
+  key: keyof Pick<
+    Monster,
+    | "strength"
+    | "dexterity"
+    | "constitution"
+    | "intelligence"
+    | "wisdom"
+    | "charisma"
+  >;
+  label: string;
+}[] = [
   { key: "strength", label: "FOR" },
   { key: "dexterity", label: "DES" },
   { key: "constitution", label: "CON" },
@@ -77,27 +94,47 @@ function formatProperties(properties: string | null): string[] {
   if (!properties) return [];
   try {
     const parsed = JSON.parse(properties) as Record<string, unknown>;
-    return Object.entries(parsed).map(([key, value]) => `${PROPERTY_LABELS[key] ?? key}: ${value}`);
+    return Object.entries(parsed).map(
+      ([key, value]) => `${PROPERTY_LABELS[key] ?? key}: ${value}`,
+    );
   } catch {
     return [];
   }
 }
 
-function StatBox({ label, value, modifier }: { label: string; value: string; modifier?: string }) {
+function StatBox({
+  label,
+  value,
+  modifier,
+}: {
+  label: string;
+  value: string;
+  modifier?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-0.5 rounded-lg border border-border/60 bg-muted/30 px-2 py-2">
       <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <span className="font-heading text-lg font-bold leading-none">{value}</span>
-      {modifier ? <span className="text-xs text-muted-foreground">{modifier}</span> : null}
+      <span className="font-heading text-lg font-bold leading-none">
+        {value}
+      </span>
+      {modifier ? (
+        <span className="text-xs text-muted-foreground">{modifier}</span>
+      ) : null}
     </div>
   );
 }
 
 // Seção do bloco de status (ex: "Características", "Ações"), com sublinhado dourado
 // inspirado nas fichas clássicas de D&D.
-function StatBlockSection({ title, children }: { title: string; children: ReactNode }) {
+function StatBlockSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="border-b-2 border-primary/40 pb-1 font-heading text-sm font-bold uppercase tracking-wider text-primary">
@@ -161,20 +198,39 @@ function FilterSelect({
   );
 }
 
-function MonstersTab({ monsters, hideTypeFilter = false }: { monsters: Monster[]; hideTypeFilter?: boolean }) {
+function MonstersTab({
+  monsters,
+  hideTypeFilter = false,
+}: {
+  monsters: Monster[];
+  hideTypeFilter?: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Todos");
 
   const types = useMemo(() => {
-    const unique = Array.from(new Set(monsters.map((monster) => monster.type))).sort();
+    const unique = Array.from(
+      new Set(monsters.map((monster) => monster.type)),
+    ).sort();
     return ["Todos", ...unique];
   }, [monsters]);
 
   const filtered = useMemo(() => {
     return monsters
-      .filter((monster) => hideTypeFilter || typeFilter === "Todos" || monster.type === typeFilter)
-      .filter((monster) => monster.name.toLowerCase().includes(search.toLowerCase()))
-      .sort((a, b) => challengeRatingToNumber(a.challengeRating) - challengeRatingToNumber(b.challengeRating));
+      .filter(
+        (monster) =>
+          hideTypeFilter ||
+          typeFilter === "Todos" ||
+          monster.type === typeFilter,
+      )
+      .filter((monster) =>
+        monster.name.toLowerCase().includes(search.toLowerCase()),
+      )
+      .sort(
+        (a, b) =>
+          challengeRatingToNumber(a.challengeRating) -
+          challengeRatingToNumber(b.challengeRating),
+      );
   }, [monsters, search, typeFilter, hideTypeFilter]);
 
   return (
@@ -187,26 +243,44 @@ function MonstersTab({ monsters, hideTypeFilter = false }: { monsters: Monster[]
           className="max-w-xs"
         />
         {hideTypeFilter ? null : (
-          <FilterSelect value={typeFilter} onChange={setTypeFilter} options={types} labels={MONSTER_TYPE_LABELS} />
+          <FilterSelect
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={types}
+            labels={MONSTER_TYPE_LABELS}
+          />
         )}
       </div>
 
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-            <p className="text-muted-foreground">Nenhuma criatura encontrada.</p>
+            <p className="text-muted-foreground">
+              Nenhuma criatura encontrada.
+            </p>
           </CardContent>
         </Card>
       ) : (
         filtered.map((monster) => (
-          <Card key={monster.id} className="overflow-hidden border-l-4 border-l-primary/50">
+          <Card
+            key={monster.id}
+            className="overflow-hidden border-l-4 border-l-primary/50"
+          >
             <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-              <Portrait src={monster.imageUrl} alt={monster.name} icon={Skull} size="h-20 w-20" />
+              <Portrait
+                src={monster.imageUrl}
+                alt={monster.name}
+                icon={Skull}
+                size="h-20 w-20"
+              />
               <div className="flex flex-1 flex-col gap-1">
-                <CardTitle className="font-heading text-xl">{monster.name}</CardTitle>
+                <CardTitle className="font-heading text-xl">
+                  {monster.name}
+                </CardTitle>
                 <CardDescription className="flex flex-wrap items-center gap-2">
                   <span className="italic">
-                    {translateMonsterSize(monster.size)} {translateMonsterType(monster.type)}
+                    {translateMonsterSize(monster.size)}{" "}
+                    {translateMonsterType(monster.type)}
                   </span>
                   <Badge variant="outline">CD {monster.challengeRating}</Badge>
                   <Badge variant="outline">{monster.xp} XP</Badge>
@@ -236,7 +310,8 @@ function MonstersTab({ monsters, hideTypeFilter = false }: { monsters: Monster[]
                 <StatBlockSection title="Características">
                   {monster.traits.map((trait) => (
                     <p key={trait.name}>
-                      <span className="font-semibold">{trait.name}.</span> {trait.description}
+                      <span className="font-semibold">{trait.name}.</span>{" "}
+                      {trait.description}
                     </p>
                   ))}
                 </StatBlockSection>
@@ -246,7 +321,8 @@ function MonstersTab({ monsters, hideTypeFilter = false }: { monsters: Monster[]
                 <StatBlockSection title="Ações">
                   {monster.actions.map((action) => (
                     <p key={action.name}>
-                      <span className="font-semibold">{action.name}.</span> {action.description}
+                      <span className="font-semibold">{action.name}.</span>{" "}
+                      {action.description}
                     </p>
                   ))}
                 </StatBlockSection>
@@ -265,7 +341,9 @@ function ItemsTab({ items }: { items: Item[] }) {
   const [rarityFilter, setRarityFilter] = useState("Todas");
 
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map((item) => item.category))).sort();
+    const unique = Array.from(
+      new Set(items.map((item) => item.category)),
+    ).sort();
     return ["Todas", ...unique];
   }, [items]);
 
@@ -276,8 +354,13 @@ function ItemsTab({ items }: { items: Item[] }) {
 
   const filtered = useMemo(() => {
     return items
-      .filter((item) => categoryFilter === "Todas" || item.category === categoryFilter)
-      .filter((item) => rarityFilter === "Todas" || item.rarity === rarityFilter)
+      .filter(
+        (item) =>
+          categoryFilter === "Todas" || item.category === categoryFilter,
+      )
+      .filter(
+        (item) => rarityFilter === "Todas" || item.rarity === rarityFilter,
+      )
       .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
   }, [items, search, categoryFilter, rarityFilter]);
 
@@ -315,7 +398,10 @@ function ItemsTab({ items }: { items: Item[] }) {
           const ItemIcon = getItemIcon(item.category);
           const properties = formatProperties(item.properties);
           return (
-            <Card key={item.id} className={`overflow-hidden border-l-4 ${getRarityBorderColor(item.rarity)}`}>
+            <Card
+              key={item.id}
+              className={`overflow-hidden border-l-4 ${getRarityBorderColor(item.rarity)}`}
+            >
               <CardHeader className="flex flex-row items-start gap-4 space-y-0">
                 <Portrait
                   src={item.imageUrl}
@@ -325,10 +411,16 @@ function ItemsTab({ items }: { items: Item[] }) {
                   iconClassName={getRarityColor(item.rarity)}
                 />
                 <div className="flex flex-1 flex-col gap-1">
-                  <CardTitle className="font-heading text-lg">{item.name}</CardTitle>
+                  <CardTitle className="font-heading text-lg">
+                    {item.name}
+                  </CardTitle>
                   <CardDescription className="flex flex-wrap items-center gap-2">
-                    <span className="italic">{translateItemCategory(item.category)}</span>
-                    <Badge variant="outline">{RARITY_LABELS[item.rarity] ?? item.rarity}</Badge>
+                    <span className="italic">
+                      {translateItemCategory(item.category)}
+                    </span>
+                    <Badge variant="outline">
+                      {RARITY_LABELS[item.rarity] ?? item.rarity}
+                    </Badge>
                     <Badge variant="outline">peso {item.weight}</Badge>
                     <Badge variant="outline">{item.value} po</Badge>
                   </CardDescription>
@@ -362,22 +454,31 @@ function SpellsTab({ spells }: { spells: Spell[] }) {
   const [levelFilter, setLevelFilter] = useState("Todos");
 
   const schools = useMemo(() => {
-    const unique = Array.from(new Set(spells.map((spell) => spell.school))).sort();
+    const unique = Array.from(
+      new Set(spells.map((spell) => spell.school)),
+    ).sort();
     return ["Todas", ...unique];
   }, [spells]);
 
   const levels = useMemo(() => {
-    const unique = Array.from(new Set(spells.map((spell) => String(spell.level)))).sort(
-      (a, b) => Number(a) - Number(b),
-    );
+    const unique = Array.from(
+      new Set(spells.map((spell) => String(spell.level))),
+    ).sort((a, b) => Number(a) - Number(b));
     return ["Todos", ...unique];
   }, [spells]);
 
   const filtered = useMemo(() => {
     return spells
-      .filter((spell) => schoolFilter === "Todas" || spell.school === schoolFilter)
-      .filter((spell) => levelFilter === "Todos" || String(spell.level) === levelFilter)
-      .filter((spell) => spell.name.toLowerCase().includes(search.toLowerCase()))
+      .filter(
+        (spell) => schoolFilter === "Todas" || spell.school === schoolFilter,
+      )
+      .filter(
+        (spell) =>
+          levelFilter === "Todos" || String(spell.level) === levelFilter,
+      )
+      .filter((spell) =>
+        spell.name.toLowerCase().includes(search.toLowerCase()),
+      )
       .sort((a, b) => a.level - b.level);
   }, [spells, search, schoolFilter, levelFilter]);
 
@@ -390,7 +491,12 @@ function SpellsTab({ spells }: { spells: Spell[] }) {
           onChange={(event) => setSearch(event.target.value)}
           className="max-w-xs"
         />
-        <FilterSelect value={schoolFilter} onChange={setSchoolFilter} options={schools} labels={SCHOOL_LABELS} />
+        <FilterSelect
+          value={schoolFilter}
+          onChange={setSchoolFilter}
+          options={schools}
+          labels={SCHOOL_LABELS}
+        />
         <FilterSelect
           value={levelFilter}
           onChange={setLevelFilter}
@@ -409,24 +515,37 @@ function SpellsTab({ spells }: { spells: Spell[] }) {
         filtered.map((spell) => {
           const SpellIcon = getSpellIcon(spell.school);
           return (
-            <Card key={spell.id} className="overflow-hidden border-l-4 border-l-primary/50">
+            <Card
+              key={spell.id}
+              className="overflow-hidden border-l-4 border-l-primary/50"
+            >
               <CardHeader className="flex flex-row items-start gap-4 space-y-0">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-primary/40 bg-primary/10">
                   <SpellIcon className="h-8 w-8 text-primary" />
                 </div>
                 <div className="flex flex-1 flex-col gap-1">
-                  <CardTitle className="font-heading text-lg">{spell.name}</CardTitle>
+                  <CardTitle className="font-heading text-lg">
+                    {spell.name}
+                  </CardTitle>
                   <CardDescription className="flex flex-wrap items-center gap-2">
-                    <span className="italic">{translateSchool(spell.school)}</span>
-                    <Badge variant="outline">{spell.level === 0 ? "Truque" : `Nível ${spell.level}`}</Badge>
+                    <span className="italic">
+                      {translateSchool(spell.school)}
+                    </span>
+                    <Badge variant="outline">
+                      {spell.level === 0 ? "Truque" : `Nível ${spell.level}`}
+                    </Badge>
                     <Badge variant="outline">{spell.range}</Badge>
                     <Badge variant="outline">{spell.duration}</Badge>
-                    {spell.concentration ? <Badge variant="secondary">Concentração</Badge> : null}
+                    {spell.concentration ? (
+                      <Badge variant="secondary">Concentração</Badge>
+                    ) : null}
                   </CardDescription>
                 </div>
               </CardHeader>
               {spell.description ? (
-                <CardContent className="text-sm text-muted-foreground">{spell.description}</CardContent>
+                <CardContent className="text-sm text-muted-foreground">
+                  {spell.description}
+                </CardContent>
               ) : null}
             </Card>
           );
@@ -496,7 +615,9 @@ function RulesTab({ rules }: { rules: RuleSection[] }) {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
-    return rules.filter((rule) => rule.name.toLowerCase().includes(search.toLowerCase()));
+    return rules.filter((rule) =>
+      rule.name.toLowerCase().includes(search.toLowerCase()),
+    );
   }, [rules, search]);
 
   return (
@@ -613,7 +734,8 @@ function SrdTab({
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
             <Database className="h-8 w-8 text-muted-foreground" />
             <p className="text-muted-foreground">
-              Nenhum recurso SRD local. Use a sincronizacao para popular o banco.
+              Nenhum recurso SRD local. Use a sincronizacao para popular o
+              banco.
             </p>
           </CardContent>
         </Card>
@@ -638,7 +760,8 @@ function SrdTab({
                   {resource.url}
                 </a>
                 <span className="text-xs text-muted-foreground">
-                  Importado em {new Date(resource.importedAt).toLocaleString("pt-BR")}
+                  Importado em{" "}
+                  {new Date(resource.importedAt).toLocaleString("pt-BR")}
                 </span>
               </CardContent>
             </Card>
@@ -683,14 +806,22 @@ function LibraryContent() {
       api.get<RuleSection[]>("/catalog/rules", token),
       api.get<SrdEndpointSummary[]>("/catalog/srd/endpoints", token),
     ])
-      .then(([monstersData, itemsData, spellsData, rulesData, endpointData]) => {
-        setMonsters(monstersData);
-        setItems(itemsData);
-        setSpells(spellsData);
-        setRules(rulesData);
-        setSrdEndpoints(endpointData);
-      })
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Erro ao carregar a biblioteca."))
+      .then(
+        ([monstersData, itemsData, spellsData, rulesData, endpointData]) => {
+          setMonsters(monstersData);
+          setItems(itemsData);
+          setSpells(spellsData);
+          setRules(rulesData);
+          setSrdEndpoints(endpointData);
+        },
+      )
+      .catch((err) =>
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Erro ao carregar a biblioteca.",
+        ),
+      )
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -701,11 +832,15 @@ function LibraryContent() {
     // Pequena espera para não disparar uma busca por tecla digitada.
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams({ take: "50" });
-      if (srdEndpointFilter !== "Todos") params.set("endpoint", srdEndpointFilter);
+      if (srdEndpointFilter !== "Todos")
+        params.set("endpoint", srdEndpointFilter);
       if (srdSearch.trim()) params.set("search", srdSearch.trim());
 
       api
-        .get<SrdResourcePage>(`/catalog/srd/resources?${params.toString()}`, token)
+        .get<SrdResourcePage>(
+          `/catalog/srd/resources?${params.toString()}`,
+          token,
+        )
         .then((page) => {
           if (cancelled) return;
           setSrdResources(page.items);
@@ -725,7 +860,8 @@ function LibraryContent() {
     setSrdLoadingMore(true);
     try {
       const params = new URLSearchParams({ take: "50", cursor: srdNextCursor });
-      if (srdEndpointFilter !== "Todos") params.set("endpoint", srdEndpointFilter);
+      if (srdEndpointFilter !== "Todos")
+        params.set("endpoint", srdEndpointFilter);
       if (srdSearch.trim()) params.set("search", srdSearch.trim());
       const page = await api.get<SrdResourcePage>(
         `/catalog/srd/resources?${params.toString()}`,
@@ -745,8 +881,19 @@ function LibraryContent() {
     setSyncing(true);
     setError(null);
     try {
-      const result = await api.post<SrdSyncResult>("/catalog/srd/sync", {}, token);
-      const [monstersData, itemsData, spellsData, rulesData, endpointData, resourcesPage] = await Promise.all([
+      const result = await api.post<SrdSyncResult>(
+        "/catalog/srd/sync",
+        {},
+        token,
+      );
+      const [
+        monstersData,
+        itemsData,
+        spellsData,
+        rulesData,
+        endpointData,
+        resourcesPage,
+      ] = await Promise.all([
         api.get<Monster[]>("/catalog/monsters", token),
         api.get<Item[]>("/catalog/items", token),
         api.get<Spell[]>("/catalog/spells", token),
@@ -763,7 +910,9 @@ function LibraryContent() {
       setSrdResources(resourcesPage.items);
       setSrdNextCursor(resourcesPage.nextCursor);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Erro ao sincronizar SRD.");
+      setError(
+        err instanceof ApiError ? err.message : "Erro ao sincronizar SRD.",
+      );
     } finally {
       setSyncing(false);
     }
@@ -779,7 +928,8 @@ function LibraryContent() {
           <BookMarked className="h-7 w-7" /> Biblioteca
         </h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Bestiário, itens e magias de referência para suas campanhas, com estatísticas baseadas no SRD de D&D 5ª edição.
+          Bestiário, itens e magias de referência para suas campanhas, com
+          estatísticas baseadas no SRD de D&D 5ª edição.
         </p>
       </div>
 
@@ -806,7 +956,10 @@ function LibraryContent() {
             <MonstersTab monsters={monsters} />
           </TabsContent>
           <TabsContent value="npcs" className="pt-4">
-            <MonstersTab monsters={monsters.filter((monster) => monster.isNpc)} hideTypeFilter />
+            <MonstersTab
+              monsters={monsters.filter((monster) => monster.isNpc)}
+              hideTypeFilter
+            />
           </TabsContent>
           <TabsContent value="items" className="pt-4">
             <ItemsTab items={items} />

@@ -3377,6 +3377,152 @@
         ]
       }
     },
+    "/api/ragnarok/summary": {
+      "get": {
+        "operationId": "RagnarokController_summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ragnarok"
+        ]
+      }
+    },
+    "/api/ragnarok/classes": {
+      "get": {
+        "operationId": "RagnarokController_classes",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ragnarok"
+        ]
+      }
+    },
+    "/api/ragnarok/skills": {
+      "get": {
+        "operationId": "RagnarokController_skills",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ragnarok"
+        ]
+      }
+    },
+    "/api/ragnarok/items": {
+      "get": {
+        "operationId": "RagnarokController_items",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "costume",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ragnarok"
+        ]
+      }
+    },
+    "/api/ragnarok/maps": {
+      "get": {
+        "operationId": "RagnarokController_maps",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ragnarok"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
       "get": {
         "operationId": "ExplorationController_getState",

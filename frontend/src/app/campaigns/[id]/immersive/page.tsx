@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api, ApiError } from "@/lib/api";
-import type { Campaign, VttMap } from "@/lib/types";
+import type { Campaign, Character, VttMap } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth-store";
 
 const LIVE_SLUG: Record<string, string> = {
@@ -137,6 +137,7 @@ function ImmersiveContent() {
   const token = useAuthStore((state) => state.token);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [maps, setMaps] = useState<VttMap[]>([]);
+  const [myCharacter, setMyCharacter] = useState<Character | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
   const [combatActive, setCombatActive] = useState(false);
@@ -152,18 +153,35 @@ function ImmersiveContent() {
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
+  const buildCode = useMemo(() => {
+    const raw = myCharacter?.appearance;
+    if (!raw) return null;
+    try {
+      const url = new URL(raw);
+      if (url.hostname !== "visuais.latam-tools.com.br") return null;
+      return url.searchParams.get("b");
+    } catch {
+      return null;
+    }
+  }, [myCharacter]);
+  const frameSrc = slug
+    ? `/immersive/index.html${buildCode ? `?b=${encodeURIComponent(buildCode)}` : ""}#play/${slug}`
+    : null;
 
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const [campaignData, mapData, partyData] = await Promise.all([
-        api.get<Campaign>(`/campaigns/${params.id}`, token),
-        api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
-        api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
-      ]);
+      const [campaignData, mapData, partyData, charactersData] =
+        await Promise.all([
+          api.get<Campaign>(`/campaigns/${params.id}`, token),
+          api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
+          api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
+          api.get<Character[]>("/characters", token),
+        ]);
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
+      setMyCharacter(charactersData[0] ?? null);
       setSelectedId((current) => {
         if (current && mapData.some((map) => map.id === current))
           return current;
@@ -332,9 +350,9 @@ function ImmersiveContent() {
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
       {selected && slug ? (
         <iframe
-          key={selected.id}
+          key={`${selected.id}-${buildCode ?? "default"}`}
           ref={iframe}
-          src={`/immersive/index.html#play/${slug}`}
+          src={frameSrc ?? undefined}
           title={`Mapa imersivo: ${selected.name}`}
           className="absolute inset-0 h-full w-full border-0"
           allow="fullscreen; autoplay"

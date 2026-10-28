@@ -21,8 +21,8 @@ model User {
   email        String   @unique
   passwordHash String
   displayName  String
-  avatarUrl    String? @db.Text
-  bio          String? @db.LongText
+  avatarUrl    String?  @db.Text
+  bio          String?  @db.LongText
   accountLevel Int      @default(1)
   accountXp    Int      @default(0)
   createdAt    DateTime @default(now())
@@ -40,21 +40,21 @@ model User {
   chatMessages           ChatMessage[]           @relation("ChatAuthor")
   chatMessageRecipients  ChatMessageRecipient[]  @relation("ChatRecipient")
   loreInstallations      CampaignLore[]
-  storyAuthorship StoryEvent[]
-  storyGrants StoryAudienceMember[]
-  gameActions GameAction[]
-  copilotRequests GameMasterTurn[]
-  scheduledConsequences ScheduledConsequence[]
-  automationPolicies WorldAutomationPolicy[]
-  auditLogs AuditLog[] @relation("AuditActor")
-  combatActions CombatAction[] @relation("CombatActor")
+  storyAuthorship        StoryEvent[]
+  storyGrants            StoryAudienceMember[]
+  gameActions            GameAction[]
+  copilotRequests        GameMasterTurn[]
+  scheduledConsequences  ScheduledConsequence[]
+  automationPolicies     WorldAutomationPolicy[]
+  auditLogs              AuditLog[]              @relation("AuditActor")
+  combatActions          CombatAction[]          @relation("CombatActor")
 }
 
 model Achievement {
   id          String  @id @default(cuid())
   code        String  @unique
   name        String
-  description String @db.LongText
+  description String  @db.LongText
   icon        String?
 
   users UserAchievement[]
@@ -78,19 +78,19 @@ model UserAchievement {
 
 model Character {
   loreCharacter CampaignCharacter?
-  id          String  @id @default(cuid())
-  userId      String
-  name        String
-  race        String
-  class       String
-  subclass    String?
-  background  String? @db.LongText
-  alignment   String?
-  deity       String?
-  appearance  String? @db.LongText
-  backstory   String? @db.LongText
-  portraitUrl String? @db.Text
-  concentration String? @db.Text // JSON: magia de concentração ativa
+  id            String             @id @default(cuid())
+  userId        String
+  name          String
+  race          String
+  class         String
+  subclass      String?
+  background    String?            @db.LongText
+  alignment     String?
+  deity         String?
+  appearance    String?            @db.LongText
+  backstory     String?            @db.LongText
+  portraitUrl   String?            @db.Text
+  concentration String?            @db.Text // JSON: magia de concentração ativa
 
   level Int @default(1)
   xp    Int @default(0)
@@ -177,18 +177,18 @@ enum EquipmentSlot {
 model Item {
   id           String        @id @default(cuid())
   srdIndex     String?
-  sourceUrl    String? @db.Text
+  sourceUrl    String?       @db.Text
   source       String?
   srdUpdatedAt DateTime?
   name         String
-  description  String? @db.LongText
+  description  String?       @db.LongText
   weight       Float         @default(0)
   value        Int           @default(0)
   rarity       ItemRarity    @default(COMMON)
   category     String
   slot         EquipmentSlot @default(NONE)
-  properties   String? @db.LongText // JSON serializado
-  imageUrl     String? @db.Text
+  properties   String?       @db.LongText // JSON serializado
+  imageUrl     String?       @db.Text
 
   inventoryEntries InventoryItem[]
 
@@ -213,7 +213,7 @@ model InventoryItem {
 model Spell {
   id            String    @id @default(cuid())
   srdIndex      String?
-  sourceUrl     String? @db.Text
+  sourceUrl     String?   @db.Text
   source        String?
   srdUpdatedAt  DateTime?
   name          String
@@ -222,9 +222,9 @@ model Spell {
   range         String
   duration      String
   concentration Boolean   @default(false)
-  description   String? @db.LongText
-  classes       String? @db.LongText // JSON serializado (lista de classes)
-  mechanics     String? @db.LongText // JSON: dano/cura/save/upcast
+  description   String?   @db.LongText
+  classes       String?   @db.LongText // JSON serializado (lista de classes)
+  mechanics     String?   @db.LongText // JSON: dano/cura/save/upcast
 
   characters CharacterSpell[]
 
@@ -275,7 +275,7 @@ model DiceRoll {
   visibility  DiceVisibility @default(PRIVATE)
   formula     String
   result      Int
-  breakdown   String @db.LongText // JSON serializado
+  breakdown   String         @db.LongText // JSON serializado
   createdAt   DateTime       @default(now())
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -291,10 +291,10 @@ model DiceRoll {
 // =====================================================================
 
 model Campaign {
-  lore CampaignLore?
+  lore                  CampaignLore?
   id                    String          @id @default(cuid())
   name                  String
-  description           String? @db.LongText
+  description           String?         @db.LongText
   masterId              String
   inviteCode            String          @unique @default(cuid())
   // Modo de PV dos inimigos lembrado para o proximo combate (decisao 4).
@@ -392,26 +392,26 @@ enum CombatHpDisplay {
 }
 
 model CombatParticipant {
-  id          String  @id @default(cuid())
-  encounterId String
-  characterId String?
-  name        String
-  initiative  Int     @default(0)
-  maxHp       Int     @default(1)
-  currentHp   Int     @default(1)
-  tempHp      Int     @default(0)
-  conditions  String? @db.LongText // JSON serializado (lista de strings)
+  id              String  @id @default(cuid())
+  encounterId     String
+  characterId     String?
+  name            String
+  initiative      Int     @default(0)
+  maxHp           Int     @default(1)
+  currentHp       Int     @default(1)
+  tempHp          Int     @default(0)
+  conditions      String? @db.LongText // JSON serializado (lista de strings)
   timedConditions String? @db.LongText // JSON: [{name,remainingRounds,source}]
-  damageDefenses String? @db.LongText // JSON: [{damageType,type}]
-  actionUsed  Boolean @default(false)
-  bonusUsed   Boolean @default(false)
-  reactionUsed Boolean @default(false)
-  deathSuccesses Int @default(0)
-  deathFailures Int @default(0)
-  isStable    Boolean @default(false)
-  isDead      Boolean @default(false)
-  deathSaveUsed Boolean @default(false)
-  isAlly      Boolean @default(true)
+  damageDefenses  String? @db.LongText // JSON: [{damageType,type}]
+  actionUsed      Boolean @default(false)
+  bonusUsed       Boolean @default(false)
+  reactionUsed    Boolean @default(false)
+  deathSuccesses  Int     @default(0)
+  deathFailures   Int     @default(0)
+  isStable        Boolean @default(false)
+  isDead          Boolean @default(false)
+  deathSaveUsed   Boolean @default(false)
+  isAlly          Boolean @default(true)
 
   encounter CombatEncounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
   character Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)
@@ -471,31 +471,31 @@ enum VttLightingMode {
 }
 
 model VttMap {
-  loreMap CampaignLoreMap?
-  id             String          @id @default(cuid())
+  loreMap        CampaignLoreMap?
+  id             String           @id @default(cuid())
   campaignId     String
   parentMapId    String?
-  kind           VttMapKind      @default(OTHER)
+  kind           VttMapKind       @default(OTHER)
   name           String
-  width          Int             @default(24)
-  height         Int             @default(16)
-  gridSize       Int             @default(1)
-  gridColor      String          @default("#94a3b8")
-  imageUrl       String? @db.Text
-  fogOfWarData   String? @db.LongText // JSON serializado (lista de celulas "x:y")
-  published      Boolean         @default(false)
-  lightingMode   VttLightingMode @default(AUTO)
+  width          Int              @default(24)
+  height         Int              @default(16)
+  gridSize       Int              @default(1)
+  gridColor      String           @default("#94a3b8")
+  imageUrl       String?          @db.Text
+  fogOfWarData   String?          @db.LongText // JSON serializado (lista de celulas "x:y")
+  published      Boolean          @default(false)
+  lightingMode   VttLightingMode  @default(AUTO)
   // Visao dinamica (IM-13): OFF = so a nevoa manual; LIT = linha de visao
   // bloqueada por paredes; DARK = so o que luz ou visao no escuro alcancam.
-  vision         VttVisionMode   @default(OFF)
+  vision         VttVisionMode    @default(OFF)
   // JSON: lista de { x1, y1, x2, y2, door? } nas bordas das celulas.
-  wallsData      String? @db.LongText
+  wallsData      String?          @db.LongText
   ambiencePreset String? // som ambiente (IM-02); null = padrao pelo kind
   // Concorrencia otimista (P1-2): incrementa a cada alteracao do mapa, tokens,
   // marcadores ou hotspots. O cliente devolve em `expectedRevision`.
-  revision       Int             @default(0)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  revision       Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   campaign      Campaign                    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   parentMap     VttMap?                     @relation("MapHierarchy", fields: [parentMapId], references: [id], onDelete: SetNull)
@@ -507,8 +507,8 @@ model VttMap {
   explorers     CharacterExplorationState[]
   narrations    NarrationDraft[]
 
-  @@index([parentMapId])
   @@unique([campaignId, id])
+  @@index([parentMapId])
 }
 
 // Area clicavel desenhada sobre um mapa que leva a outro mapa (hierarquia
@@ -527,7 +527,7 @@ model VttMapHotspot {
   visibleToPlayers       Boolean          @default(true)
   travelActionCost       Int              @default(1) // pontos de acao gastos ao viajar para este local
   travelMinutes          Int              @default(30) // minutos de jogo gastos ao viajar para este local
-  eventNote              String? @db.LongText // anotacoes do mestre sobre o local, nao exibidas em destaque para jogadores
+  eventNote              String?          @db.LongText // anotacoes do mestre sobre o local, nao exibidas em destaque para jogadores
   triggerJournalCategory JournalCategory? // categoria usada para criar uma entrada de diario na primeira visita
   firstVisitedAt         DateTime? // marcado quando um jogador viaja para este local pela primeira vez
   createdAt              DateTime         @default(now())
@@ -587,7 +587,7 @@ model CampaignJournalEntry {
   campaignId  String
   authorId    String
   title       String
-  content     String @db.LongText
+  content     String          @db.LongText
   category    JournalCategory @default(SESSAO)
   sessionDate DateTime?
   // true = so autor, mestre e `recipients` veem a entrada (revelacoes, IM-06).
@@ -620,7 +620,7 @@ model NarrationDraft {
   campaignId String
   mapId      String?
   title      String
-  content    String @db.LongText
+  content    String   @db.LongText
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -638,7 +638,7 @@ model NarrationDraft {
 model Monster {
   id              String    @id @default(cuid())
   srdIndex        String?
-  sourceUrl       String? @db.Text
+  sourceUrl       String?   @db.Text
   source          String?
   srdUpdatedAt    DateTime?
   name            String
@@ -655,11 +655,11 @@ model Monster {
   charisma        Int       @default(10)
   challengeRating String
   xp              Int       @default(0)
-  traits          String? @db.LongText // JSON serializado (lista de {name, description})
-  actions         String? @db.LongText // JSON serializado (lista de {name, description})
-  damageDefenses  String? @db.LongText // JSON: [{damageType,type}]
-  description     String? @db.LongText
-  imageUrl        String? @db.Text
+  traits          String?   @db.LongText // JSON serializado (lista de {name, description})
+  actions         String?   @db.LongText // JSON serializado (lista de {name, description})
+  damageDefenses  String?   @db.LongText // JSON: [{damageType,type}]
+  description     String?   @db.LongText
+  imageUrl        String?   @db.Text
   isNpc           Boolean   @default(false)
 
   @@index([name])
@@ -668,11 +668,11 @@ model Monster {
 model RuleSection {
   id           String    @id @default(cuid())
   srdIndex     String?   @unique
-  sourceUrl    String? @db.Text
+  sourceUrl    String?   @db.Text
   source       String?
   srdUpdatedAt DateTime?
   name         String
-  description  String? @db.LongText
+  description  String?   @db.LongText
 
   @@index([name])
 }
@@ -686,9 +686,9 @@ model SrdResource {
   endpoint     String
   index        String
   name         String
-  url          String @db.Text
+  url          String    @db.Text
   source       String    @default("dnd5eapi-2014")
-  data         String @db.LongText // JSON serializado
+  data         String    @db.LongText // JSON serializado
   srdUpdatedAt DateTime?
   importedAt   DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -735,8 +735,8 @@ model CaptureTarget {
   sshPort          Int?
   sshUser          String?
   defaultInterface String?
-  defaultOutputDir String @db.Text
-  notes            String? @db.LongText
+  defaultOutputDir String              @db.Text
+  notes            String?             @db.LongText
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
@@ -758,18 +758,18 @@ model CaptureJob {
   interfaceName   String?
   durationSeconds Int
   maxFileMb       Int
-  outputDirectory String @db.Text
+  outputDirectory String              @db.Text
   fileName        String
-  bpfFilter       String? @db.Text
+  bpfFilter       String?             @db.Text
   commandDialect  String
-  commandPreview  String? @db.LongText
-  localPath       String? @db.Text
-  notes           String? @db.LongText
+  commandPreview  String?             @db.LongText
+  localPath       String?             @db.Text
+  notes           String?             @db.LongText
   startedAt       DateTime?
   completedAt     DateTime?
   exitCode        Int?
-  executionLog    String? @db.LongText
-  analysisSummary String? @db.LongText
+  executionLog    String?             @db.LongText
+  analysisSummary String?             @db.LongText
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 
@@ -799,8 +799,8 @@ model CampaignWorldEntry {
   parentId    String?
   type        WorldEntryType
   name        String
-  summary     String? @db.LongText
-  description String? @db.LongText
+  summary     String?        @db.LongText
+  description String?        @db.LongText
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
@@ -816,28 +816,28 @@ model CampaignWorldEntry {
 }
 
 model CampaignCalendar {
-  id                 String   @id @default(cuid())
-  campaignId         String   @unique
-  monthNames         String @db.LongText // JSON: lista de nomes dos meses
-  daysPerMonth       String @db.LongText // JSON: lista com a quantidade de dias de cada mes
-  weekdayNames       String @db.LongText // JSON: lista de nomes dos dias da semana
-  totalMinutes       Int      @default(0) // contador absoluto, fonte da verdade do relogio
-  currentDay         Int      @default(1) // cache derivado de totalMinutes
-  currentMonth       Int      @default(1) // cache derivado de totalMinutes
-  currentYear        Int      @default(1) // cache derivado de totalMinutes
-  currentHour        Int      @default(8) // cache derivado de totalMinutes
-  currentMinute      Int      @default(0) // cache derivado de totalMinutes
-  notes              String? @db.LongText
-  realMinutesPerTick Int      @default(0) // 0 = avanco automatico desligado
-  gameMinutesPerTick Int      @default(60) // minutos de jogo somados a cada tick
-  eventChancePercent Int      @default(0) // 0-100: chance de sortear um evento da tabela a cada tick automatico
-  weather            String   @default("clear") // clima global da campanha (IM-08)
+  id                 String    @id @default(cuid())
+  campaignId         String    @unique
+  monthNames         String    @db.LongText // JSON: lista de nomes dos meses
+  daysPerMonth       String    @db.LongText // JSON: lista com a quantidade de dias de cada mes
+  weekdayNames       String    @db.LongText // JSON: lista de nomes dos dias da semana
+  totalMinutes       Int       @default(0) // contador absoluto, fonte da verdade do relogio
+  currentDay         Int       @default(1) // cache derivado de totalMinutes
+  currentMonth       Int       @default(1) // cache derivado de totalMinutes
+  currentYear        Int       @default(1) // cache derivado de totalMinutes
+  currentHour        Int       @default(8) // cache derivado de totalMinutes
+  currentMinute      Int       @default(0) // cache derivado de totalMinutes
+  notes              String?   @db.LongText
+  realMinutesPerTick Int       @default(0) // 0 = avanco automatico desligado
+  gameMinutesPerTick Int       @default(60) // minutos de jogo somados a cada tick
+  eventChancePercent Int       @default(0) // 0-100: chance de sortear um evento da tabela a cada tick automatico
+  weather            String    @default("clear") // clima global da campanha (IM-08)
   // Concorrencia otimista (P1-2): muda a cada alteracao do calendario.
-  revision           Int      @default(0)
+  revision           Int       @default(0)
   // Ultimo tick automatico aplicado (P1-1). Separado de updatedAt: editar o
   // calendario nao reinicia a contagem do tick.
   lastTickAt         DateTime?
-  updatedAt          DateTime @updatedAt
+  updatedAt          DateTime  @updatedAt
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 }
@@ -850,7 +850,7 @@ model CampaignWorldEvent {
   id            String          @id @default(cuid())
   campaignId    String
   title         String
-  content       String @db.LongText
+  content       String          @db.LongText
   category      JournalCategory @default(EVENTO)
   weight        Int             @default(1) // peso relativo no sorteio (maior = mais provavel)
   weatherEffect String? // se sorteado, muda o clima da campanha (IM-08)
@@ -917,7 +917,7 @@ model ChatMessage {
   authorId    String
   characterId String?
   kind        ChatKind @default(IC)
-  content     String @db.LongText
+  content     String   @db.LongText
   // Fala em um idioma do mundo: quem nao conhece recebe o texto embaralhado.
   languageId  String?
   createdAt   DateTime @default(now())
@@ -972,195 +972,205 @@ enum LoreEntityKind {
 }
 
 model LorePackVersion {
-  id String @id @default(cuid())
-  packKey String
-  version String
-  contentHash String @db.Char(64)
-  status String
+  id            String         @id @default(cuid())
+  packKey       String
+  version       String
+  contentHash   String         @db.Char(64)
+  status        String
   formatVersion Int
-  snapshot String @db.LongText
-  createdAt DateTime @default(now())
+  snapshot      String         @db.LongText
+  createdAt     DateTime       @default(now())
   installations CampaignLore[]
+
   @@unique([packKey, version])
 }
 
 model CampaignLore {
-  campaignId String @id
-  packVersionId String
-  installedById String
-  requestKey String?
-  requestHash String? @db.Char(64)
-  installedHash String @db.Char(64)
-  catalogSnapshots String @db.LongText
-  revision Int @default(1)
-  storySequence Int @default(0)
-  domainVersion Int @default(0)
-  mode String @default("OFF")
-  aiPaused Boolean @default(false)
-  aiEpoch Int @default(0)
-  playtest Boolean @default(false)
-  installedAt DateTime @default(now())
-  campaign Campaign @relation(fields:[campaignId], references:[id], onDelete:Cascade)
-  packVersion LorePackVersion @relation(fields:[packVersionId], references:[id], onDelete:Restrict)
-  installedBy User @relation(fields:[installedById], references:[id], onDelete:Restrict)
-  entities CampaignEntity[]
-  maps CampaignLoreMap[]
-  routes TravelRoute[]
-  scene SceneState?
-  storyEvents StoryEvent[]
-  storyAudiences StoryAudience[]
-  storyFacts StoryFact[]
-  storyThreads StoryThread[]
-  gameActions GameAction[]
-  copilotTurns GameMasterTurn[]
+  campaignId       String                 @id
+  packVersionId    String
+  installedById    String
+  requestKey       String?
+  requestHash      String?                @db.Char(64)
+  installedHash    String                 @db.Char(64)
+  catalogSnapshots String                 @db.LongText
+  revision         Int                    @default(1)
+  storySequence    Int                    @default(0)
+  domainVersion    Int                    @default(0)
+  mode             String                 @default("OFF")
+  aiPaused         Boolean                @default(false)
+  aiEpoch          Int                    @default(0)
+  playtest         Boolean                @default(false)
+  installedAt      DateTime               @default(now())
+  campaign         Campaign               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  packVersion      LorePackVersion        @relation(fields: [packVersionId], references: [id], onDelete: Restrict)
+  installedBy      User                   @relation(fields: [installedById], references: [id], onDelete: Restrict)
+  entities         CampaignEntity[]
+  maps             CampaignLoreMap[]
+  routes           TravelRoute[]
+  scene            SceneState?
+  storyEvents      StoryEvent[]
+  storyAudiences   StoryAudience[]
+  storyFacts       StoryFact[]
+  storyThreads     StoryThread[]
+  gameActions      GameAction[]
+  copilotTurns     GameMasterTurn[]
   automationPolicy WorldAutomationPolicy?
-  consequences ScheduledConsequence[]
+  consequences     ScheduledConsequence[]
+
   @@unique([installedById, requestKey])
 }
 
 model CampaignEntity {
-  id String @id @default(cuid())
-  campaignId String
-  key String
-  kind LoreEntityKind
-  name String
-  copilotFocus GameMasterTurn[] @relation("CopilotFocus")
-  playerIntents GameMasterTurn[] @relation("IntentCharacter")
-  templateKey String?
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  place CampaignPlace?
-  npc CampaignNpc?
-  faction CampaignFaction?
-  plotObject CampaignPlotObject?
-  character CampaignCharacter?
-  storyEvents EventEntity[]
-  factSubjects StoryFactSubject[]
-  knowledge EntityKnowledge[]
-  relationsFrom StoryRelationship[] @relation("StoryRelationFrom")
-  relationsTo StoryRelationship[] @relation("StoryRelationTo")
-  promisesGiven StoryPromise[] @relation("PromiseGiver")
-  promisesReceived StoryPromise[] @relation("PromiseReceiver")
+  id               String              @id @default(cuid())
+  campaignId       String
+  key              String
+  kind             LoreEntityKind
+  name             String
+  copilotFocus     GameMasterTurn[]    @relation("CopilotFocus")
+  playerIntents    GameMasterTurn[]    @relation("IntentCharacter")
+  templateKey      String?
+  lore             CampaignLore        @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  place            CampaignPlace?
+  npc              CampaignNpc?
+  faction          CampaignFaction?
+  plotObject       CampaignPlotObject?
+  character        CampaignCharacter?
+  storyEvents      EventEntity[]
+  factSubjects     StoryFactSubject[]
+  knowledge        EntityKnowledge[]
+  relationsFrom    StoryRelationship[] @relation("StoryRelationFrom")
+  relationsTo      StoryRelationship[] @relation("StoryRelationTo")
+  promisesGiven    StoryPromise[]      @relation("PromiseGiver")
+  promisesReceived StoryPromise[]      @relation("PromiseReceiver")
+
   @@unique([campaignId, key])
   @@unique([campaignId, id])
 }
 
 model CampaignLoreMap {
-  mapId String @id
-  campaignId String
-  key String
-  textureHash String @db.Char(64)
-  texture Bytes @db.MediumBlob
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  map VttMap @relation(fields:[campaignId, mapId], references:[campaignId, id], onDelete:Cascade)
-  places CampaignPlace[]
+  mapId       String          @id
+  campaignId  String
+  key         String
+  textureHash String          @db.Char(64)
+  texture     Bytes           @db.MediumBlob
+  lore        CampaignLore    @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  map         VttMap          @relation(fields: [campaignId, mapId], references: [campaignId, id], onDelete: Cascade)
+  places      CampaignPlace[]
+
   @@unique([campaignId, mapId])
   @@unique([campaignId, key])
 }
 
 model CampaignPlace {
-  entityId String @id
-  campaignId String
-  parentEntityId String?
-  mapId String?
-  description String @db.LongText
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Cascade)
-  parent CampaignPlace? @relation("LorePlaceTree", fields:[campaignId, parentEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  children CampaignPlace[] @relation("LorePlaceTree")
-  map CampaignLoreMap? @relation(fields:[campaignId, mapId], references:[campaignId, mapId], onDelete:Restrict, onUpdate:Restrict)
-  npcs CampaignNpc[]
-  objects CampaignPlotObject[]
-  origins TravelRoute[] @relation("RouteOrigin")
-  destinations TravelRoute[] @relation("RouteDestination")
-  scenes SceneState[]
+  entityId         String               @id
+  campaignId       String
+  parentEntityId   String?
+  mapId            String?
+  description      String               @db.LongText
+  entity           CampaignEntity       @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Cascade)
+  parent           CampaignPlace?       @relation("LorePlaceTree", fields: [campaignId, parentEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  children         CampaignPlace[]      @relation("LorePlaceTree")
+  map              CampaignLoreMap?     @relation(fields: [campaignId, mapId], references: [campaignId, mapId], onDelete: Restrict, onUpdate: Restrict)
+  npcs             CampaignNpc[]
+  objects          CampaignPlotObject[]
+  origins          TravelRoute[]        @relation("RouteOrigin")
+  destinations     TravelRoute[]        @relation("RouteDestination")
+  scenes           SceneState[]
   requestedActions GameAction[]
+
   @@unique([campaignId, entityId])
 }
 
 model CampaignFaction {
-  entityId String @id
+  entityId   String         @id
   campaignId String
-  objective String @db.LongText
-  limits String @db.LongText
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Cascade)
-  npcs CampaignNpc[]
+  objective  String         @db.LongText
+  limits     String         @db.LongText
+  entity     CampaignEntity @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Cascade)
+  npcs       CampaignNpc[]
+
   @@unique([campaignId, entityId])
 }
 
 model CampaignNpc {
-  entityId String @id
-  campaignId String
-  placeEntityId String
+  entityId        String                 @id
+  campaignId      String
+  placeEntityId   String
   factionEntityId String?
-  catalogSource String
-  catalogIndex String
-  catalogSnapshot String @db.LongText
-  objective String @db.LongText
-  voice String @db.LongText
-  maxHp Int
-  currentHp Int
-  conditions String @db.LongText
-  activeJourneyId String? @unique
-  activeJourney ScheduledConsequence? @relation("ActiveNpcJourney", fields:[campaignId, activeJourneyId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  consequences ScheduledConsequence[] @relation("ScheduledNpc")
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Cascade)
-  place CampaignPlace @relation(fields:[campaignId, placeEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  faction CampaignFaction? @relation(fields:[campaignId, factionEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
+  catalogSource   String
+  catalogIndex    String
+  catalogSnapshot String                 @db.LongText
+  objective       String                 @db.LongText
+  voice           String                 @db.LongText
+  maxHp           Int
+  currentHp       Int
+  conditions      String                 @db.LongText
+  activeJourneyId String?                @unique
+  activeJourney   ScheduledConsequence?  @relation("ActiveNpcJourney", fields: [campaignId, activeJourneyId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  consequences    ScheduledConsequence[] @relation("ScheduledNpc")
+  entity          CampaignEntity         @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Cascade)
+  place           CampaignPlace          @relation(fields: [campaignId, placeEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  faction         CampaignFaction?       @relation(fields: [campaignId, factionEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, entityId])
   @@unique([campaignId, activeJourneyId])
 }
 
 model CampaignPlotObject {
-  entityId String @id
-  campaignId String
-  placeEntityId String
-  state String @db.LongText
-  portable Boolean @default(false)
+  entityId          String               @id
+  campaignId        String
+  placeEntityId     String
+  state             String               @db.LongText
+  portable          Boolean              @default(false)
   containerEntityId String?
-  carrierEntityId String?
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Cascade)
-  place CampaignPlace @relation(fields:[campaignId, placeEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  container CampaignPlotObject? @relation("PlotContents", fields:[campaignId, containerEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  contents CampaignPlotObject[] @relation("PlotContents")
-  carrier CampaignCharacter? @relation(fields:[campaignId, carrierEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  locationFact StoryFact?
+  carrierEntityId   String?
+  entity            CampaignEntity       @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Cascade)
+  place             CampaignPlace        @relation(fields: [campaignId, placeEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  container         CampaignPlotObject?  @relation("PlotContents", fields: [campaignId, containerEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  contents          CampaignPlotObject[] @relation("PlotContents")
+  carrier           CampaignCharacter?   @relation(fields: [campaignId, carrierEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  locationFact      StoryFact?
+
   @@unique([campaignId, entityId])
 }
 
 model TravelRoute {
-  id String @id @default(cuid())
-  campaignId String
+  id           String                 @id @default(cuid())
+  campaignId   String
   fromEntityId String
-  toEntityId String
-  minutes Int
-  blocked Boolean @default(false)
+  toEntityId   String
+  minutes      Int
+  blocked      Boolean                @default(false)
   consequences ScheduledConsequence[]
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  from CampaignPlace @relation("RouteOrigin", fields:[campaignId, fromEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  to CampaignPlace @relation("RouteDestination", fields:[campaignId, toEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
+  lore         CampaignLore           @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  from         CampaignPlace          @relation("RouteOrigin", fields: [campaignId, fromEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  to           CampaignPlace          @relation("RouteDestination", fields: [campaignId, toEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, fromEntityId, toEntityId])
   @@unique([campaignId, id])
 }
 
 model SceneState {
-  campaignId String @id
+  campaignId    String              @id
   placeEntityId String
-  revision Int @default(1)
-  phase String @default("EXPLORATION")
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  place CampaignPlace @relation(fields:[campaignId, placeEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  participants CampaignCharacter[]
+  revision      Int                 @default(1)
+  phase         String              @default("EXPLORATION")
+  lore          CampaignLore        @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  place         CampaignPlace       @relation(fields: [campaignId, placeEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  participants  CampaignCharacter[]
 }
 
 model CampaignCharacter {
-  entityId String @id
-  campaignId String
-  characterId String @unique
-  joinedAt DateTime @default(now())
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Cascade)
-  character Character @relation(fields:[characterId], references:[id], onDelete:Cascade)
-  scene SceneState @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  carriedObjects CampaignPlotObject[]
+  entityId         String               @id
+  campaignId       String
+  characterId      String               @unique
+  joinedAt         DateTime             @default(now())
+  entity           CampaignEntity       @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Cascade)
+  character        Character            @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  scene            SceneState           @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  carriedObjects   CampaignPlotObject[]
   requestedActions GameAction[]
+
   @@unique([campaignId, entityId])
 }
 
@@ -1170,30 +1180,36 @@ enum StoryVisibility {
   PUBLIC
   RECIPIENTS
 }
+
 enum StoryFactKind {
   FACT
   CLAIM
 }
+
 enum StoryFactClass {
   FIXED
   MUTABLE
 }
+
 enum StoryKnowledgeStance {
   KNOWN
   BELIEVED
   SUSPECTED
 }
+
 enum StoryPromiseStatus {
   OPEN
   FULFILLED
   BROKEN
   CANCELLED
 }
+
 enum StoryThreadStatus {
   OPEN
   RESOLVED
   ABANDONED
 }
+
 enum StoryEventKind {
   GENESIS
   NOTE
@@ -1220,175 +1236,196 @@ enum StoryEventKind {
 }
 
 model StoryAudience {
-  id String @id @default(cuid())
-  campaignId String
-  scope StoryVisibility
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  members StoryAudienceMember[]
-  events StoryEvent[]
-  revisions StoryFactRevision[]
+  id            String                @id @default(cuid())
+  campaignId    String
+  scope         StoryVisibility
+  lore          CampaignLore          @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  members       StoryAudienceMember[]
+  events        StoryEvent[]
+  revisions     StoryFactRevision[]
   relationships StoryRelationship[]
-  promises StoryPromise[]
-  threads StoryThread[]
+  promises      StoryPromise[]
+  threads       StoryThread[]
+
   @@unique([campaignId, id])
 }
+
 model StoryAudienceMember {
   campaignId String
   audienceId String
-  userId String
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Cascade)
-  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  userId     String
+  audience   StoryAudience @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([audienceId, userId])
   @@index([userId])
 }
+
 model StoryEvent {
-  id String @id @default(cuid())
-  campaignId String
-  sequence Int
-  kind StoryEventKind
-  gameMinute Int
-  recordedAt DateTime @default(now())
-  actorKind String
-  actorUserId String?
-  actorName String
-  requestKey String?
-  requestHash String? @db.Char(64)
-  audienceId String
-  summary String @db.Text
-  payload String @db.LongText
+  id              String                @id @default(cuid())
+  campaignId      String
+  sequence        Int
+  kind            StoryEventKind
+  gameMinute      Int
+  recordedAt      DateTime              @default(now())
+  actorKind       String
+  actorUserId     String?
+  actorName       String
+  requestKey      String?
+  requestHash     String?               @db.Char(64)
+  audienceId      String
+  summary         String                @db.Text
+  payload         String                @db.LongText
   correctsEventId String?
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  actor User? @relation(fields:[actorUserId], references:[id], onDelete:SetNull)
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  corrects StoryEvent? @relation("StoryCorrections", fields:[campaignId, correctsEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  corrections StoryEvent[] @relation("StoryCorrections")
-  entities EventEntity[]
-  factRevisions StoryFactRevision[]
-  observations EntityKnowledge[]
-  relationships StoryRelationship[]
-  promises StoryPromise[]
-  threads StoryThread[]
-  outbox OutboxEvent?
-  action GameAction?
-  copilotTurn GameMasterTurn?
-  consequence ScheduledConsequence?
+  lore            CampaignLore          @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  actor           User?                 @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  audience        StoryAudience         @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  corrects        StoryEvent?           @relation("StoryCorrections", fields: [campaignId, correctsEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  corrections     StoryEvent[]          @relation("StoryCorrections")
+  entities        EventEntity[]
+  factRevisions   StoryFactRevision[]
+  observations    EntityKnowledge[]
+  relationships   StoryRelationship[]
+  promises        StoryPromise[]
+  threads         StoryThread[]
+  outbox          OutboxEvent?
+  action          GameAction?
+  copilotTurn     GameMasterTurn?
+  consequence     ScheduledConsequence?
+
   @@unique([campaignId, id])
   @@unique([campaignId, sequence])
   @@unique([campaignId, requestKey])
   @@index([campaignId, gameMinute])
 }
+
 model EventEntity {
   campaignId String
-  eventId String
-  entityId String
-  event StoryEvent @relation(fields:[campaignId, eventId], references:[campaignId, id], onDelete:Cascade)
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  eventId    String
+  entityId   String
+  event      StoryEvent     @relation(fields: [campaignId, eventId], references: [campaignId, id], onDelete: Cascade)
+  entity     CampaignEntity @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@id([eventId, entityId])
   @@index([entityId, eventId])
 }
+
 model StoryFact {
-  id String @id @default(cuid())
-  campaignId String
-  key String
-  kind StoryFactKind
+  id             String              @id @default(cuid())
+  campaignId     String
+  key            String
+  kind           StoryFactKind
   classification StoryFactClass
-  predicate String @default("ASSERTION")
-  currentVersion Int @default(1)
-  boundObjectId String? @unique
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  revisions StoryFactRevision[]
-  subjects StoryFactSubject[]
-  boundObject CampaignPlotObject? @relation(fields:[campaignId, boundObjectId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
+  predicate      String              @default("ASSERTION")
+  currentVersion Int                 @default(1)
+  boundObjectId  String?             @unique
+  lore           CampaignLore        @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  revisions      StoryFactRevision[]
+  subjects       StoryFactSubject[]
+  boundObject    CampaignPlotObject? @relation(fields: [campaignId, boundObjectId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, boundObjectId])
   @@unique([campaignId, id])
   @@unique([campaignId, key])
 }
+
 model StoryFactSubject {
   campaignId String
-  factId String
-  entityId String
-  fact StoryFact @relation(fields:[campaignId, factId], references:[campaignId, id], onDelete:Cascade)
-  entity CampaignEntity @relation(fields:[campaignId, entityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  factId     String
+  entityId   String
+  fact       StoryFact      @relation(fields: [campaignId, factId], references: [campaignId, id], onDelete: Cascade)
+  entity     CampaignEntity @relation(fields: [campaignId, entityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@id([factId, entityId])
   @@index([entityId])
 }
+
 model StoryFactRevision {
-  id String @id @default(cuid())
-  campaignId String
-  factId String
-  version Int
-  text String @db.LongText
+  id            String            @id @default(cuid())
+  campaignId    String
+  factId        String
+  version       Int
+  text          String            @db.LongText
   // Editorial evaluation of a claim; never exposed through character knowledge.
-  evaluation String?
+  evaluation    String?
   sourceEventId String
-  audienceId String
-  fact StoryFact @relation(fields:[campaignId, factId], references:[campaignId, id], onDelete:Cascade)
-  event StoryEvent @relation(fields:[campaignId, sourceEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  observations EntityKnowledge[]
+  audienceId    String
+  fact          StoryFact         @relation(fields: [campaignId, factId], references: [campaignId, id], onDelete: Cascade)
+  event         StoryEvent        @relation(fields: [campaignId, sourceEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  audience      StoryAudience     @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  observations  EntityKnowledge[]
+
   @@unique([campaignId, id])
   @@unique([factId, version])
 }
+
 model EntityKnowledge {
-  id String @id @default(cuid())
-  campaignId String
+  id             String               @id @default(cuid())
+  campaignId     String
   knowerEntityId String
   factRevisionId String
-  stance StoryKnowledgeStance
-  source String @db.Text
-  sourceEventId String
-  knower CampaignEntity @relation(fields:[campaignId, knowerEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  revision StoryFactRevision @relation(fields:[campaignId, factRevisionId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  event StoryEvent @relation(fields:[campaignId, sourceEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  stance         StoryKnowledgeStance
+  source         String               @db.Text
+  sourceEventId  String
+  knower         CampaignEntity       @relation(fields: [campaignId, knowerEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  revision       StoryFactRevision    @relation(fields: [campaignId, factRevisionId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  event          StoryEvent           @relation(fields: [campaignId, sourceEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, knowerEntityId, factRevisionId, sourceEventId])
   @@index([knowerEntityId, factRevisionId])
 }
+
 model StoryRelationship {
-  id String @id @default(cuid())
-  campaignId String
-  fromEntityId String
-  toEntityId String
-  trust Int @default(0)
-  fear Int @default(0)
-  description String @db.Text
-  audienceId String
+  id            String         @id @default(cuid())
+  campaignId    String
+  fromEntityId  String
+  toEntityId    String
+  trust         Int            @default(0)
+  fear          Int            @default(0)
+  description   String         @db.Text
+  audienceId    String
   sourceEventId String
-  from CampaignEntity @relation("StoryRelationFrom", fields:[campaignId, fromEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  to CampaignEntity @relation("StoryRelationTo", fields:[campaignId, toEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  event StoryEvent @relation(fields:[campaignId, sourceEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  from          CampaignEntity @relation("StoryRelationFrom", fields: [campaignId, fromEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  to            CampaignEntity @relation("StoryRelationTo", fields: [campaignId, toEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  audience      StoryAudience  @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  event         StoryEvent     @relation(fields: [campaignId, sourceEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, fromEntityId, toEntityId])
 }
+
 model StoryPromise {
-  id String @id @default(cuid())
-  campaignId String
-  giverEntityId String
+  id               String             @id @default(cuid())
+  campaignId       String
+  giverEntityId    String
   receiverEntityId String
-  terms String @db.Text
-  status StoryPromiseStatus @default(OPEN)
-  resolution String? @db.Text
-  audienceId String
-  sourceEventId String
-  giver CampaignEntity @relation("PromiseGiver", fields:[campaignId, giverEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  receiver CampaignEntity @relation("PromiseReceiver", fields:[campaignId, receiverEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  event StoryEvent @relation(fields:[campaignId, sourceEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  terms            String             @db.Text
+  status           StoryPromiseStatus @default(OPEN)
+  resolution       String?            @db.Text
+  audienceId       String
+  sourceEventId    String
+  giver            CampaignEntity     @relation("PromiseGiver", fields: [campaignId, giverEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  receiver         CampaignEntity     @relation("PromiseReceiver", fields: [campaignId, receiverEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  audience         StoryAudience      @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  event            StoryEvent         @relation(fields: [campaignId, sourceEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@index([campaignId, status])
 }
+
 model StoryThread {
-  id String @id @default(cuid())
-  campaignId String
-  key String
-  objective String @db.Text
-  completion String @db.Text
-  consequence String @db.Text
-  status StoryThreadStatus @default(OPEN)
-  resolution String? @db.Text
-  audienceId String
+  id            String            @id @default(cuid())
+  campaignId    String
+  key           String
+  objective     String            @db.Text
+  completion    String            @db.Text
+  consequence   String            @db.Text
+  status        StoryThreadStatus @default(OPEN)
+  resolution    String?           @db.Text
+  audienceId    String
   sourceEventId String
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  audience StoryAudience @relation(fields:[campaignId, audienceId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  event StoryEvent @relation(fields:[campaignId, sourceEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  lore          CampaignLore      @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  audience      StoryAudience     @relation(fields: [campaignId, audienceId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  event         StoryEvent        @relation(fields: [campaignId, sourceEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, key])
 }
 
@@ -1398,35 +1435,39 @@ enum GameActionStatus {
   CANCELLED
   REJECTED
 }
+
 model GameAction {
-  id String @id @default(cuid())
-  campaignId String
-  requestedById String
-  characterEntityId String?
-  requestKey String
-  requestHash String @db.Char(64)
+  id                    String             @id @default(cuid())
+  campaignId            String
+  requestedById         String
+  characterEntityId     String?
+  requestKey            String
+  requestHash           String             @db.Char(64)
   expectedSceneRevision Int
-  originPlaceId String
-  operation String @db.LongText
-  status GameActionStatus @default(PENDING)
-  eventId String? @unique
-  decisionReason String? @db.Text
-  createdAt DateTime @default(now())
-  resolvedAt DateTime?
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  requestedBy User @relation(fields:[requestedById], references:[id], onDelete:Restrict)
-  origin CampaignPlace @relation(fields:[campaignId, originPlaceId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  character CampaignCharacter? @relation(fields:[campaignId, characterEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  event StoryEvent? @relation(fields:[campaignId, eventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  originPlaceId         String
+  operation             String             @db.LongText
+  status                GameActionStatus   @default(PENDING)
+  eventId               String?            @unique
+  decisionReason        String?            @db.Text
+  createdAt             DateTime           @default(now())
+  resolvedAt            DateTime?
+  lore                  CampaignLore       @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  requestedBy           User               @relation(fields: [requestedById], references: [id], onDelete: Restrict)
+  origin                CampaignPlace      @relation(fields: [campaignId, originPlaceId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  character             CampaignCharacter? @relation(fields: [campaignId, characterEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  event                 StoryEvent?        @relation(fields: [campaignId, eventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, requestedById, requestKey])
   @@unique([campaignId, eventId])
   @@index([campaignId, status, createdAt])
 }
+
 enum OutboxStatus {
   PENDING
   PROCESSING
   DELIVERED
 }
+
 enum GameMasterTurnStatus {
   REQUESTED
   GENERATING
@@ -1439,42 +1480,43 @@ enum GameMasterTurnStatus {
 }
 
 model GameMasterTurn {
-  id String @id @default(cuid())
-  campaignId String
-  requestedById String
-  requestKey String
-  requestHash String @db.Char(64)
-  kind String
-  prompt String @db.Text
-  focusEntityId String?
-  playerEntityId String?
-  parentTurnId String? @unique
-  replyKind String?
+  id               String               @id @default(cuid())
+  campaignId       String
+  requestedById    String
+  requestKey       String
+  requestHash      String               @db.Char(64)
+  kind             String
+  prompt           String               @db.Text
+  focusEntityId    String?
+  playerEntityId   String?
+  parentTurnId     String?              @unique
+  replyKind        String?
   expectedRevision Int
-  sceneRevision Int
-  epoch Int
-  status GameMasterTurnStatus @default(REQUESTED)
-  context String @db.LongText
-  proposal String? @db.LongText
-  reviewedText String? @db.Text
-  resultEventId String? @unique
-  errorCode String?
-  model String?
-  inputTokens Int?
-  outputTokens Int?
-  latencyMs Int?
-  attempts Int @default(0)
-  leaseToken String?
-  leaseUntil DateTime?
-  createdAt DateTime @default(now())
-  resolvedAt DateTime?
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  requester User @relation(fields:[requestedById], references:[id], onDelete:Restrict)
-  focus CampaignEntity? @relation("CopilotFocus", fields:[campaignId, focusEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  playerEntity CampaignEntity? @relation("IntentCharacter", fields:[campaignId, playerEntityId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  parentTurn GameMasterTurn? @relation("IntentReplies", fields:[campaignId, parentTurnId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  followUp GameMasterTurn? @relation("IntentReplies")
-  event StoryEvent? @relation(fields:[campaignId, resultEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  sceneRevision    Int
+  epoch            Int
+  status           GameMasterTurnStatus @default(REQUESTED)
+  context          String               @db.LongText
+  proposal         String?              @db.LongText
+  reviewedText     String?              @db.Text
+  resultEventId    String?              @unique
+  errorCode        String?
+  model            String?
+  inputTokens      Int?
+  outputTokens     Int?
+  latencyMs        Int?
+  attempts         Int                  @default(0)
+  leaseToken       String?
+  leaseUntil       DateTime?
+  createdAt        DateTime             @default(now())
+  resolvedAt       DateTime?
+  lore             CampaignLore         @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  requester        User                 @relation(fields: [requestedById], references: [id], onDelete: Restrict)
+  focus            CampaignEntity?      @relation("CopilotFocus", fields: [campaignId, focusEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  playerEntity     CampaignEntity?      @relation("IntentCharacter", fields: [campaignId, playerEntityId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  parentTurn       GameMasterTurn?      @relation("IntentReplies", fields: [campaignId, parentTurnId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  followUp         GameMasterTurn?      @relation("IntentReplies")
+  event            StoryEvent?          @relation(fields: [campaignId, resultEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, requestKey])
   @@unique([campaignId, resultEventId])
   @@unique([campaignId, id])
@@ -1489,52 +1531,56 @@ enum ConsequenceKind {
   NPC_DEPART
   NPC_ARRIVE
 }
+
 enum ConsequenceStatus {
   SCHEDULED
   WAITING_MASTER
   APPLIED
   CANCELLED
 }
+
 model WorldAutomationPolicy {
-  campaignId String @id
-  enabled Boolean @default(false)
-  paused Boolean @default(false)
-  allowNpcTravel Boolean @default(false)
-  maxPerAdvance Int @default(4)
+  campaignId     String       @id
+  enabled        Boolean      @default(false)
+  paused         Boolean      @default(false)
+  allowNpcTravel Boolean      @default(false)
+  maxPerAdvance  Int          @default(4)
   configuredById String
-  updatedAt DateTime @updatedAt
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  configuredBy User @relation(fields:[configuredById], references:[id], onDelete:Restrict)
+  updatedAt      DateTime     @updatedAt
+  lore           CampaignLore @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  configuredBy   User         @relation(fields: [configuredById], references: [id], onDelete: Restrict)
 }
+
 model ScheduledConsequence {
-  id String @id @default(cuid())
-  campaignId String
-  requestKey String
-  requestHash String @db.Char(64)
-  createdById String
-  kind ConsequenceKind
-  title String
-  text String @db.Text
-  dueMinute Int
-  autoApproved Boolean @default(false)
-  status ConsequenceStatus @default(SCHEDULED)
-  npcEntityId String?
-  routeId String?
+  id            String                @id @default(cuid())
+  campaignId    String
+  requestKey    String
+  requestHash   String                @db.Char(64)
+  createdById   String
+  kind          ConsequenceKind
+  title         String
+  text          String                @db.Text
+  dueMinute     Int
+  autoApproved  Boolean               @default(false)
+  status        ConsequenceStatus     @default(SCHEDULED)
+  npcEntityId   String?
+  routeId       String?
   travelMinutes Int?
-  npcStateHash String? @db.Char(64)
-  parentId String? @unique
-  resultEventId String? @unique
-  reasonCode String?
-  createdAt DateTime @default(now())
-  resolvedAt DateTime?
-  lore CampaignLore @relation(fields:[campaignId], references:[campaignId], onDelete:Cascade)
-  creator User @relation(fields:[createdById], references:[id], onDelete:Restrict)
-  npc CampaignNpc? @relation("ScheduledNpc", fields:[campaignId, npcEntityId], references:[campaignId, entityId], onDelete:Restrict, onUpdate:Restrict)
-  activeNpc CampaignNpc? @relation("ActiveNpcJourney")
-  route TravelRoute? @relation(fields:[campaignId, routeId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  parent ScheduledConsequence? @relation("JourneyArrival", fields:[campaignId, parentId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
-  arrival ScheduledConsequence? @relation("JourneyArrival")
-  event StoryEvent? @relation(fields:[campaignId, resultEventId], references:[campaignId, id], onDelete:Restrict, onUpdate:Restrict)
+  npcStateHash  String?               @db.Char(64)
+  parentId      String?               @unique
+  resultEventId String?               @unique
+  reasonCode    String?
+  createdAt     DateTime              @default(now())
+  resolvedAt    DateTime?
+  lore          CampaignLore          @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  creator       User                  @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  npc           CampaignNpc?          @relation("ScheduledNpc", fields: [campaignId, npcEntityId], references: [campaignId, entityId], onDelete: Restrict, onUpdate: Restrict)
+  activeNpc     CampaignNpc?          @relation("ActiveNpcJourney")
+  route         TravelRoute?          @relation(fields: [campaignId, routeId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  parent        ScheduledConsequence? @relation("JourneyArrival", fields: [campaignId, parentId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+  arrival       ScheduledConsequence? @relation("JourneyArrival")
+  event         StoryEvent?           @relation(fields: [campaignId, resultEventId], references: [campaignId, id], onDelete: Restrict, onUpdate: Restrict)
+
   @@unique([campaignId, id])
   @@unique([campaignId, requestKey])
   @@unique([campaignId, parentId])
@@ -1543,18 +1589,70 @@ model ScheduledConsequence {
 }
 
 model OutboxEvent {
-  id String @id @default(cuid())
-  campaignId String
-  eventId String @unique
-  status OutboxStatus @default(PENDING)
-  attempts Int @default(0)
-  availableAt DateTime @default(now())
-  leaseToken String?
-  leaseUntil DateTime?
+  id          String       @id @default(cuid())
+  campaignId  String
+  eventId     String       @unique
+  status      OutboxStatus @default(PENDING)
+  attempts    Int          @default(0)
+  availableAt DateTime     @default(now())
+  leaseToken  String?
+  leaseUntil  DateTime?
   deliveredAt DateTime?
-  lastError String?
-  event StoryEvent @relation(fields:[campaignId, eventId], references:[campaignId, id], onDelete:Cascade)
+  lastError   String?
+  event       StoryEvent   @relation(fields: [campaignId, eventId], references: [campaignId, id], onDelete: Cascade)
+
   @@unique([campaignId, eventId])
   @@index([status, availableAt])
   @@index([status, leaseUntil])
+}
+
+// =====================================================================
+// Catalogo Ragnarok Online (outro jogo, mesma conta/plataforma)
+// =====================================================================
+
+model RagnarokJob {
+  id        Int      @id
+  jt        String
+  name      String
+  hasIcon   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([name])
+}
+
+model RagnarokSkill {
+  id          Int      @id
+  name        String
+  maxLevel    Int      @default(1)
+  description String?  @db.LongText
+  delay       Json?
+  parent      String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([name])
+}
+
+model RagnarokItem {
+  id           Int      @id
+  name         String
+  slots        Int      @default(0)
+  aegisName    String?
+  resourceName String?
+  description  String?  @db.LongText
+  view         Int?
+  spriteView   Int?
+  spriteBlank  Boolean  @default(false)
+  viewKind     String?
+  equipSlots   Json?
+  costume      Boolean  @default(false)
+  contains     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([name])
+  @@index([costume])
+}
+
+model RagnarokMap {
+  name      String   @id
+  createdAt DateTime @default(now())
 }

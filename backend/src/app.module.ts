@@ -25,6 +25,7 @@ import { CombatModule } from './combat/combat.module';
 import { JournalModule } from './journal/journal.module';
 import { VttModule } from './vtt/vtt.module';
 import { SrdModule } from './srd/srd.module';
+import { RagnarokModule } from './ragnarok/ragnarok.module';
 import { WorldModule } from './world/world.module';
 import { ExplorationModule } from './exploration/exploration.module';
 import { NarrationModule } from './narration/narration.module';
@@ -59,6 +60,7 @@ import { AiMasterModule } from './ai-master/ai-master.module';
     JournalModule,
     VttModule,
     SrdModule,
+    RagnarokModule,
     WorldModule,
     ExplorationModule,
     NarrationModule,
