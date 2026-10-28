@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { createHash, randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { parseStringArray } from '../common/json';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
@@ -451,6 +452,7 @@ export class CombatService {
     let damage = 0;
     let hit = false;
     let critical = false;
+    let attackRollTotal = 0;
     let ac = 10;
     const distance =
       x != null && y != null && target.x != null && target.y != null
@@ -466,6 +468,7 @@ export class CombatService {
         : null;
       ac = targetCharacter?.armorClass ?? 10;
       const attack = this.dice.parseAndRoll('1d20');
+      attackRollTotal = attack.total;
       critical = attack.total === 20;
       hit = attack.total !== 1 && (critical || attack.total + 2 >= ac);
       if (hit) {
@@ -484,9 +487,15 @@ export class CombatService {
       },
     });
 
+    const hpBefore = {
+      current: target.currentHp,
+      max: target.maxHp,
+      temp: target.tempHp,
+    };
+    let applied = 0;
     if (hit && damage > 0) {
       const absorbed = Math.min(target.tempHp, damage);
-      const applied = damage - absorbed;
+      applied = damage - absorbed;
       const nextHp = Math.max(0, target.currentHp - applied);
       await this.prisma.combatParticipant.update({
         where: { id: target.id },
@@ -500,6 +509,57 @@ export class CombatService {
         participantId: target.id,
         delta: nextHp - target.currentHp,
         hpStatus: hpStatus(nextHp, target.maxHp),
+      });
+    }
+
+    if (canAttack) {
+      const requestKey = randomUUID();
+      const payload = {
+        currentId: current.id,
+        currentName: current.name,
+        targetId: target.id,
+        attack: attackRollTotal,
+        ac,
+        hit,
+        critical,
+        damage,
+      };
+      await this.prisma.combatAction.create({
+        data: {
+          campaignId,
+          encounterId: encounter.id,
+          actorUserId: userId,
+          requestKey,
+          requestHash: createHash('sha256')
+            .update(JSON.stringify(payload))
+            .digest('hex'),
+          kind: 'AI_ATTACK',
+          targetKind: 'PARTICIPANT',
+          targetId: target.id,
+          targetName: target.name,
+          payload: JSON.stringify(payload),
+          result: JSON.stringify({
+            kind: 'AI_ATTACK',
+            target: {
+              kind: 'PARTICIPANT',
+              id: target.id,
+              name: target.name,
+              characterId: target.characterId,
+            },
+            amount: damage,
+            applied,
+            hpBefore,
+            hpAfter: {
+              current: target.currentHp - applied,
+              max: target.maxHp,
+              temp: target.tempHp - Math.min(target.tempHp, damage),
+            },
+            source: `IA: ${current.name}`,
+            damageType: 'slashing',
+            conditionsBefore: [],
+            conditionsAfter: [],
+          }),
+        },
       });
     }
 
