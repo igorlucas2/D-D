@@ -905,7 +905,7 @@ function ImmersiveContent() {
             ) * 5
           : null,
     }));
-  }, [combat?.participants, combat?.turnIndex]);
+  }, [combat]);
 
   const isMaster = campaign?.masterId === currentUserId;
   const currentCombatant = combat?.participants[combat.turnIndex] ?? null;
