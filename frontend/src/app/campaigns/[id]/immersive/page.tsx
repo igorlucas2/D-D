@@ -21,6 +21,7 @@ import {
   WeaponAttackDialog,
   type WeaponAttackInput,
 } from "@/components/table/weapon-attack-dialog";
+import { ItemUseDialog } from "@/components/table/item-use-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,6 +179,23 @@ function frameCss() {
   `;
 }
 
+function itemEffectKind(
+  properties: string | null,
+): "HEAL" | "TEMP_HP" | "DAMAGE" | null {
+  if (!properties) return null;
+  try {
+    const data = JSON.parse(properties) as Record<string, unknown>;
+    if (data.healing !== undefined) return "HEAL";
+    if (data.temporaryHp !== undefined || data.tempHp !== undefined)
+      return "TEMP_HP";
+    if (data.damage !== undefined || data.damageFormula !== undefined)
+      return "DAMAGE";
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function ImmersiveContent() {
   const params = useParams<{ id: string }>();
   const token = useAuthStore((state) => state.token);
@@ -199,6 +217,7 @@ function ImmersiveContent() {
   const [npcJob, setNpcJob] = useState("0");
   const [busy, setBusy] = useState(false);
   const [attackOpen, setAttackOpen] = useState(false);
+  const [itemOpen, setItemOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<AttackHudResult | null>(null);
   const [actionLog, setActionLog] = useState<CombatActionResult[]>([]);
@@ -755,6 +774,29 @@ function ImmersiveContent() {
     }
   }
 
+  async function submitItemUse(inventoryItemId: string) {
+    if (!token || !myCharacter) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/combat/items/use`,
+        {
+          requestKey: crypto.randomUUID(),
+          inventoryItemId,
+          characterId: myCharacter.id,
+        },
+        token,
+      );
+      setItemOpen(false);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Falha ao usar o item.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const hudCharacter = useMemo<HudCharacter | null>(() => {
     if (!myCharacter) return null;
     return {
@@ -779,7 +821,7 @@ function ImmersiveContent() {
           : entry.item.category,
         properties: entry.item.properties,
         description: entry.item.description,
-        effectKind: null,
+        effectKind: itemEffectKind(entry.item.properties),
       })),
       spells: [],
       spellSlots: [],
@@ -810,6 +852,9 @@ function ImmersiveContent() {
   const canAttackCurrent =
     Boolean(hudCharacter && currentCombatant) &&
     currentCombatant?.characterId === myCharacter?.id;
+  const canUseItem = Boolean(
+    hudCharacter?.items.some((item) => item.effectKind && item.quantity > 0),
+  );
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
@@ -1045,6 +1090,17 @@ function ImmersiveContent() {
                   disabled={busy}
                 >
                   <Swords className="size-3.5" /> Atacar
+                </Button>
+              ) : null}
+              {canAttackCurrent && canUseItem ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-1 w-full gap-1"
+                  onClick={() => setItemOpen(true)}
+                  disabled={busy}
+                >
+                  Usar item
                 </Button>
               ) : null}
             </div>
@@ -1386,6 +1442,16 @@ function ImmersiveContent() {
           initialTargetId={selectedTargetId}
           onOpenChange={setAttackOpen}
           onAttack={submitAttack}
+        />
+      ) : null}
+
+      {itemOpen && hudCharacter ? (
+        <ItemUseDialog
+          items={hudCharacter.items}
+          characterName={hudCharacter.name}
+          busy={busy}
+          onOpenChange={setItemOpen}
+          onUse={submitItemUse}
         />
       ) : null}
 
