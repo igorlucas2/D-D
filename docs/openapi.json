@@ -1390,6 +1390,36 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/ai-turn": {
+      "post": {
+        "operationId": "CombatController_aiTurn",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat/next-turn": {
       "post": {
         "operationId": "CombatController_nextTurn",

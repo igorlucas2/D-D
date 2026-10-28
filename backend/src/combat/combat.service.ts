@@ -386,6 +386,127 @@ export class CombatService {
     return this.getEncounter(campaignId, userId);
   }
 
+  async aiTurn(campaignId: string, userId: string) {
+    await this.assertIsMaster(campaignId, userId);
+    const encounter = await this.prisma.combatEncounter.findUnique({
+      where: { campaignId },
+      include: ENCOUNTER_INCLUDE,
+    });
+    if (!encounter) {
+      throw new NotFoundException('Nenhum combate em andamento.');
+    }
+    const current = encounter.participants[encounter.turnIndex];
+    if (!current) throw new BadRequestException('Turno sem participante.');
+    if (current.isAlly) {
+      throw new ConflictException(
+        'O turno atual é de um aliado; a IA só age em inimigos.',
+      );
+    }
+
+    const allies = encounter.participants.filter(
+      (participant) =>
+        participant.isAlly && !participant.isDead && participant.currentHp > 0,
+    );
+    if (!allies.length) {
+      throw new ConflictException('Não há aliados válidos para a IA atacar.');
+    }
+    const target = [...allies].sort((left, right) => {
+      if (
+        current.x == null ||
+        current.y == null ||
+        left.x == null ||
+        left.y == null
+      ) {
+        return left.id.localeCompare(right.id);
+      }
+      const distance = (entry: (typeof allies)[number]) =>
+        Math.max(
+          Math.abs(current.x! - (entry.x ?? current.x!)),
+          Math.abs(current.y! - (entry.y ?? current.y!)),
+        );
+      return distance(left) - distance(right);
+    })[0];
+
+    let x = current.x;
+    let y = current.y;
+    let movementUsed = current.movementUsed;
+    if (x != null && y != null && target.x != null && target.y != null) {
+      const remainingCells = Math.max(
+        0,
+        Math.floor((current.speed - movementUsed) / 5),
+      );
+      const dx = Math.sign(target.x - x);
+      const dy = Math.sign(target.y - y);
+      const cells = Math.min(
+        remainingCells,
+        Math.max(Math.abs(target.x - x), Math.abs(target.y - y)) - 1,
+      );
+      if (cells > 0) {
+        x += dx * cells;
+        y += dy * cells;
+        movementUsed += cells * 5;
+      }
+    }
+
+    let damage = 0;
+    let hit = false;
+    let critical = false;
+    let ac = 10;
+    const distance =
+      x != null && y != null && target.x != null && target.y != null
+        ? Math.max(Math.abs(target.x - x), Math.abs(target.y - y))
+        : 0;
+    const canAttack = distance <= 1 && !current.actionUsed;
+    if (canAttack) {
+      const targetCharacter = target.characterId
+        ? await this.prisma.character.findUnique({
+            where: { id: target.characterId },
+            select: { armorClass: true },
+          })
+        : null;
+      ac = targetCharacter?.armorClass ?? 10;
+      const attack = this.dice.parseAndRoll('1d20');
+      critical = attack.total === 20;
+      hit = attack.total !== 1 && (critical || attack.total + 2 >= ac);
+      if (hit) {
+        const rollDamage = this.dice.parseAndRoll('1d6+1').total;
+        damage = critical ? rollDamage * 2 : rollDamage;
+      }
+    }
+
+    await this.prisma.combatParticipant.update({
+      where: { id: current.id },
+      data: {
+        x,
+        y,
+        movementUsed,
+        actionUsed: current.actionUsed || canAttack,
+      },
+    });
+
+    if (hit && damage > 0) {
+      const absorbed = Math.min(target.tempHp, damage);
+      const applied = damage - absorbed;
+      const nextHp = Math.max(0, target.currentHp - applied);
+      await this.prisma.combatParticipant.update({
+        where: { id: target.id },
+        data: {
+          tempHp: target.tempHp - absorbed,
+          currentHp: nextHp,
+        },
+      });
+      await this.emitAction(campaignId, {
+        type: 'hp',
+        participantId: target.id,
+        delta: nextHp - target.currentHp,
+        hpStatus: hpStatus(nextHp, target.maxHp),
+      });
+    }
+
+    await this.touchEncounter(encounter.id);
+    return this.getEncounter(campaignId, userId);
+  }
+
   async removeParticipant(
     campaignId: string,
     userId: string,

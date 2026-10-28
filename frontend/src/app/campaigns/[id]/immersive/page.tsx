@@ -657,6 +657,23 @@ function ImmersiveContent() {
     }
   }
 
+  async function runAiTurn() {
+    if (!token || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await api.post<CombatEncounter>(
+        `/campaigns/${params.id}/combat/ai-turn`,
+        undefined,
+        token,
+      );
+      setCombat(updated);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Falha no turno da IA.");
+    } finally {
+      setBusy(false);
+    }
+  }
   async function advanceTurn() {
     if (!token || busy) return;
     setBusy(true);
@@ -1047,6 +1064,18 @@ function ImmersiveContent() {
                   </li>
                 ))}
               </ul>
+            </div>
+          ) : null}
+          {isMaster && currentCombatant && !currentCombatant.isAlly ? (
+            <div className="border-t border-border/70 p-2">
+              <Button
+                size="sm"
+                className="w-full gap-1"
+                onClick={() => void runAiTurn()}
+                disabled={busy}
+              >
+                <Swords className="size-3.5" /> Turno da IA
+              </Button>
             </div>
           ) : null}
           {isMaster ? (
