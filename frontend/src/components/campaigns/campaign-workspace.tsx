@@ -6,6 +6,7 @@ import {
   BookOpen,
   ChevronRight,
   Compass,
+  Map,
   ScrollText,
   Sparkles,
   Swords,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { CampaignPartyWidget } from "@/components/campaigns/campaign-party-widget";
 import { CampaignTableDock } from "@/components/campaigns/campaign-table-dock";
+import { CampaignWorldMap } from "@/components/campaigns/campaign-world-map";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
 import { ExplorationHud } from "@/components/campaigns/exploration-hud";
 import { LoreScenePanel } from "@/components/campaigns/lore-scene-panel";
@@ -44,6 +46,7 @@ export function CampaignWorkspace({
   compact = false,
 }: CampaignWorkspaceProps) {
   const [panel, setPanel] = useState<WorkspacePanel>(null);
+  const [worldOpen, setWorldOpen] = useState(false);
   const [explorationCharacterId, setExplorationCharacterId] = useState<
     string | null
   >(null);
@@ -90,6 +93,13 @@ export function CampaignWorkspace({
         <Button
           variant="outline"
           className="h-10 gap-2"
+          onClick={() => setWorldOpen(true)}
+        >
+          <Map className="size-4" aria-hidden="true" /> Mapa-múndi
+        </Button>
+        <Button
+          variant="outline"
+          className="h-10 gap-2"
           onClick={() => setPanel("journey")}
         >
           <Compass className="size-4" aria-hidden="true" /> Jornada
@@ -114,6 +124,12 @@ export function CampaignWorkspace({
           onExplorationStateChange={setExplorationState}
         />
       </div>
+
+      <CampaignWorldMap
+        campaignId={campaign.id}
+        open={worldOpen}
+        onOpenChange={setWorldOpen}
+      />
 
       <Dialog
         open={panel === "scene"}

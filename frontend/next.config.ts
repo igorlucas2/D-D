@@ -31,7 +31,7 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   `connect-src 'self' ws: wss:${isDev ? " http: https:" : ""}`,
   "worker-src 'self' blob:",
-  "frame-src 'self'",
+  "frame-src 'self' https://visuais.latam-tools.com.br",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Query,
   UseGuards,
   StreamableFile,
 } from '@nestjs/common';
@@ -97,8 +98,14 @@ export class LoreController {
     @Param('id') id: string,
     @Param('mapId') mapId: string,
     @CurrentUser() user: { userId: string },
+    @Query('mode') mode?: string,
   ) {
-    const buffer = await this.installer.image(id, mapId, user.userId);
+    const buffer = await this.installer.image(
+      id,
+      mapId,
+      user.userId,
+      mode === '2d' ? '2d' : '3d',
+    );
     const type =
       buffer[0] === 0xff && buffer[1] === 0xd8
         ? 'image/jpeg'

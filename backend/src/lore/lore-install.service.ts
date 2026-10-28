@@ -8,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service';
 import { totalMinutesFromFields } from '../world/world.service';
 import {
@@ -540,7 +542,12 @@ export class LoreInstallService {
     };
   }
 
-  async image(campaignId: string, mapId: string, userId: string) {
+  async image(
+    campaignId: string,
+    mapId: string,
+    userId: string,
+    mode: '2d' | '3d' = '3d',
+  ) {
     const campaign = await this.member(campaignId, userId);
     const asset = await this.prisma.campaignLoreMap.findUnique({
       where: { campaignId_mapId: { campaignId, mapId } },
@@ -548,6 +555,18 @@ export class LoreInstallService {
     });
     if (!asset || (!asset.map.published && campaign.masterId !== userId))
       throw new NotFoundException('Mapa não encontrado.');
+    if (mode === '2d' && asset.key !== 'midgard') {
+      const legacy = join(
+        process.cwd(),
+        'content',
+        'midgard-ecos',
+        'third-party',
+        'classic-world-map-ragnarok',
+        'framed',
+        `${asset.key}.png`,
+      );
+      if (existsSync(legacy)) return readFileSync(legacy);
+    }
     const buffer = Buffer.from(asset.texture);
     if (sha256(buffer) !== asset.textureHash)
       throw new UnprocessableEntityException('Imagem do cenário indisponível.');
