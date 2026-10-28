@@ -96,14 +96,21 @@ export function CharacterHud({
     : null;
   const effectiveArmorClass = character
     ? character.armorClass +
-      (character.conditions.some(
-        (condition) =>
-          condition
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase() === "protegido",
+      (character.conditions.some((condition) =>
+        condition
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase() === "protegido",
       )
         ? 2
+        : 0) +
+      (character.conditions.some((condition) =>
+        condition
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase() === "escudado",
+      )
+        ? 5
         : 0)
     : 0;
   const currentTurn = combat?.participants[combat.turnIndex] ?? null;
@@ -131,7 +138,16 @@ export function CharacterHud({
         !isDown &&
         !isDead,
     );
-  const canCast = canAct || canBonus;
+  const canReact =
+    !combat ||
+    Boolean(
+      isMyTurn &&
+        participant &&
+        !participant.reactionUsed &&
+        !isDown &&
+        !isDead,
+    );
+  const canCast = canAct || canBonus || canReact;
   const canRollDeath =
     Boolean(combat && isMyTurn && participant && isDown && !isDead && !isStable) &&
     !participant?.deathSaveUsed;
@@ -403,13 +419,17 @@ export function CharacterHud({
                         ? `inconsciente · ${participant.deathSuccesses ?? 0} sucesso(s) / ${participant.deathFailures ?? 0} falha(s)`
                         : participant.actionUsed
                           ? participant.bonusUsed
-                            ? "ação e bônus usados"
+                            ? participant.reactionUsed
+                              ? "ação, bônus e reação usados"
+                              : "ação e bônus usados · reação disponível"
                             : "ação usada · bônus disponível"
                           : participant.bonusUsed
                             ? "bônus usado · ação disponível"
-                            : isMyTurn
-                              ? "ação e bônus disponíveis"
-                              : "aguardando seu turno"}
+                            : participant.reactionUsed
+                              ? "reação usada · ação disponível"
+                              : isMyTurn
+                                ? "ação, bônus e reação disponíveis"
+                                : "aguardando seu turno"}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {canRollDeath ? (

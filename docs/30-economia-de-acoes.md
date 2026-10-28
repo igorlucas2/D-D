@@ -78,6 +78,8 @@ As ações continuam incrementando `revision`; a UI usa CAS em
 
 ## 6. Limites
 
+Reação passou a ser consumida por Escudo Arcano: `docs/39-escudo-arcano.md`.
+
 Ação bônus passou a ser consumida por Escudo da Fé: `docs/38-escudo-da-fe.md`.
 
 Condições temporárias em rodadas estão em `docs/36-condicoes-com-duracao.md`.

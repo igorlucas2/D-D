@@ -6,7 +6,7 @@ import {
 } from './combat-action.types';
 
 export type SpellEffectKind = 'HEAL' | 'DAMAGE' | 'MARK' | 'BUFF';
-export type SpellActionType = 'ACTION' | 'BONUS';
+export type SpellActionType = 'ACTION' | 'BONUS' | 'REACTION';
 export type SpellTargetMode = 'SINGLE' | 'MULTIPLE';
 export type SpellAbility = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA';
 
@@ -20,6 +20,11 @@ export interface SpellMechanics {
   upcast: { formula: string | null } | null;
   targets: SpellTargetMode;
   action?: SpellActionType;
+  ward?: {
+    condition: string;
+    acBonus: number;
+    rounds: number;
+  } | null;
   concentration?: {
     condition: string;
     bonusFormula: string;
@@ -103,6 +108,11 @@ export interface SpellCastResult {
     bonusFormula: string;
     durationMinutes: number;
     expiresAt: string;
+  } | null;
+  ward: {
+    condition: string;
+    acBonus: number;
+    rounds: number;
   } | null;
   source: string;
   alreadyApplied: boolean;
@@ -223,6 +233,22 @@ const FALLBACKS: Record<string, SpellMechanics> = {
       durationMinutes: 10,
     },
   },
+  'escudo arcano': {
+    kind: 'BUFF',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'SINGLE',
+    action: 'REACTION',
+    ward: {
+      condition: 'Escudado',
+      acBonus: 5,
+      rounds: 1,
+    },
+  },
 };
 
 function normalizeName(value: string): string {
@@ -272,6 +298,10 @@ export function resolveSpellMechanics(spell: {
         record.concentration && typeof record.concentration === 'object'
           ? (record.concentration as Record<string, unknown>)
           : null;
+      const ward =
+        record.ward && typeof record.ward === 'object'
+          ? (record.ward as Record<string, unknown>)
+          : null;
       const ability =
         typeof save?.ability === 'string' &&
         ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].includes(save.ability)
@@ -297,7 +327,23 @@ export function resolveSpellMechanics(spell: {
             ? { formula: upcast.formula.toLowerCase() }
             : null,
         targets: record.targets === 'SINGLE' ? 'SINGLE' : 'MULTIPLE',
-        action: record.action === 'BONUS' ? 'BONUS' : 'ACTION',
+        action:
+          record.action === 'BONUS'
+            ? 'BONUS'
+            : record.action === 'REACTION'
+              ? 'REACTION'
+              : 'ACTION',
+        ward:
+          ward &&
+          typeof ward.condition === 'string' &&
+          typeof ward.acBonus === 'number' &&
+          typeof ward.rounds === 'number'
+            ? {
+                condition: ward.condition,
+                acBonus: ward.acBonus,
+                rounds: ward.rounds,
+              }
+            : null,
         concentration:
           concentration &&
           typeof concentration.condition === 'string' &&

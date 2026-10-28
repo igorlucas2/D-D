@@ -99,6 +99,15 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Escudo Arcano como reação e ward', () => {
+    expect(resolveSpellMechanics({ name: 'Escudo Arcano' })).toMatchObject({
+      kind: 'BUFF',
+      action: 'REACTION',
+      targets: 'SINGLE',
+      ward: { condition: 'Escudado', acBonus: 5, rounds: 1 },
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

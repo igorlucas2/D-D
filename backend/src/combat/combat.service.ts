@@ -397,10 +397,10 @@ export class CombatService {
     campaignId: string,
     characterId: string,
     isMaster: boolean,
-    actionType: 'ACTION' | 'BONUS' = 'ACTION',
+    actionType: 'ACTION' | 'BONUS' | 'REACTION' = 'ACTION',
   ): Promise<{
     participantId: string;
-    actionType: 'ACTION' | 'BONUS';
+    actionType: 'ACTION' | 'BONUS' | 'REACTION';
   } | null> {
     await tx.$queryRaw`SELECT id FROM \`CombatEncounter\` WHERE campaignId = ${campaignId} FOR UPDATE`;
     const encounter = await tx.combatEncounter.findUnique({
@@ -433,6 +433,9 @@ export class CombatService {
     }
     if (actionType === 'BONUS' && participant.bonusUsed) {
       throw new ConflictException('Sua ação bônus já foi usada neste turno.');
+    }
+    if (actionType === 'REACTION' && participant.reactionUsed) {
+      throw new ConflictException('Sua reação já foi usada neste turno.');
     }
     if (actionType === 'ACTION' && participant.actionUsed) {
       throw new ConflictException(
@@ -531,6 +534,13 @@ export class CombatService {
     await tx.combatParticipant.update({
       where: { id: participantId },
       data: { bonusUsed: true },
+    });
+  }
+
+  async consumeReaction(tx: Prisma.TransactionClient, participantId: string) {
+    await tx.combatParticipant.update({
+      where: { id: participantId },
+      data: { reactionUsed: true },
     });
   }
 
@@ -643,11 +653,13 @@ export class CombatService {
       select: { conditions: true },
     });
     if (!participant) return 0;
-    return parseStringArray(participant.conditions).some(
-      (item) => normalizedCondition(item) === 'protegido',
-    )
-      ? 2
-      : 0;
+    const conditions = parseStringArray(participant.conditions);
+    let bonus = 0;
+    if (conditions.some((item) => normalizedCondition(item) === 'protegido'))
+      bonus += 2;
+    if (conditions.some((item) => normalizedCondition(item) === 'escudado'))
+      bonus += 5;
+    return bonus;
   }
 
   async saveRollBonus(

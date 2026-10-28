@@ -16,6 +16,10 @@ import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseJson, parseStringArray } from '../common/json';
 import { DiceService } from '../dice/dice.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  addTimedCondition,
+  parseTimedConditions,
+} from './condition-duration.types';
 import { CombatService, hpStatus } from './combat.service';
 import { applyDamage, applyHeal, type HpSnapshot } from './combat-action.types';
 import { canonical } from '../game-actions/game-action.types';
@@ -265,8 +269,16 @@ export class SpellCastService {
     const casterModifier = spellcastingModifier(casterLocked);
     const saveDc = spellSaveDc(casterLocked.proficiencyBonus, casterModifier);
 
-    const isCondition = mechanics.kind === 'MARK' || mechanics.kind === 'BUFF';
+    const isWard = Boolean(mechanics.ward);
+    const isCondition =
+      !isWard && (mechanics.kind === 'MARK' || mechanics.kind === 'BUFF');
     const markSpec = mechanics.concentration ?? null;
+    if (isWard) {
+      if (!mechanics.ward || targets.length !== 1 || !targets[0].participant)
+        throw new BadRequestException(
+          'Escudo Arcano exige exatamente um participante em combate.',
+        );
+    }
     if (isCondition) {
       if (!markSpec)
         throw new BadRequestException(
@@ -334,6 +346,53 @@ export class SpellCastService {
             max: character!.maxHp,
             temp: character!.tempHp,
           };
+
+      if (isWard) {
+        if (!participant || !mechanics.ward)
+          throw new BadRequestException(
+            'Escudo Arcano exige um participante em combate.',
+          );
+        const conditions = parseStringArray(participant.conditions);
+        if (
+          !conditions.some(
+            (item) =>
+              item.toLowerCase() === mechanics.ward!.condition.toLowerCase(),
+          )
+        )
+          conditions.push(mechanics.ward.condition);
+        const timers = addTimedCondition(
+          parseTimedConditions(participant.timedConditions),
+          mechanics.ward.condition,
+          mechanics.ward.rounds,
+          characterSpell.spell.name,
+        );
+        await tx.combatParticipant.update({
+          where: { id: participant.id },
+          data: {
+            conditions: JSON.stringify(conditions),
+            timedConditions: JSON.stringify(timers),
+          },
+        });
+        emits.push({
+          participantId: participant.id,
+          delta: 0,
+          hpStatus: hpStatus(hpBefore.current, hpBefore.max),
+        });
+        targetResults.push({
+          kind: 'PARTICIPANT',
+          id: participant.id,
+          name: participant.name,
+          characterId: participant.characterId,
+          hpBefore,
+          hpAfter: hpBefore,
+          save: null,
+          attack: null,
+          amount: 0,
+          applied: 0,
+          absorbedByTempHp: 0,
+        });
+        continue;
+      }
 
       if (isCondition) {
         if (!participant || !markSpec)
@@ -516,6 +575,8 @@ export class SpellCastService {
     if (economy) {
       if (economy.actionType === 'BONUS')
         await this.combat.consumeBonus(tx, economy.participantId);
+      else if (economy.actionType === 'REACTION')
+        await this.combat.consumeReaction(tx, economy.participantId);
       else await this.combat.consumeAction(tx, economy.participantId);
     }
 
@@ -562,6 +623,7 @@ export class SpellCastService {
               expiresAt: markExpiresAt.toISOString(),
             }
           : null,
+      ward: isWard ? (mechanics.ward ?? null) : null,
       source: characterSpell.spell.name,
       alreadyApplied: false,
     };

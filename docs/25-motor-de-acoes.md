@@ -291,6 +291,10 @@ Míssil Mágico e dano automático em `docs/37-missil-magico.md`.
 
 Escudo da Fé e ação bônus em `docs/38-escudo-da-fe.md`.
 
+## 9.16 Fase Q
+
+Escudo Arcano e reação em `docs/39-escudo-arcano.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

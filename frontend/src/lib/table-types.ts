@@ -67,7 +67,7 @@ export interface HudSpell {
   targetMode: "SINGLE" | "MULTIPLE";
   formula: string;
   upcastFormula: string | null;
-  actionType: "ACTION" | "BONUS";
+  actionType: "ACTION" | "BONUS" | "REACTION";
 }
 
 export interface HudSpellSlot {
@@ -181,7 +181,7 @@ export interface SpellCastResult {
     castLevel: number;
   };
   slot: { level: number; usedBefore: number; usedAfter: number } | null;
-  actionType: "ACTION" | "BONUS";
+  actionType: "ACTION" | "BONUS" | "REACTION";
   targets: Array<{
     kind: "CHARACTER" | "PARTICIPANT";
     id: string;
@@ -220,6 +220,11 @@ export interface SpellCastResult {
     bonusFormula: string;
     durationMinutes: number;
     expiresAt: string;
+  } | null;
+  ward: {
+    condition: string;
+    acBonus: number;
+    rounds: number;
   } | null;
   source: string;
   alreadyApplied: boolean;

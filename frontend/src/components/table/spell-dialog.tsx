@@ -208,7 +208,11 @@ export function SpellDialog({
                               : spell.effectKind === "BUFF"
                                 ? "bênção"
                                 : "dano"}
-                          {spell.actionType === "BONUS" ? " · ação bônus" : ""}
+                          {spell.actionType === "BONUS"
+                            ? " · ação bônus"
+                            : spell.actionType === "REACTION"
+                              ? " · reação"
+                              : ""}
                           {spell.targetMode === "MULTIPLE" ? " em área" : ""}
                         </p>
                       </div>
@@ -225,7 +229,9 @@ export function SpellDialog({
                       : spell.effectKind === "BUFF"
                         ? spell.name === "Escudo da Fé"
                           ? "+2 CA por concentração"
-                          : "+1d4 em ataques e salvaguardas"
+                          : spell.name === "Escudo Arcano"
+                            ? "+5 CA por 1 rodada"
+                            : "+1d4 em ataques e salvaguardas"
                         : spell.formula}
                     {spell.attack
                       ? " · ataque mágico"
