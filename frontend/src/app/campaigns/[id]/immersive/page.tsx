@@ -131,6 +131,7 @@ interface ImmersiveWindow extends Window {
       mapWidth: number,
       mapHeight: number,
     ) => void;
+    onActorClick?: (id: string) => void;
   };
 }
 
@@ -163,6 +164,7 @@ function ImmersiveContent() {
   const [npcJob, setNpcJob] = useState("0");
   const [busy, setBusy] = useState(false);
   const [attackOpen, setAttackOpen] = useState(false);
+  const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
@@ -374,6 +376,19 @@ function ImmersiveContent() {
       window.clearInterval(timer);
     };
   }, [slug, applyFrame]);
+
+  useEffect(() => {
+    if (!frameReady) return;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    if (!win?.__eldoria) return;
+    // eslint-disable-next-line react-hooks/immutability -- ponte intencional com o iframe same-origin
+    win.__eldoria.onActorClick = (id) => {
+      setSelectedTargetId(id.startsWith("combat-") ? id.slice(7) : id);
+    };
+    return () => {
+      if (win.__eldoria) win.__eldoria.onActorClick = undefined;
+    };
+  }, [frameReady]);
 
   useEffect(() => {
     if (!frameReady) return;
@@ -789,8 +804,21 @@ function ImmersiveContent() {
               return (
                 <li
                   key={participant.id}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedTargetId(participant.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedTargetId(participant.id);
+                    }
+                  }}
+                  className={`flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
                     isCurrent ? "bg-primary/15 ring-1 ring-primary/40" : ""
+                  } ${
+                    selectedTargetId === participant.id
+                      ? "ring-2 ring-amber-400/80"
+                      : ""
                   }`}
                 >
                   <span className="w-5 text-center font-mono text-[9px] text-muted-foreground">
@@ -1153,6 +1181,7 @@ function ImmersiveContent() {
           character={hudCharacter}
           targets={combatTargets}
           busy={busy}
+          initialTargetId={selectedTargetId}
           onOpenChange={setAttackOpen}
           onAttack={submitAttack}
         />

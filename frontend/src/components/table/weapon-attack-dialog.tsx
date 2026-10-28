@@ -37,12 +37,14 @@ export function WeaponAttackDialog({
   character,
   targets,
   busy,
+  initialTargetId,
   onOpenChange,
   onAttack,
 }: {
   character: HudCharacter;
   targets: ActionTarget[];
   busy: boolean;
+  initialTargetId?: string | null;
   onOpenChange: (open: boolean) => void;
   onAttack: (input: WeaponAttackInput) => Promise<void>;
 }) {
@@ -52,6 +54,9 @@ export function WeaponAttackDialog({
   );
   const [weaponId, setWeaponId] = useState(weapons[0]?.inventoryItemId ?? "");
   const initialTarget =
+    (initialTargetId
+      ? targets.find((target) => target.id === initialTargetId)
+      : null) ??
     targets.find((target) => target.isAlly === false) ??
     targets.find((target) => target.characterId !== character.characterId) ??
     targets[0] ??
