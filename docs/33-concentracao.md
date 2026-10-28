@@ -87,6 +87,8 @@ Regras:
 - Marca **não** tem narração automática: não há dano/cura aplicado no ato de
   conjurar; a condição é o efeito.
 
+> Descanso longo encerra a concentração; ver `docs/35-descanso-concentracao.md`.
+
 ## 6. Limites
 
 - Apenas Marca do Caçador usa concentração por enquanto.

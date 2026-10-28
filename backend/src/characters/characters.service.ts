@@ -422,7 +422,11 @@ export class CharactersService {
 
     await this.prisma.character.update({
       where: { id: characterId },
-      data: { currentHp: character.maxHp, tempHp: 0 },
+      data: {
+        currentHp: character.maxHp,
+        tempHp: 0,
+        concentration: null,
+      },
     });
     await this.combatService.syncCharacterHp(characterId);
     await this.prisma.characterSpellSlot.updateMany({

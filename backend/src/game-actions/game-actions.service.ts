@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { parseNumberArray } from '../common/json';
+import { CombatService } from '../combat/combat.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { deriveFieldsFromTotalMinutes } from '../world/world.service';
 import { enqueueStory } from '../story/story-outbox';
@@ -24,7 +25,10 @@ type Tx = Prisma.TransactionClient;
 
 @Injectable()
 export class GameActionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly combat: CombatService,
+  ) {}
   private async access(tx: Tx, campaignId: string, userId: string) {
     const campaign = await tx.campaign.findUnique({
       where: { id: campaignId },
@@ -516,6 +520,7 @@ export class GameActionsService {
                 where: { characterId: p.characterId },
                 data: { used: 0 },
               });
+              await this.combat.clearConcentration(tx, p.characterId);
             }
         } else if (op.kind === 'ADVANCE_TIME') {
           kind = 'CLOCK_ADVANCED';

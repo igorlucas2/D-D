@@ -275,6 +275,10 @@ Marca do Caçador e concentração em `docs/33-concentracao.md`.
 
 Abençoar e bônus de concentração em `docs/34-bencao.md`.
 
+## 9.12 Fase M
+
+Descanso longo e concentração em `docs/35-descanso-concentracao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:
