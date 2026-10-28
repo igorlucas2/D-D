@@ -119,6 +119,7 @@ interface ImmersiveWindow extends Window {
     setLocked: (locked: boolean) => void;
     hidePlayer: () => void;
     isReady: () => boolean;
+    getPlayerPosition: () => { x: number; y: number } | null;
   };
 }
 
@@ -150,6 +151,7 @@ function ImmersiveContent() {
   const [busy, setBusy] = useState(false);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
+  const lastSentPosition = useRef("");
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
@@ -228,6 +230,17 @@ function ImmersiveContent() {
     [selected],
   );
 
+  const otherPlayerTokens = useMemo(
+    () =>
+      (selected?.tokens ?? []).filter(
+        (entry) =>
+          entry.characterId &&
+          entry.characterId !== myCharacter?.id &&
+          entry.visible,
+      ),
+    [myCharacter?.id, selected],
+  );
+
   const actors = useMemo(() => {
     if (!selected) return [];
     const tokens = npcTokens.map((npc) => ({
@@ -235,6 +248,13 @@ function ImmersiveContent() {
       x: (npc.x + 0.5) / selected.width,
       y: (npc.y + 0.5) / selected.height,
       imageUrl: npc.imageUrl ?? NPC_IMAGES[2],
+      size: 1.8,
+    }));
+    const players = otherPlayerTokens.map((entry) => ({
+      id: entry.id,
+      x: (entry.x + 0.5) / selected.width,
+      y: (entry.y + 0.5) / selected.height,
+      imageUrl: entry.imageUrl ?? NPC_IMAGES[0],
       size: 1.8,
     }));
     const ambient = (
@@ -249,8 +269,8 @@ function ImmersiveContent() {
       imageUrl: NPC_IMAGES[npc.job] ?? NPC_IMAGES[0],
       size: 1.7,
     }));
-    return [...tokens, ...ambient];
-  }, [npcTokens, selected]);
+    return [...tokens, ...players, ...ambient];
+  }, [npcTokens, otherPlayerTokens, selected]);
 
   const applyFrame = useCallback(() => {
     const win = iframe.current?.contentWindow as ImmersiveWindow | null;
@@ -289,6 +309,51 @@ function ImmersiveContent() {
     if (!frameReady) return;
     applyFrame();
   }, [frameReady, applyFrame]);
+
+  useEffect(() => {
+    if (!token) return;
+    const timer = window.setInterval(() => void load(), 2500);
+    return () => window.clearInterval(timer);
+  }, [load, token]);
+
+  useEffect(() => {
+    if (!frameReady || !myCharacter || !selected || !token) return;
+    let cancelled = false;
+
+    const send = async () => {
+      const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+      const position = win?.__eldoria?.getPlayerPosition?.();
+      if (!position) return;
+      const x = Math.max(
+        0,
+        Math.min(selected.width - 1, Math.floor(position.x * selected.width)),
+      );
+      const y = Math.max(
+        0,
+        Math.min(selected.height - 1, Math.floor(position.y * selected.height)),
+      );
+      const key = `${myCharacter.id}:${selected.id}:${x}:${y}`;
+      if (lastSentPosition.current === key) return;
+      lastSentPosition.current = key;
+      if (cancelled) return;
+      try {
+        await api.put(
+          `/campaigns/${params.id}/vtt/maps/${selected.id}/tokens/me`,
+          { characterId: myCharacter.id, x, y },
+          token,
+        );
+      } catch {
+        // posição será tentada de novo no próximo segundo
+      }
+    };
+
+    void send();
+    const timer = window.setInterval(() => void send(), 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [frameReady, myCharacter, params.id, selected, token]);
 
   async function summonNpc() {
     if (!token || !selected || !campaign?.masterId) return;

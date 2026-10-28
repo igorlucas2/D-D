@@ -596,6 +596,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["VttController_syncOwnToken"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/{tokenId}": {
         parameters: {
             query?: never;
@@ -2172,6 +2188,11 @@ export interface components {
             lightRadius?: number;
             visionRadius?: number;
         };
+        SyncOwnTokenDto: {
+            characterId: string;
+            x: number;
+            y: number;
+        };
         UpdateVttTokenDto: {
             name?: string;
             characterId?: string | null;
@@ -3539,6 +3560,32 @@ export interface operations {
         };
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    VttController_syncOwnToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                mapId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SyncOwnTokenDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

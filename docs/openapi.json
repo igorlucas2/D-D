@@ -1672,6 +1672,54 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/me": {
+      "put": {
+        "operationId": "VttController_syncOwnToken",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mapId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncOwnTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Vtt"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/vtt/maps/{mapId}/tokens/{tokenId}": {
       "patch": {
         "operationId": "VttController_updateToken",
@@ -6108,6 +6156,27 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "SyncOwnTokenDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "characterId",
+          "x",
+          "y"
         ]
       },
       "UpdateVttTokenDto": {

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -17,6 +18,7 @@ import { CreateVttMapDto } from './dto/create-vtt-map.dto';
 import { UpdateVttMapDto } from './dto/update-vtt-map.dto';
 import { CreateVttTokenDto } from './dto/create-vtt-token.dto';
 import { UpdateVttTokenDto } from './dto/update-vtt-token.dto';
+import { SyncOwnTokenDto } from './dto/sync-own-token.dto';
 import { CreateVttMarkerDto } from './dto/create-vtt-marker.dto';
 import { UpdateVttMarkerDto } from './dto/update-vtt-marker.dto';
 import { CreateVttMapHotspotDto } from './dto/create-vtt-map-hotspot.dto';
@@ -93,6 +95,17 @@ export class VttController {
     @Body() dto: CreateVttTokenDto,
   ) {
     return this.vttService.createToken(campaignId, mapId, user.userId, dto);
+  }
+
+  @Audit('vtt.token.sync', 'vtt-token')
+  @Put(':mapId/tokens/me')
+  syncOwnToken(
+    @Param('campaignId') campaignId: string,
+    @Param('mapId') mapId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: SyncOwnTokenDto,
+  ) {
+    return this.vttService.syncOwnToken(campaignId, mapId, user.userId, dto);
   }
 
   @Audit('vtt.token.update', 'vtt-token')

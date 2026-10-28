@@ -23,6 +23,7 @@ import { projectPlayerMap } from './vtt.projection';
 import { sanitizeWalls, wallKey } from './vision';
 import { canReach, canReachDoor } from './movement';
 import { MoveVttTokenDto, ToggleVttDoorDto } from './dto/player-action.dto';
+import { SyncOwnTokenDto } from './dto/sync-own-token.dto';
 
 const MAP_INCLUDE = {
   tokens: {
@@ -285,6 +286,68 @@ export class VttService {
         visionRadius: dto.visionRadius ?? 0,
       },
     });
+
+    const updated = await this.findMap(campaignId, mapId, userId);
+    await this.vttGateway.emitMapUpdated(campaignId, updated);
+    return updated;
+  }
+
+  async syncOwnToken(
+    campaignId: string,
+    mapId: string,
+    userId: string,
+    dto: SyncOwnTokenDto,
+  ) {
+    await this.assertIsMember(campaignId, userId);
+    const character = await this.prisma.character.findFirst({
+      where: { id: dto.characterId, userId },
+      select: { id: true, name: true },
+    });
+    if (!character) {
+      throw new ForbiddenException('Esta ficha não pertence a você.');
+    }
+    const binding = await this.prisma.campaignCharacter.findUnique({
+      where: { characterId: character.id },
+      select: { campaignId: true },
+    });
+    if (binding && binding.campaignId !== campaignId) {
+      throw new ConflictException(
+        'Esta ficha está vinculada a outra campanha.',
+      );
+    }
+
+    const map = await this.getOwnedMap(campaignId, mapId);
+    const position = this.clampTokenPosition(
+      dto.x,
+      dto.y,
+      1,
+      map.width,
+      map.height,
+    );
+    const existing = await this.prisma.vttToken.findFirst({
+      where: { mapId, characterId: character.id },
+      select: { id: true },
+    });
+
+    if (existing) {
+      await this.prisma.vttToken.update({
+        where: { id: existing.id },
+        data: { x: position.x, y: position.y, visible: true },
+      });
+    } else {
+      await this.prisma.vttToken.create({
+        data: {
+          mapId,
+          characterId: character.id,
+          name: character.name,
+          x: position.x,
+          y: position.y,
+          size: 1,
+          color: '#38bdf8',
+          visible: true,
+        },
+      });
+    }
 
     const updated = await this.findMap(campaignId, mapId, userId);
     await this.vttGateway.emitMapUpdated(campaignId, updated);
