@@ -12,10 +12,23 @@ export interface WeaponMechanics {
   damageType: DamageType;
   finesse: boolean;
   ranged: boolean;
+  rangeFeet: number;
   twoHanded: boolean;
   versatile: boolean;
   properties: string[];
 }
+
+const RANGED_RANGE_FEET: Record<string, number> = {
+  shortbow: 80,
+  longbow: 150,
+  lightcrossbow: 80,
+  heavycrossbow: 100,
+  handcrossbow: 30,
+  sling: 30,
+  dart: 20,
+  javelin: 30,
+  blowgun: 25,
+};
 
 export interface WeaponAttackResult {
   actionId: string;
@@ -119,6 +132,13 @@ export function parseWeaponMechanics(
   const normalizedProperties = rawProperties.map(normalize);
   const range =
     typeof record.weaponRange === 'string' ? normalize(record.weaponRange) : '';
+  const ranged =
+    ['ranged', 'distancia', 'distância'].includes(range) ||
+    normalizedProperties.some((item) =>
+      ['municao', 'municão', 'ammunition', 'ranged'].includes(item),
+    );
+  const srdIndex =
+    typeof record.srdIndex === 'string' ? normalize(record.srdIndex) : '';
   return {
     damageFormula,
     fixedDamage,
@@ -126,11 +146,8 @@ export function parseWeaponMechanics(
     finesse: normalizedProperties.some((item) =>
       ['acuidade', 'finesse'].includes(item),
     ),
-    ranged:
-      ['ranged', 'distancia', 'distância'].includes(range) ||
-      normalizedProperties.some((item) =>
-        ['municao', 'municão', 'ammunition', 'ranged'].includes(item),
-      ),
+    ranged,
+    rangeFeet: ranged ? (RANGED_RANGE_FEET[srdIndex] ?? 60) : 5,
     twoHanded: normalizedProperties.some((item) =>
       ['duas maos', 'duas mãos', 'two-handed'].includes(item),
     ),

@@ -227,7 +227,6 @@ export class WeaponAttackService {
         )
       : null;
     if (
-      !mechanics.ranged &&
       attackerParticipant?.x != null &&
       attackerParticipant.y != null &&
       targetParticipant?.x != null &&
@@ -237,9 +236,9 @@ export class WeaponAttackService {
         Math.abs(attackerParticipant.x - targetParticipant.x),
         Math.abs(attackerParticipant.y - targetParticipant.y),
       );
-      if (distance > 1) {
+      if (distance * 5 > mechanics.rangeFeet) {
         throw new BadRequestException(
-          `Alvo fora do alcance corpo a corpo (5 pés): ${distance * 5} pés.`,
+          `Alvo fora do alcance (${mechanics.rangeFeet} pés): ${distance * 5} pés.`,
         );
       }
     }
