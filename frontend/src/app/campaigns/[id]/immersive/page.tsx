@@ -125,6 +125,12 @@ interface ImmersiveWindow extends Window {
     hidePlayer: () => void;
     isReady: () => boolean;
     getPlayerPosition: () => { x: number; y: number } | null;
+    setPlayerCell: (
+      x: number,
+      y: number,
+      mapWidth: number,
+      mapHeight: number,
+    ) => void;
   };
 }
 
@@ -160,6 +166,7 @@ function ImmersiveContent() {
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
+  const lastCombatTurn = useRef("");
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
@@ -329,6 +336,12 @@ function ImmersiveContent() {
     return [...tokens, ...players, ...ambient];
   }, [combat, myCharacter, npcTokens, otherPlayerTokens, selected]);
 
+  const myCombatTurn = Boolean(
+    combat &&
+    myCharacter &&
+    combat.participants[combat.turnIndex]?.characterId === myCharacter.id,
+  );
+
   const applyFrame = useCallback(() => {
     const win = iframe.current?.contentWindow as ImmersiveWindow | null;
     const doc = iframe.current?.contentDocument;
@@ -342,9 +355,9 @@ function ImmersiveContent() {
       doc.head.appendChild(style);
     }
     win.__eldoria.setActors(actors);
-    win.__eldoria.setLocked(combatActive);
+    win.__eldoria.setLocked(combatActive && !myCombatTurn);
     return true;
-  }, [actors, combatActive]);
+  }, [actors, combatActive, myCombatTurn]);
 
   useEffect(() => {
     if (!slug) return;
@@ -389,6 +402,59 @@ function ImmersiveContent() {
         0,
         Math.min(selected.height - 1, Math.floor(position.y * selected.height)),
       );
+
+      if (combat) {
+        if (!myCombatTurn) return;
+        const current = combat.participants[combat.turnIndex];
+        if (!current || (current.x === x && current.y === y)) return;
+        if (current.x != null && current.y != null) {
+          const distance =
+            Math.max(Math.abs(current.x - x), Math.abs(current.y - y)) * 5;
+          const remaining = (current.speed ?? 30) - (current.movementUsed ?? 0);
+          if (distance > remaining) {
+            win?.__eldoria?.setPlayerCell(
+              current.x,
+              current.y,
+              selected.width,
+              selected.height,
+            );
+            lastSentPosition.current = "";
+            setError(
+              `Movimento insuficiente: restam ${remaining} pés para este turno.`,
+            );
+            return;
+          }
+        }
+        const key = `combat:${combat.id}:${current.id}:${x}:${y}`;
+        if (lastSentPosition.current === key) return;
+        lastSentPosition.current = key;
+        if (cancelled) return;
+        try {
+          const updated = await api.patch<CombatEncounter>(
+            `/campaigns/${params.id}/combat/participants/${current.id}/move`,
+            { x, y },
+            token,
+          );
+          setCombat(updated);
+        } catch (err) {
+          if (current.x != null && current.y != null) {
+            win?.__eldoria?.setPlayerCell(
+              current.x,
+              current.y,
+              selected.width,
+              selected.height,
+            );
+          }
+          lastSentPosition.current = "";
+          setError(
+            err instanceof ApiError
+              ? err.message
+              : "Movimento recusado pelo mestre.",
+          );
+        }
+        return;
+      }
+
       const key = `${myCharacter.id}:${selected.id}:${x}:${y}`;
       if (lastSentPosition.current === key) return;
       lastSentPosition.current = key;
@@ -410,7 +476,31 @@ function ImmersiveContent() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [frameReady, myCharacter, params.id, selected, token]);
+  }, [
+    combat,
+    frameReady,
+    myCharacter,
+    myCombatTurn,
+    params.id,
+    selected,
+    token,
+  ]);
+
+  useEffect(() => {
+    if (!frameReady || !combat || !myCombatTurn || !selected) return;
+    const current = combat.participants[combat.turnIndex];
+    if (!current || current.x == null || current.y == null) return;
+    const key = `${combat.id}:${combat.turnIndex}:${current.id}`;
+    if (lastCombatTurn.current === key) return;
+    lastCombatTurn.current = key;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    win?.__eldoria?.setPlayerCell(
+      current.x,
+      current.y,
+      selected.width,
+      selected.height,
+    );
+  }, [combat, frameReady, myCombatTurn, selected]);
 
   async function summonNpc() {
     if (!token || !selected || !campaign?.masterId) return;
