@@ -35,6 +35,8 @@ import type {
   ActionTarget,
   CombatActionResult,
   HudCharacter,
+  ItemUseResult,
+  SpellCastResult,
 } from "@/lib/table-types";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -216,6 +218,8 @@ function ImmersiveContent() {
   const [spellOpen, setSpellOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<AttackHudResult | null>(null);
+  const [lastSpell, setLastSpell] = useState<string | null>(null);
+  const [lastItem, setLastItem] = useState<string | null>(null);
   const [actionLog, setActionLog] = useState<CombatActionResult[]>([]);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -775,7 +779,7 @@ function ImmersiveContent() {
     setBusy(true);
     setError(null);
     try {
-      await api.post(
+      const result = await api.post<ItemUseResult>(
         `/campaigns/${params.id}/combat/items/use`,
         {
           requestKey: crypto.randomUUID(),
@@ -783,6 +787,9 @@ function ImmersiveContent() {
           characterId: myCharacter.id,
         },
         token,
+      );
+      setLastItem(
+        `${result.item.name} → ${result.target.name}: ${result.applied} PV`,
       );
       setItemOpen(false);
       await load();
@@ -798,7 +805,7 @@ function ImmersiveContent() {
     setBusy(true);
     setError(null);
     try {
-      await api.post(
+      const result = await api.post<SpellCastResult>(
         `/campaigns/${params.id}/combat/spells/cast`,
         {
           ...input,
@@ -807,6 +814,10 @@ function ImmersiveContent() {
         },
         token,
       );
+      const targets = result.targets
+        .map((target) => `${target.name} ${target.applied} PV`)
+        .join(", ");
+      setLastSpell(`${result.spell.name} → ${targets}`);
       setSpellOpen(false);
       await load();
     } catch (err) {
@@ -1161,6 +1172,20 @@ function ImmersiveContent() {
                 {lastAction.weapon.name} · {lastAction.applied}{" "}
                 {lastAction.damage.damageType}
               </p>
+            </div>
+          ) : null}
+          {lastSpell || lastItem ? (
+            <div className="border-t border-border/70 p-2 text-[10px]">
+              {lastSpell ? (
+                <p className="text-primary">
+                  <span className="font-semibold">Magia:</span> {lastSpell}
+                </p>
+              ) : null}
+              {lastItem ? (
+                <p className="text-primary">
+                  <span className="font-semibold">Item:</span> {lastItem}
+                </p>
+              ) : null}
             </div>
           ) : null}
           {actionLog.length ? (
