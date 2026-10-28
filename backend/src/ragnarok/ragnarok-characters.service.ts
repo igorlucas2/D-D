@@ -1,12 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddRagnarokSkillDto } from './dto/add-ragnarok-skill.dto';
+import {
+  AddRagnarokItemDto,
+  UpdateRagnarokItemDto,
+} from './dto/add-ragnarok-item.dto';
 import { CreateRagnarokCharacterDto } from './dto/create-ragnarok-character.dto';
 import { UpdateRagnarokCharacterDto } from './dto/update-ragnarok-character.dto';
 
 const INCLUDE = {
   job: true,
   skills: { include: { skill: true }, orderBy: { createdAt: 'asc' } },
+  equipment: { include: { item: true }, orderBy: { createdAt: 'asc' } },
 } as const;
 
 function derived(level: number, vitality: number, intelligence: number) {
@@ -121,6 +126,98 @@ export class RagnarokCharactersService {
     await this.prisma.ragnarokCharacterSkill.deleteMany({
       where: { characterId: character.id, skillId },
     });
+    return this.prisma.ragnarokCharacter.findUnique({
+      where: { id },
+      include: INCLUDE,
+    });
+  }
+
+  async addItem(userId: string, id: string, dto: AddRagnarokItemDto) {
+    const character = await this.owned(userId, id);
+    const item = await this.prisma.ragnarokItem.findUnique({
+      where: { id: dto.itemId },
+      select: { id: true, viewKind: true, equipSlots: true },
+    });
+    if (!item) throw new NotFoundException('Item Ragnarok não encontrado.');
+    const slot =
+      dto.slot?.trim() ||
+      item.viewKind ||
+      (Array.isArray(item.equipSlots)
+        ? item.equipSlots.map(String).join('/')
+        : '') ||
+      'Geral';
+    const equipped = dto.equipped ?? false;
+    const entry = await this.prisma.ragnarokCharacterItem.upsert({
+      where: {
+        characterId_itemId: { characterId: character.id, itemId: item.id },
+      },
+      update: { slot, equipped },
+      create: {
+        characterId: character.id,
+        itemId: item.id,
+        slot,
+        equipped,
+      },
+    });
+    if (equipped) {
+      await this.prisma.ragnarokCharacterItem.updateMany({
+        where: {
+          characterId: character.id,
+          slot,
+          equipped: true,
+          id: { not: entry.id },
+        },
+        data: { equipped: false },
+      });
+    }
+    return this.prisma.ragnarokCharacter.findUnique({
+      where: { id },
+      include: INCLUDE,
+    });
+  }
+
+  async updateItem(
+    userId: string,
+    id: string,
+    entryId: string,
+    dto: UpdateRagnarokItemDto,
+  ) {
+    const character = await this.owned(userId, id);
+    const entry = await this.prisma.ragnarokCharacterItem.findFirst({
+      where: { id: entryId, characterId: character.id },
+    });
+    if (!entry) throw new NotFoundException('Equipamento não encontrado.');
+    const equipped = dto.equipped ?? entry.equipped;
+    const slot = dto.slot !== undefined ? dto.slot || entry.slot : entry.slot;
+    await this.prisma.ragnarokCharacterItem.update({
+      where: { id: entryId },
+      data: { equipped, slot },
+    });
+    if (equipped && slot) {
+      await this.prisma.ragnarokCharacterItem.updateMany({
+        where: {
+          characterId: character.id,
+          slot,
+          equipped: true,
+          id: { not: entryId },
+        },
+        data: { equipped: false },
+      });
+    }
+    return this.prisma.ragnarokCharacter.findUnique({
+      where: { id },
+      include: INCLUDE,
+    });
+  }
+
+  async removeItem(userId: string, id: string, entryId: string) {
+    const character = await this.owned(userId, id);
+    const entry = await this.prisma.ragnarokCharacterItem.findFirst({
+      where: { id: entryId, characterId: character.id },
+      select: { id: true },
+    });
+    if (!entry) throw new NotFoundException('Equipamento não encontrado.');
+    await this.prisma.ragnarokCharacterItem.delete({ where: { id: entryId } });
     return this.prisma.ragnarokCharacter.findUnique({
       where: { id },
       include: INCLUDE,

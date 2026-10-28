@@ -1640,20 +1640,21 @@ model RagnarokSkill {
 }
 
 model RagnarokItem {
-  id           Int      @id
+  id           Int                     @id
   name         String
-  slots        Int      @default(0)
+  slots        Int                     @default(0)
   aegisName    String?
   resourceName String?
-  description  String?  @db.LongText
+  description  String?                 @db.LongText
   view         Int?
   spriteView   Int?
-  spriteBlank  Boolean  @default(false)
+  spriteBlank  Boolean                 @default(false)
   viewKind     String?
   equipSlots   Json?
-  costume      Boolean  @default(false)
+  costume      Boolean                 @default(false)
   contains     Json?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime                @default(now())
+  equipment    RagnarokCharacterItem[]
 
   @@index([name])
   @@index([costume])
@@ -1698,10 +1699,26 @@ model RagnarokCharacter {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user   User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job    RagnarokJob              @relation(fields: [jobId], references: [id], onDelete: Restrict)
-  skills RagnarokCharacterSkill[]
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       RagnarokJob              @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  skills    RagnarokCharacterSkill[]
+  equipment RagnarokCharacterItem[]
 
   @@index([userId])
   @@index([jobId])
+}
+
+model RagnarokCharacterItem {
+  id          String   @id @default(cuid())
+  characterId String
+  itemId      Int
+  slot        String?
+  equipped    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  character RagnarokCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  item      RagnarokItem      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, itemId])
+  @@index([itemId])
 }

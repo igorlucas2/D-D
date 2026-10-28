@@ -94,6 +94,7 @@ export class RagnarokService {
         aegisName: true,
         resourceName: true,
         view: true,
+        viewKind: true,
         costume: true,
         equipSlots: true,
       },

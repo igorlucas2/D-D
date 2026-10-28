@@ -3868,6 +3868,130 @@
         ]
       }
     },
+    "/api/ragnarok/characters/{id}/items": {
+      "post": {
+        "operationId": "RagnarokCharactersController_addItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRagnarokItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
+    "/api/ragnarok/characters/{id}/items/{entryId}": {
+      "patch": {
+        "operationId": "RagnarokCharactersController_updateItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRagnarokItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      },
+      "delete": {
+        "operationId": "RagnarokCharactersController_removeItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
       "get": {
         "operationId": "ExplorationController_getState",
@@ -7225,6 +7349,37 @@
           "skillId",
           "level"
         ]
+      },
+      "AddRagnarokItemDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number",
+            "minimum": 1
+          },
+          "equipped": {
+            "type": "boolean"
+          },
+          "slot": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      },
+      "UpdateRagnarokItemDto": {
+        "type": "object",
+        "properties": {
+          "equipped": {
+            "type": "boolean"
+          },
+          "slot": {
+            "type": "string",
+            "maxLength": 60
+          }
+        }
       },
       "TravelDto": {
         "type": "object",

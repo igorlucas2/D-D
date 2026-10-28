@@ -38,6 +38,13 @@ interface RagnarokCharacter {
     level: number;
     skill: { id: number; name: string; maxLevel: number };
   }>;
+  equipment: Array<{
+    id: string;
+    itemId: number;
+    slot: string | null;
+    equipped: boolean;
+    item: { id: number; name: string; costume: boolean; slots: number };
+  }>;
   job: Job;
 }
 
@@ -77,6 +84,13 @@ function RagnarokCharactersContent() {
   const [skillChoice, setSkillChoice] = useState("");
   const [skillLevel, setSkillLevel] = useState("1");
   const [skillBusy, setSkillBusy] = useState(false);
+  const [itemCharacterId, setItemCharacterId] = useState("");
+  const [itemSearch, setItemSearch] = useState("");
+  const [itemResults, setItemResults] = useState<
+    Array<{ id: number; name: string; slot: string }>
+  >([]);
+  const [itemChoice, setItemChoice] = useState("");
+  const [itemBusy, setItemBusy] = useState(false);
 
   useEffect(() => {
     if (!token || skillSearch.trim().length < 2) {
@@ -118,6 +132,7 @@ function RagnarokCharactersContent() {
       setJobs(classes);
       setJobId((current) => current || String(classes[0]?.id ?? ""));
       setSkillCharacterId((current) => current || roster[0]?.id || "");
+      setItemCharacterId((current) => current || roster[0]?.id || "");
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Falha ao carregar fichas.",
@@ -126,6 +141,40 @@ function RagnarokCharactersContent() {
       setLoading(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (!token || itemSearch.trim().length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa a busca curta
+      setItemResults([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await api.get<
+          Array<{ id: number; name: string; viewKind: string | null }>
+        >(
+          `/ragnarok/items?take=20&search=${encodeURIComponent(itemSearch.trim())}`,
+          token,
+        );
+        if (!cancelled) {
+          const normalized = result.map((entry) => ({
+            id: entry.id,
+            name: entry.name,
+            slot: entry.viewKind ?? "Geral",
+          }));
+          setItemResults(normalized);
+          setItemChoice(String(normalized[0]?.id ?? ""));
+        }
+      } catch {
+        if (!cancelled) setItemResults([]);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [itemSearch, token]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial
@@ -214,6 +263,75 @@ function RagnarokCharactersContent() {
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Falha ao remover skill.",
+      );
+    }
+  }
+
+  async function addEquipment(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token || !itemCharacterId || !itemChoice || itemBusy) return;
+    setItemBusy(true);
+    setError(null);
+    try {
+      const updated = await api.post<RagnarokCharacter>(
+        `/ragnarok/characters/${itemCharacterId}/items`,
+        { itemId: Number(itemChoice), equipped: true },
+        token,
+      );
+      setCharacters((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setItemSearch("");
+      setItemResults([]);
+      setItemChoice("");
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao equipar item.",
+      );
+    } finally {
+      setItemBusy(false);
+    }
+  }
+
+  async function toggleEquipment(
+    characterId: string,
+    entryId: string,
+    equipped: boolean,
+  ) {
+    if (!token) return;
+    try {
+      const updated = await api.patch<RagnarokCharacter>(
+        `/ragnarok/characters/${characterId}/items/${entryId}`,
+        { equipped },
+        token,
+      );
+      if (updated) {
+        setCharacters((current) =>
+          current.map((entry) => (entry.id === updated.id ? updated : entry)),
+        );
+      }
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao alterar equipamento.",
+      );
+    }
+  }
+
+  async function removeEquipment(characterId: string, entryId: string) {
+    if (!token) return;
+    try {
+      const updated = await api.delete<RagnarokCharacter>(
+        `/ragnarok/characters/${characterId}/items/${entryId}`,
+        token,
+      );
+      if (updated) {
+        setCharacters((current) =>
+          current.map((entry) => (entry.id === updated.id ? updated : entry)),
+        );
+      }
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao remover equipamento.",
       );
     }
   }
@@ -399,6 +517,58 @@ function RagnarokCharactersContent() {
         </p>
       </form>
 
+      <form
+        onSubmit={(event) => void addEquipment(event)}
+        className="space-y-3 rounded-xl border border-border/70 bg-card/60 p-4"
+      >
+        <p className="font-heading text-lg">Equipar item</p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <select
+            aria-label="Ficha para equipamento"
+            value={itemCharacterId}
+            onChange={(event) => setItemCharacterId(event.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            {characters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
+              </option>
+            ))}
+          </select>
+          <Input
+            value={itemSearch}
+            onChange={(event) => setItemSearch(event.target.value)}
+            placeholder="Buscar item…"
+            className="h-9"
+            aria-label="Buscar item"
+          />
+          <div className="flex gap-1">
+            <select
+              aria-label="Item"
+              value={itemChoice}
+              onChange={(event) => setItemChoice(event.target.value)}
+              className="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+            >
+              {itemResults.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} ({item.slot})
+                </option>
+              ))}
+            </select>
+            <Button
+              type="submit"
+              className="h-9"
+              disabled={itemBusy || !itemCharacterId || !itemChoice}
+            >
+              {itemBusy ? "…" : "Equipar"}
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Busca no catálogo Ragnarok; equipar não aplica bônus mecânicos ainda.
+        </p>
+      </form>
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando fichas…</p>
       ) : characters.length ? (
@@ -502,6 +672,49 @@ function RagnarokCharactersContent() {
                     Nenhuma skill aprendida.
                   </span>
                 ) : null}
+              </div>
+              <div className="mt-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Equipamento
+                </p>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {character.equipment.map((entry) => (
+                    <Badge
+                      key={entry.id}
+                      variant={entry.equipped ? "default" : "outline"}
+                      className="gap-1 text-[9px]"
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void toggleEquipment(
+                            character.id,
+                            entry.id,
+                            !entry.equipped,
+                          )
+                        }
+                      >
+                        {entry.item.name}
+                        {entry.slot ? ` · ${entry.slot}` : ""}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${entry.item.name}`}
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() =>
+                          void removeEquipment(character.id, entry.id)
+                        }
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                  {!character.equipment.length ? (
+                    <span className="text-[10px] text-muted-foreground">
+                      Nenhum item equipado.
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <Badge variant="outline" className="mt-3 font-mono text-[10px]">
                 {character.job.jt}

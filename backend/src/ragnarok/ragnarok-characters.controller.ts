@@ -13,6 +13,10 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { CreateRagnarokCharacterDto } from './dto/create-ragnarok-character.dto';
 import { UpdateRagnarokCharacterDto } from './dto/update-ragnarok-character.dto';
 import { AddRagnarokSkillDto } from './dto/add-ragnarok-skill.dto';
+import {
+  AddRagnarokItemDto,
+  UpdateRagnarokItemDto,
+} from './dto/add-ragnarok-item.dto';
 import { RagnarokCharactersService } from './ragnarok-characters.service';
 
 @UseGuards(JwtAuthGuard)
@@ -62,6 +66,34 @@ export class RagnarokCharactersController {
       id,
       Number.parseInt(skillId, 10),
     );
+  }
+
+  @Post(':id/items')
+  addItem(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Body() dto: AddRagnarokItemDto,
+  ) {
+    return this.characters.addItem(user.userId, id, dto);
+  }
+
+  @Patch(':id/items/:entryId')
+  updateItem(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Param('entryId') entryId: string,
+    @Body() dto: UpdateRagnarokItemDto,
+  ) {
+    return this.characters.updateItem(user.userId, id, entryId, dto);
+  }
+
+  @Delete(':id/items/:entryId')
+  removeItem(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Param('entryId') entryId: string,
+  ) {
+    return this.characters.removeItem(user.userId, id, entryId);
   }
 
   @Delete(':id')
