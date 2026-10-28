@@ -26,7 +26,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api, ApiError } from "@/lib/api";
 import type { Campaign, Character, CombatEncounter, VttMap } from "@/lib/types";
-import type { ActionTarget, HudCharacter } from "@/lib/table-types";
+import type {
+  ActionTarget,
+  CombatActionResult,
+  HudCharacter,
+} from "@/lib/table-types";
 import { useAuthStore } from "@/stores/auth-store";
 
 const LIVE_SLUG: Record<string, string> = {
@@ -189,6 +193,7 @@ function ImmersiveContent() {
   const [attackOpen, setAttackOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<AttackHudResult | null>(null);
+  const [actionLog, setActionLog] = useState<CombatActionResult[]>([]);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
@@ -273,6 +278,28 @@ function ImmersiveContent() {
     }, 3000);
     return () => window.clearInterval(timer);
   }, [params.id, token]);
+
+  useEffect(() => {
+    if (!token || !combat) return;
+    let cancelled = false;
+    const loadLog = async () => {
+      try {
+        const log = await api.get<CombatActionResult[]>(
+          `/campaigns/${params.id}/combat/actions?take=8`,
+          token,
+        );
+        if (!cancelled) setActionLog(log);
+      } catch {
+        // histórico opcional
+      }
+    };
+    void loadLog();
+    const timer = window.setInterval(() => void loadLog(), 3000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [combat, params.id, token]);
 
   const npcTokens = useMemo(
     () =>
@@ -992,6 +1019,34 @@ function ImmersiveContent() {
                 {lastAction.weapon.name} · {lastAction.applied}{" "}
                 {lastAction.damage.damageType}
               </p>
+            </div>
+          ) : null}
+          {actionLog.length ? (
+            <div className="border-t border-border/70 p-2">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Registro
+              </p>
+              <ul className="space-y-0.5">
+                {actionLog.slice(0, 5).map((entry) => (
+                  <li
+                    key={entry.actionId}
+                    className="flex items-center justify-between gap-2 text-[10px]"
+                  >
+                    <span className="truncate text-muted-foreground">
+                      {entry.source ?? entry.kind} · {entry.target.name}
+                    </span>
+                    <span className="shrink-0 font-mono">
+                      {entry.applied > 0
+                        ? `${entry.applied} PV`
+                        : entry.conditionsAfter.length
+                          ? entry.conditionsAfter[
+                              entry.conditionsAfter.length - 1
+                            ]
+                          : "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
           {isMaster ? (
