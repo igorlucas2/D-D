@@ -1,0 +1,134 @@
+[
+  {
+    "name": "Niflheim",
+    "width": 20,
+    "height": 16,
+    "source": "niflheim-min.png"
+  },
+  {
+    "name": "Comodo",
+    "width": 22,
+    "height": 16,
+    "source": "comodo-min.png"
+  },
+  {
+    "name": "Payon",
+    "width": 22,
+    "height": 16,
+    "source": "payon-min.png"
+  },
+  {
+    "name": "Alberta",
+    "width": 22,
+    "height": 16,
+    "source": "alberta-min.png"
+  },
+  {
+    "name": "Torre do Relógio",
+    "width": 22,
+    "height": 18,
+    "source": "c_tower1.png"
+  },
+  {
+    "name": "Umbala",
+    "width": 20,
+    "height": 16,
+    "source": "umbala-min.png"
+  },
+  {
+    "name": "Prontera",
+    "width": 24,
+    "height": 18,
+    "source": "prontera-min.png"
+  },
+  {
+    "name": "Caverna de Payon",
+    "width": 24,
+    "height": 18,
+    "source": "pay_dun00.png"
+  },
+  {
+    "name": "Geffen",
+    "width": 22,
+    "height": 16,
+    "source": "geffen-min.png"
+  },
+  {
+    "name": "Glast Heim",
+    "width": 26,
+    "height": 20,
+    "source": "glast_01-min.png"
+  },
+  {
+    "name": "Al De Baran",
+    "width": 22,
+    "height": 16,
+    "source": "aldebaran-min.png"
+  },
+  {
+    "name": "Campos de Prontera",
+    "width": 28,
+    "height": 20,
+    "source": "prt_fild01-min.png"
+  },
+  {
+    "name": "Floresta de Payon",
+    "width": 26,
+    "height": 20,
+    "source": "pay_fild01-min.png"
+  },
+  {
+    "name": "Deserto de Morroc",
+    "width": 30,
+    "height": 20,
+    "source": "moc_fild01-min.png"
+  },
+  {
+    "name": "Pântano de Comodo",
+    "width": 26,
+    "height": 20,
+    "source": "cmd_fild01-min.png"
+  },
+  {
+    "name": "Campos de Geffen",
+    "width": 26,
+    "height": 20,
+    "source": "gef_fild01-min.png"
+  },
+  {
+    "name": "Minas de Glast Heim",
+    "width": 24,
+    "height": 20,
+    "source": "gl_dun01.png"
+  },
+  {
+    "name": "Estrada de Juno",
+    "width": 28,
+    "height": 20,
+    "source": "yuno_fild01-min.png"
+  },
+  {
+    "name": "Passo de Moscóvia",
+    "width": 26,
+    "height": 20,
+    "source": "xmas-min.png"
+  },
+  {
+    "name": "Izlude",
+    "width": 22,
+    "height": 16,
+    "source": "izlude-min.png"
+  },
+  {
+    "name": "Juno",
+    "width": 22,
+    "height": 16,
+    "source": "yuno-min.png"
+  },
+  {
+    "name": "Morroc",
+    "width": 22,
+    "height": 16,
+    "source": "morocc-min.png"
+  }
+]

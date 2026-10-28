@@ -1,0 +1,5 @@
+﻿Repository: https://github.com/brahmamstr/classic-world-map-ragnarok
+Commit: 78aa4bb39246f4d79e4012224144ed21cfa26cbd
+License: MIT (see LICENSE)
+Purpose: minimaps used as VTT textures for Midgard maps.
+Maps are community minimaps; underlying Ragnarok Online artwork belongs to Gravity/Gungho.
