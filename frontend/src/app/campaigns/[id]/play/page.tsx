@@ -548,9 +548,9 @@ function AiMasterContent() {
                 ) : null}
               </div>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Leia a narração na coluna principal. Use o HUD ao lado para
-                aplicar dano, cura, PV temporário ou condições — o motor
-                calcula, o mestre narra.
+                Leia a narração na coluna principal. Ela é pública para todos os
+                jogadores da campanha. Use o HUD ao lado para aplicar dano, cura,
+                PV temporário ou condições — o motor calcula, o mestre narra.
               </p>
             </div>
 
@@ -570,6 +570,7 @@ function AiMasterContent() {
                     ? state.provider.model
                     : "Modelo indisponível"}
                 </Badge>
+                <Badge variant="outline">Crônica pública</Badge>
               </div>
               {state?.isMaster ? (
                 <details className="relative">

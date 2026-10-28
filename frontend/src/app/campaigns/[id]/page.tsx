@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
+import { CampaignTableDock } from "@/components/campaigns/campaign-table-dock";
 import { ExplorationHud } from "@/components/campaigns/exploration-hud";
 import { VttPanel } from "@/components/campaigns/vtt-panel";
 import { WorldClockWidget } from "@/components/campaigns/world-clock-widget";
@@ -178,11 +179,11 @@ function CampaignDetailContent() {
           <span aria-current="page" className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-primary/45 bg-primary/15 px-3 text-sm font-semibold text-primary">
             <Map className="size-4" aria-hidden="true" /> Mesa
           </span>
+          <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/play`} />}>
+            <Sparkles className="size-4" aria-hidden="true" /> Mesa narrada
+          </Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/explore`} />}>
             <Compass className="size-4" aria-hidden="true" /> Exploração
-          </Button>
-          <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/world`} />}>
-            <Map className="size-4" aria-hidden="true" /> Mundo
           </Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/journal`} />}>
             <BookOpen className="size-4" aria-hidden="true" /> Diário
@@ -190,11 +191,17 @@ function CampaignDetailContent() {
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/story`} />}>
             <BookOpen className="size-4" aria-hidden="true" /> Memórias
           </Button>
-          <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/play`} />}>
-            <Sparkles className="size-4" aria-hidden="true" /> Mestre IA
+          <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/world`} />}>
+            <Map className="size-4" aria-hidden="true" /> Mundo
           </Button>
+          <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-border" />
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/actions`} />}>Comandos</Button>
           <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/intents`} />}>Intenções</Button>
+          {isMaster && (
+            <span className="inline-flex h-9 shrink-0 items-center rounded-md border border-primary/25 bg-primary/5 px-2 text-[10px] font-semibold uppercase tracking-wide text-primary">
+              Mestre
+            </span>
+          )}
           {isMaster && <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/copilot`} />}>Copiloto</Button>}
           {isMaster && <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/consequences`} />}>Prazos</Button>}
           {isMaster && <Button variant="ghost" nativeButton={false} className="h-9" render={<Link href={`/campaigns/${campaign.id}/lore`} />}>
@@ -230,6 +237,7 @@ function CampaignDetailContent() {
       </div>
 
       {actionError && !pendingAction ? <p role="alert" className="text-sm text-destructive">{actionError}</p> : null}
+      <CampaignTableDock campaignId={campaign.id} />
       <ReturnChronicle campaignId={campaign.id} />
 
       <SessionWorkspace panels={[
