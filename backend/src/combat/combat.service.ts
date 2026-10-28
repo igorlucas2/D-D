@@ -397,7 +397,11 @@ export class CombatService {
     campaignId: string,
     characterId: string,
     isMaster: boolean,
-  ): Promise<{ participantId: string } | null> {
+    actionType: 'ACTION' | 'BONUS' = 'ACTION',
+  ): Promise<{
+    participantId: string;
+    actionType: 'ACTION' | 'BONUS';
+  } | null> {
     await tx.$queryRaw`SELECT id FROM \`CombatEncounter\` WHERE campaignId = ${campaignId} FOR UPDATE`;
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
@@ -427,12 +431,15 @@ export class CombatService {
         'Personagem inconsciente: role a salvaguarda contra morte ou receba cura.',
       );
     }
-    if (participant.actionUsed) {
+    if (actionType === 'BONUS' && participant.bonusUsed) {
+      throw new ConflictException('Sua ação bônus já foi usada neste turno.');
+    }
+    if (actionType === 'ACTION' && participant.actionUsed) {
       throw new ConflictException(
         'Sua ação já foi usada neste turno. Encerre o turno.',
       );
     }
-    return { participantId: participant.id };
+    return { participantId: participant.id, actionType };
   }
 
   /**
@@ -517,6 +524,13 @@ export class CombatService {
     await tx.combatParticipant.update({
       where: { id: participantId },
       data: { actionUsed: true },
+    });
+  }
+
+  async consumeBonus(tx: Prisma.TransactionClient, participantId: string) {
+    await tx.combatParticipant.update({
+      where: { id: participantId },
+      data: { bonusUsed: true },
     });
   }
 
@@ -620,6 +634,22 @@ export class CombatService {
       : null;
   }
 
+  async conditionAcBonus(
+    tx: Prisma.TransactionClient,
+    participantId: string,
+  ): Promise<number> {
+    const participant = await tx.combatParticipant.findUnique({
+      where: { id: participantId },
+      select: { conditions: true },
+    });
+    if (!participant) return 0;
+    return parseStringArray(participant.conditions).some(
+      (item) => normalizedCondition(item) === 'protegido',
+    )
+      ? 2
+      : 0;
+  }
+
   async saveRollBonus(
     tx: Prisma.TransactionClient,
     participantId: string,
@@ -643,10 +673,11 @@ export class CombatService {
     targetId: string,
   ): Promise<string | null> {
     const state = await this.getConcentration(tx, characterId);
-    return state &&
-      state.targets.some(
-        (target) => target.kind === targetKind && target.id === targetId,
-      )
+    if (!state || normalizedCondition(state.condition) !== 'marcado')
+      return null;
+    return state.targets.some(
+      (target) => target.kind === targetKind && target.id === targetId,
+    )
       ? state.bonusFormula
       : null;
   }

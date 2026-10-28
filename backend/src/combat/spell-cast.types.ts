@@ -6,6 +6,7 @@ import {
 } from './combat-action.types';
 
 export type SpellEffectKind = 'HEAL' | 'DAMAGE' | 'MARK' | 'BUFF';
+export type SpellActionType = 'ACTION' | 'BONUS';
 export type SpellTargetMode = 'SINGLE' | 'MULTIPLE';
 export type SpellAbility = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA';
 
@@ -18,6 +19,7 @@ export interface SpellMechanics {
   attack: 'SPELL' | null;
   upcast: { formula: string | null } | null;
   targets: SpellTargetMode;
+  action?: SpellActionType;
   concentration?: {
     condition: string;
     bonusFormula: string;
@@ -40,6 +42,7 @@ export interface SpellHud {
   targetMode: SpellTargetMode;
   formula: string;
   upcastFormula: string | null;
+  actionType: SpellActionType;
 }
 
 export interface SpellSlotHud {
@@ -61,6 +64,7 @@ export interface SpellCastResult {
     castLevel: number;
   };
   slot: { level: number; usedBefore: number; usedAfter: number } | null;
+  actionType: SpellActionType;
   targets: Array<{
     kind: 'CHARACTER' | 'PARTICIPANT';
     id: string;
@@ -203,6 +207,22 @@ const FALLBACKS: Record<string, SpellMechanics> = {
       durationMinutes: 1,
     },
   },
+  'escudo da fe': {
+    kind: 'BUFF',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'SINGLE',
+    action: 'BONUS',
+    concentration: {
+      condition: 'Protegido',
+      bonusFormula: '+2',
+      durationMinutes: 10,
+    },
+  },
 };
 
 function normalizeName(value: string): string {
@@ -277,11 +297,13 @@ export function resolveSpellMechanics(spell: {
             ? { formula: upcast.formula.toLowerCase() }
             : null,
         targets: record.targets === 'SINGLE' ? 'SINGLE' : 'MULTIPLE',
+        action: record.action === 'BONUS' ? 'BONUS' : 'ACTION',
         concentration:
           concentration &&
           typeof concentration.condition === 'string' &&
           typeof concentration.bonusFormula === 'string' &&
-          validFormula(concentration.bonusFormula) &&
+          concentration.bonusFormula.length > 0 &&
+          concentration.bonusFormula.length <= 10 &&
           typeof concentration.durationMinutes === 'number'
             ? {
                 condition: concentration.condition,
@@ -324,6 +346,7 @@ export function spellToHud(
     targetMode: mechanics.targets,
     formula: mechanics.formula,
     upcastFormula: mechanics.upcast?.formula ?? null,
+    actionType: mechanics.action ?? 'ACTION',
   };
 }
 

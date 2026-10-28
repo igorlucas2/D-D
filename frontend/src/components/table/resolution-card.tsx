@@ -66,6 +66,7 @@ function SpellCard({
 
   if (result.effectKind === "MARK" || result.effectKind === "BUFF") {
     const marked = result.effectKind === "MARK";
+    const shield = result.mark?.condition === "Protegido";
     return (
       <article
         className={`rounded-xl border p-3 ${TONES.CONDITION}`}
@@ -79,12 +80,19 @@ function SpellCard({
                 {result.spell.name} · {slotLabel}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {first?.name ?? "Alvo"}: {result.mark?.condition ?? (marked ? "Marcado" : "Abençoado")} · +
-                {result.mark?.bonusFormula ?? (marked ? "1d6" : "1d4")} em{" "}
-                {marked ? "ataques com arma" : "ataques e salvaguardas"} ·{" "}
-                {result.mark?.durationMinutes === 1
-                  ? "1 min"
-                  : `${Math.round((result.mark?.durationMinutes ?? 60) / 60)} h`}
+                {first?.name ?? "Alvo"}:{" "}
+                {result.mark?.condition ?? (marked ? "Marcado" : "Abençoado")} ·{" "}
+                {shield
+                  ? "+2 CA"
+                  : `+${result.mark?.bonusFormula ?? (marked ? "1d6" : "1d4")} em ${
+                      marked ? "ataques com arma" : "ataques e salvaguardas"
+                    }`}{" "}
+                ·{" "}
+                {shield
+                  ? "10 min"
+                  : result.mark?.durationMinutes === 1
+                    ? "1 min"
+                    : `${Math.round((result.mark?.durationMinutes ?? 60) / 60)} h`}
               </p>
             </div>
           </div>

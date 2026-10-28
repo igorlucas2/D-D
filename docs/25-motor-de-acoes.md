@@ -287,6 +287,10 @@ Condições com duração em `docs/36-condicoes-com-duracao.md`.
 
 Míssil Mágico e dano automático em `docs/37-missil-magico.md`.
 
+## 9.15 Fase P
+
+Escudo da Fé e ação bônus em `docs/38-escudo-da-fe.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

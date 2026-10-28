@@ -208,6 +208,7 @@ export function SpellDialog({
                               : spell.effectKind === "BUFF"
                                 ? "bênção"
                                 : "dano"}
+                          {spell.actionType === "BONUS" ? " · ação bônus" : ""}
                           {spell.targetMode === "MULTIPLE" ? " em área" : ""}
                         </p>
                       </div>
@@ -222,7 +223,9 @@ export function SpellDialog({
                     {spell.effectKind === "MARK"
                       ? "+1d6 em ataques contra o alvo marcado"
                       : spell.effectKind === "BUFF"
-                        ? "+1d4 em ataques e salvaguardas"
+                        ? spell.name === "Escudo da Fé"
+                          ? "+2 CA por concentração"
+                          : "+1d4 em ataques e salvaguardas"
                         : spell.formula}
                     {spell.attack
                       ? " · ataque mágico"

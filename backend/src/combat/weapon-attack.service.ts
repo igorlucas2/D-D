@@ -240,7 +240,10 @@ export class WeaponAttackService {
           max: targetCharacter!.maxHp,
           temp: targetCharacter!.tempHp,
         };
-    const ac = targetCharacter?.armorClass ?? 10;
+    const acBonus = targetParticipant
+      ? await this.combat.conditionAcBonus(tx, targetParticipant.id)
+      : 0;
+    const ac = (targetCharacter?.armorClass ?? 10) + acBonus;
     const abilityScore = weaponAbilityScore(attacker, mechanics);
     const abilityModifier = attackAbilityModifier(abilityScore);
     const attackModifier = attacker.proficiencyBonus + abilityModifier;

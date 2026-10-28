@@ -78,6 +78,8 @@ As ações continuam incrementando `revision`; a UI usa CAS em
 
 ## 6. Limites
 
+Ação bônus passou a ser consumida por Escudo da Fé: `docs/38-escudo-da-fe.md`.
+
 Condições temporárias em rodadas estão em `docs/36-condicoes-com-duracao.md`.
 
 - Ação bônus e reação têm campos, mas nenhuma ação as consome ainda.

@@ -86,6 +86,19 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Escudo da Fé como ação bônus e CA', () => {
+    expect(resolveSpellMechanics({ name: 'Escudo da Fé' })).toMatchObject({
+      kind: 'BUFF',
+      action: 'BONUS',
+      targets: 'SINGLE',
+      concentration: {
+        condition: 'Protegido',
+        bonusFormula: '+2',
+        durationMinutes: 10,
+      },
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

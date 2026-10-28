@@ -175,6 +175,7 @@ export class SpellCastService {
       campaignId,
       casterLocked.id,
       isMaster,
+      mechanics.action ?? 'ACTION',
     );
 
     const castLevel =
@@ -410,7 +411,10 @@ export class SpellCastService {
           : 0;
         const roll = this.dice.parseAndRoll('1d20');
         const total = roll.total + modifier + blessAmount;
-        const ac = character?.armorClass ?? 10;
+        const acBonus = participant
+          ? await this.combat.conditionAcBonus(tx, participant.id)
+          : 0;
+        const ac = (character?.armorClass ?? 10) + acBonus;
         const critical = roll.total === 20;
         const hit = roll.total !== 1 && (critical || total >= ac);
         attack = {
@@ -509,7 +513,11 @@ export class SpellCastService {
       slotResult = { level: slot.level, usedBefore: slot.used, usedAfter };
     }
 
-    if (economy) await this.combat.consumeAction(tx, economy.participantId);
+    if (economy) {
+      if (economy.actionType === 'BONUS')
+        await this.combat.consumeBonus(tx, economy.participantId);
+      else await this.combat.consumeAction(tx, economy.participantId);
+    }
 
     if (encounter) {
       if (dto.expectedRevision !== undefined) {
@@ -541,6 +549,7 @@ export class SpellCastService {
         castLevel,
       },
       slot: slotResult,
+      actionType: mechanics.action ?? 'ACTION',
       targets: targetResults,
       damageType: mechanics.kind === 'DAMAGE' ? mechanics.damageType : null,
       effectKind: mechanics.kind,

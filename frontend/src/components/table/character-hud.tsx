@@ -94,6 +94,18 @@ export function CharacterHud({
         (item) => item.characterId === character.characterId,
       )
     : null;
+  const effectiveArmorClass = character
+    ? character.armorClass +
+      (character.conditions.some(
+        (condition) =>
+          condition
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase() === "protegido",
+      )
+        ? 2
+        : 0)
+    : 0;
   const currentTurn = combat?.participants[combat.turnIndex] ?? null;
   const isMyTurn = Boolean(
     participant && currentTurn && currentTurn.id === participant.id,
@@ -110,6 +122,16 @@ export function CharacterHud({
         !isDown &&
         !isDead,
     );
+  const canBonus =
+    !combat ||
+    Boolean(
+      isMyTurn &&
+        participant &&
+        !participant.bonusUsed &&
+        !isDown &&
+        !isDead,
+    );
+  const canCast = canAct || canBonus;
   const canRollDeath =
     Boolean(combat && isMyTurn && participant && isDown && !isDead && !isStable) &&
     !participant?.deathSaveUsed;
@@ -164,7 +186,7 @@ export function CharacterHud({
                 {character.name}
               </h3>
               <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
-                CA {character.armorClass}
+                CA {effectiveArmorClass}
               </Badge>
             </div>
 
@@ -292,7 +314,7 @@ export function CharacterHud({
               variant="outline"
               className="mt-2 h-10 w-full justify-start gap-2 border-[#6f5a8f]/30 bg-[#6f5a8f]/10 text-xs hover:bg-[#6f5a8f]/20"
               onClick={onCastSpell}
-              disabled={busy || !canAct || character.spells.length === 0}
+              disabled={busy || !canCast || character.spells.length === 0}
             >
               <Sparkles className="size-3.5" aria-hidden="true" />
               Conjurar
@@ -380,10 +402,14 @@ export function CharacterHud({
                       : isDown
                         ? `inconsciente · ${participant.deathSuccesses ?? 0} sucesso(s) / ${participant.deathFailures ?? 0} falha(s)`
                         : participant.actionUsed
-                          ? "ação usada"
-                          : isMyTurn
-                            ? "ação disponível"
-                            : "aguardando seu turno"}
+                          ? participant.bonusUsed
+                            ? "ação e bônus usados"
+                            : "ação usada · bônus disponível"
+                          : participant.bonusUsed
+                            ? "bônus usado · ação disponível"
+                            : isMyTurn
+                              ? "ação e bônus disponíveis"
+                              : "aguardando seu turno"}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {canRollDeath ? (
