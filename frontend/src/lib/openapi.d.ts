@@ -1364,6 +1364,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ragnarok/characters/{id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCharactersController_addItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ragnarok/characters/{id}/items/{entryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["RagnarokCharactersController_removeItem"];
+        options?: never;
+        head?: never;
+        patch: operations["RagnarokCharactersController_updateItem"];
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
         parameters: {
             query?: never;
@@ -2477,6 +2509,15 @@ export interface components {
         AddRagnarokSkillDto: {
             skillId: number;
             level: number;
+        };
+        AddRagnarokItemDto: {
+            itemId: number;
+            equipped?: boolean;
+            slot?: string;
+        };
+        UpdateRagnarokItemDto: {
+            equipped?: boolean;
+            slot?: string;
         };
         TravelDto: {
             hotspotId: string;
@@ -5093,6 +5134,79 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_addItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddRagnarokItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_removeItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                entryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_updateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                entryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRagnarokItemDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {
