@@ -43,8 +43,12 @@ do cenário continuam no Caderno do mestre.
 
 ## 3. Cards da companhia
 
-Na Mesa raiz, os cards ficam ao lado da crônica. Nas subpáginas (Cenário,
-Exploração, Memórias etc.), uma **Companhia flutuante** fica no canto inferior.
+Na Mesa raiz, os cards ficam **sobre o palco do mapa**, no canto inferior direito,
+como um HUD compacto: podem ser recolhidos para iniciais e reabertos. A crônica
+pública ocupa a largura toda acima do mapa.
+
+Nas subpáginas (Cenário, Exploração, Memórias etc.), uma **Companhia flutuante**
+fica no canto inferior esquerdo.
 
 Cada card mostra:
 
@@ -78,8 +82,9 @@ Clicar em um card abre um **drawer não-modal** à direita:
 ## 6. Limites
 
 - Não há “mana” separada; usar espaços de magia.
+- O HUD do mapa cobre uma parte do canto inferior direito; pode ser recolhido.
 - O drawer cobre a lateral direita; o restante da página segue clicável.
-- O widget não aparece na Mesa raiz (já há dock) nem em `/play` (já há HUD).
+- O widget não aparece em `/play` (já há HUD) e a Mesa raiz usa o HUD do mapa.
 - A crônica pública mostra as últimas oito cenas; o histórico completo fica em
   Memórias.
 - A ficha rápida é leitura; ações de dano/cura continuam no HUD/combate.
@@ -87,7 +92,8 @@ Clicar em um card abre um **drawer não-modal** à direita:
 ## 7. Validação
 
 - `tsc`, ESLint e build do frontend passaram.
-- Teste Playwright: card “elfo” abre a ficha, “Minimizar ficha” mantém a pílula,
-  aba **Itens** mostra Poção de Cura e Punhal.
+- Teste Playwright: HUD do mapa abre a ficha do elfo, minimiza para a pílula
+  “Ficha de elfo” e restaura; a aba **Itens** mostra Poção de Cura e Punhal.
 - Teste Playwright no Cenário: widget “Companhia” abre e a ficha rápida funciona.
-- Screenshots em `frontend/test-results/ui-*.png`.
+- Screenshots em `frontend/test-results/ui-map-overlay-final.png` e
+  `frontend/test-results/ui-lore-drawer.png`.
