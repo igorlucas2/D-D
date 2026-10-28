@@ -45,20 +45,24 @@ const RANGED_RANGE_FEET: Record<string, number> = {
   blowgun: 25,
 };
 
-function weaponRange(item: HudItem): string {
-  if (!item.properties) return "5 pés";
+function weaponRangeFeet(item: HudItem): number {
+  if (!item.properties) return 5;
   try {
     const data = JSON.parse(item.properties) as Record<string, unknown>;
     const ranged =
       typeof data.weaponRange === "string" &&
       data.weaponRange.toLowerCase() === "ranged";
-    if (!ranged) return "5 pés";
+    if (!ranged) return 5;
     const index =
       typeof data.srdIndex === "string" ? data.srdIndex.toLowerCase() : "";
-    return `${RANGED_RANGE_FEET[index] ?? 60} pés`;
+    return RANGED_RANGE_FEET[index] ?? 60;
   } catch {
-    return "5 pés";
+    return 5;
   }
+}
+
+function weaponRange(item: HudItem): string {
+  return `${weaponRangeFeet(item)} pés`;
 }
 
 export function WeaponAttackDialog({
@@ -99,11 +103,21 @@ export function WeaponAttackDialog({
     null;
   const target =
     targets.find((item) => `${item.kind}:${item.id}` === targetKey) ?? null;
+  const rangeFeet = weapon ? weaponRangeFeet(weapon) : 5;
+  const targetOutOfRange = Boolean(
+    target?.distanceFeet != null && target.distanceFeet > rangeFeet,
+  );
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!weapon || !target) {
       setLocalError("Escolha arma e alvo.");
+      return;
+    }
+    if (targetOutOfRange) {
+      setLocalError(
+        `Alvo a ${target.distanceFeet} pés, fora do alcance de ${rangeFeet} pés.`,
+      );
       return;
     }
     setLocalError(null);
@@ -170,6 +184,10 @@ export function WeaponAttackDialog({
                       {item.distanceFeet != null
                         ? ` · ${item.distanceFeet} pés`
                         : ""}
+                      {item.distanceFeet != null &&
+                      item.distanceFeet > rangeFeet
+                        ? " · fora de alcance"
+                        : ""}
                     </option>
                   ))}
                 </select>
@@ -206,7 +224,10 @@ export function WeaponAttackDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={busy || !weapon || !target}>
+              <Button
+                type="submit"
+                disabled={busy || !weapon || !target || targetOutOfRange}
+              >
                 {busy ? "Atacando..." : "Atacar"}
               </Button>
             </DialogFooter>
