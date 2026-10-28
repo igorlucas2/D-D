@@ -149,6 +149,7 @@ interface ImmersiveWindow extends Window {
     ) => void;
     setSelectedActor: (id: string | null) => void;
     pulseActor: (id: string, kind?: "hit" | "heal") => void;
+    floatText: (id: string, text: string, kind?: "hit" | "heal") => void;
   };
 }
 
@@ -524,6 +525,13 @@ function ImmersiveContent() {
       `combat-${latest.target.id}`,
       latest.kind === "HEAL" ? "heal" : "hit",
     );
+    if (latest.applied > 0) {
+      win?.__eldoria?.floatText(
+        `combat-${latest.target.id}`,
+        `${latest.kind === "HEAL" ? "+" : "-"}${latest.applied}`,
+        latest.kind === "HEAL" ? "heal" : "hit",
+      );
+    }
   }, [actionLog, frameReady]);
 
   useEffect(() => {
