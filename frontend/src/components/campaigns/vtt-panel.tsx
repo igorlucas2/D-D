@@ -2,6 +2,7 @@
 import { useLoreMapImage } from "@/lib/use-lore-map-image";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   DragEvent,
   useCallback,
@@ -527,6 +528,7 @@ export function VttPanel({
   const liveSlug = selectedMap
     ? (LIVE_MAP_SLUG[selectedMap.name] ?? null)
     : null;
+  const isWorldMap = selectedMap?.name === "Midgard";
   const textureImageUrl = useMemo(() => {
     const url = selectedMap?.imageUrl;
     if (!url) return null;
@@ -2225,38 +2227,61 @@ export function VttPanel({
             <span className="px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Textura do mapa
             </span>
-            <Button
-              size="sm"
-              className="h-9"
-              variant={mapTextureMode === "2d" ? "default" : "outline"}
-              aria-pressed={mapTextureMode === "2d"}
-              onClick={() => setMapTextureMode("2d")}
-            >
-              <MapIcon className="size-4" aria-hidden="true" /> 2D
-            </Button>
-            <Button
-              size="sm"
-              className="h-9"
-              variant={mapTextureMode === "3d" ? "default" : "outline"}
-              aria-pressed={mapTextureMode === "3d"}
-              onClick={() => setMapTextureMode("3d")}
-            >
-              <Box className="size-4" aria-hidden="true" /> Foto 3D
-            </Button>
-            <Button
-              size="sm"
-              className="h-9"
-              variant="outline"
-              disabled={!liveSlug}
-              onClick={() => setLiveMapOpen(true)}
-            >
-              <Compass className="size-4" aria-hidden="true" /> 3D navegável
-            </Button>
+            {isWorldMap ? (
+              <Badge variant="outline" className="h-9 px-3">
+                <MapIcon className="size-4" aria-hidden="true" /> Mapa-múndi
+                ilustrado
+              </Badge>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  className="h-9"
+                  variant={mapTextureMode === "2d" ? "default" : "outline"}
+                  aria-pressed={mapTextureMode === "2d"}
+                  onClick={() => setMapTextureMode("2d")}
+                >
+                  <MapIcon className="size-4" aria-hidden="true" /> 2D
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-9"
+                  variant={mapTextureMode === "3d" ? "default" : "outline"}
+                  aria-pressed={mapTextureMode === "3d"}
+                  onClick={() => setMapTextureMode("3d")}
+                >
+                  <Box className="size-4" aria-hidden="true" /> Foto 3D
+                </Button>
+              </>
+            )}
+            {liveSlug ? (
+              <Button
+                size="sm"
+                className="h-9"
+                variant="outline"
+                onClick={() => setLiveMapOpen(true)}
+              >
+                <Compass className="size-4" aria-hidden="true" /> 3D navegável
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="h-9"
+                variant="outline"
+                nativeButton={false}
+                render={<Link href={`/campaigns/${campaignId}/immersive`} />}
+              >
+                <Compass className="size-4" aria-hidden="true" /> Abrir mesa
+                imersiva
+              </Button>
+            )}
           </div>
-          <p className="px-1 text-[11px] text-muted-foreground">
-            {mapTextureMode === "2d"
-              ? "Planta tática com grade"
-              : "Render 3D estático"}
+          <p className="max-w-xl px-1 text-[11px] text-muted-foreground">
+            {isWorldMap
+              ? "O mapa-múndi é ilustrado em 2D. O 3D navegável fica nas cidades e na mesa imersiva."
+              : mapTextureMode === "2d"
+                ? "Planta tática com grade"
+                : "Render 3D estático"}
           </p>
         </div>
 
