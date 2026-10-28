@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { RequireAuth } from "@/components/auth/require-auth";
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, ApiError } from "@/lib/api";
@@ -87,6 +88,11 @@ function CharacterSheetContent() {
   });
 
   const character = query.data ?? null;
+  const [resistanceType, setResistanceType] = useState("fogo");
+  const [resistanceKind, setResistanceKind] = useState<
+    "RESISTANCE" | "IMMUNITY" | "VULNERABILITY"
+  >("RESISTANCE");
+  const [resistanceError, setResistanceError] = useState<string | null>(null);
   const updateCharacter = (updated: Character) => {
     queryClient.setQueryData(["character", userId, params.id], updated);
   };
@@ -116,6 +122,62 @@ function CharacterSheetContent() {
     if (!confirm(`Excluir ${character.name}? Esta ação não pode ser desfeita.`)) return;
     await api.delete(`/characters/${character.id}`, token);
     router.push("/characters");
+  }
+
+  async function saveResistances(
+    resistances: Array<{
+      damageType: string;
+      type: "RESISTANCE" | "IMMUNITY" | "VULNERABILITY";
+    }>,
+  ) {
+    if (!token || !character) return;
+    setResistanceError(null);
+    try {
+      const updated = await api.put<Character>(
+        `/characters/${character.id}/resistances`,
+        { resistances },
+        token,
+      );
+      queryClient.setQueryData(["character", userId, params.id], updated);
+    } catch (err) {
+      setResistanceError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível salvar as resistências.",
+      );
+    }
+  }
+
+  async function addResistance() {
+    if (!character) return;
+    const damageType = resistanceType.trim();
+    if (!damageType) return;
+    const current = (character.resistances ?? []).map((entry) => ({
+      damageType: entry.damageType,
+      type: entry.type,
+    }));
+    await saveResistances([
+      ...current.filter(
+        (entry) =>
+          entry.damageType.toLowerCase() !== damageType.toLowerCase() ||
+          entry.type !== resistanceKind,
+      ),
+      { damageType, type: resistanceKind },
+    ]);
+  }
+
+  async function removeResistance(damageType: string, type: string) {
+    if (!character) return;
+    await saveResistances(
+      (character.resistances ?? [])
+        .filter(
+          (entry) => !(entry.damageType === damageType && entry.type === type),
+        )
+        .map((entry) => ({
+          damageType: entry.damageType,
+          type: entry.type,
+        })),
+    );
   }
 
   if (loading) {
@@ -267,15 +329,79 @@ function CharacterSheetContent() {
                 />
               ))}
             </div>
-            {character.resistances && character.resistances.length > 0 ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {character.resistances.map((resistance) => (
-                  <Badge key={resistance.id} variant="secondary">
-                    {resistance.type}: {resistance.damageType}
+            <div className="mt-4 rounded-lg border border-border/70 bg-card/60 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Resistências
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(character.resistances ?? []).map((resistance) => (
+                  <Badge
+                    key={resistance.id}
+                    variant="secondary"
+                    className="gap-1"
+                  >
+                    {resistance.damageType}:{" "}
+                    {resistance.type === "RESISTANCE"
+                      ? "resistência"
+                      : resistance.type === "IMMUNITY"
+                        ? "imunidade"
+                        : "vulnerabilidade"}
+                    <button
+                      type="button"
+                      aria-label={`Remover ${resistance.damageType}`}
+                      onClick={() =>
+                        removeResistance(resistance.damageType, resistance.type)
+                      }
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
                   </Badge>
                 ))}
+                {!character.resistances?.length ? (
+                  <span className="text-xs text-muted-foreground">
+                    Nenhuma resistência cadastrada.
+                  </span>
+                ) : null}
               </div>
-            ) : null}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Input
+                  value={resistanceType}
+                  onChange={(event) => setResistanceType(event.target.value)}
+                  placeholder="Tipo (fogo, gelo...)"
+                  className="h-8 w-36"
+                  maxLength={30}
+                />
+                <select
+                  value={resistanceKind}
+                  onChange={(event) =>
+                    setResistanceKind(
+                      event.target.value as
+                        | "RESISTANCE"
+                        | "IMMUNITY"
+                        | "VULNERABILITY",
+                    )
+                  }
+                  className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+                >
+                  <option value="RESISTANCE">resistência</option>
+                  <option value="IMMUNITY">imunidade</option>
+                  <option value="VULNERABILITY">vulnerabilidade</option>
+                </select>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={addResistance}
+                >
+                  Adicionar
+                </Button>
+              </div>
+              {resistanceError ? (
+                <p role="alert" className="mt-2 text-xs text-destructive">
+                  {resistanceError}
+                </p>
+              ) : null}
+            </div>
           </FadeIn>
         </TabsContent>
 

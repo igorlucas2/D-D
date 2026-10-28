@@ -377,6 +377,46 @@
         ]
       }
     },
+    "/api/characters/{id}/resistances": {
+      "put": {
+        "operationId": "CharactersController_setResistances",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetResistancesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Characters"
+        ]
+      }
+    },
     "/api/characters/{id}/spells": {
       "get": {
         "operationId": "CharactersController_getSpells",
@@ -5281,6 +5321,41 @@
             "minimum": 0
           }
         }
+      },
+      "CharacterResistanceDto": {
+        "type": "object",
+        "properties": {
+          "damageType": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RESISTANCE",
+              "IMMUNITY",
+              "VULNERABILITY"
+            ]
+          }
+        },
+        "required": [
+          "damageType",
+          "type"
+        ]
+      },
+      "SetResistancesDto": {
+        "type": "object",
+        "properties": {
+          "resistances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterResistanceDto"
+            }
+          }
+        },
+        "required": [
+          "resistances"
+        ]
       },
       "AddInventoryItemDto": {
         "type": "object",

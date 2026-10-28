@@ -212,6 +212,22 @@ export interface paths {
         patch: operations["CharactersController_update"];
         trace?: never;
     };
+    "/api/characters/{id}/resistances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CharactersController_setResistances"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/characters/{id}/spells": {
         parameters: {
             query?: never;
@@ -1921,6 +1937,14 @@ export interface components {
             currentHp?: number;
             tempHp?: number;
         };
+        CharacterResistanceDto: {
+            damageType: string;
+            /** @enum {string} */
+            type: "RESISTANCE" | "IMMUNITY" | "VULNERABILITY";
+        };
+        SetResistancesDto: {
+            resistances: components["schemas"]["CharacterResistanceDto"][];
+        };
         AddInventoryItemDto: {
             itemId: string;
             quantity?: number;
@@ -2618,6 +2642,31 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateCharacterDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CharactersController_setResistances: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetResistancesDto"];
             };
         };
         responses: {

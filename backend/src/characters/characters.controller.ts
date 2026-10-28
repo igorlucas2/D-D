@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -13,6 +14,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { CharactersService } from './characters.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { SetResistancesDto } from './dto/set-resistances.dto';
 import {
   AddInventoryItemDto,
   UpdateInventoryItemDto,
@@ -58,6 +60,15 @@ export class CharactersController {
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.charactersService.remove(id, user.userId);
+  }
+
+  @Put(':id/resistances')
+  setResistances(
+    @Param('id') id: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: SetResistancesDto,
+  ) {
+    return this.charactersService.setResistances(id, user.userId, dto);
   }
 
   @Get(':id/spells')

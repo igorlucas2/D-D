@@ -307,6 +307,10 @@ Resistências, imunidades e vulnerabilidades em `docs/41-resistencias.md`.
 
 Defesas de participantes em `docs/42-defesas-de-participantes.md`.
 
+## 9.20 Fase U
+
+Editor de resistências na ficha em `docs/43-editor-de-resistencias.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

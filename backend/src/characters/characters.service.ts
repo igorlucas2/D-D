@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CombatService } from '../combat/combat.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
+import { SetResistancesDto } from './dto/set-resistances.dto';
 import {
   AddInventoryItemDto,
   UpdateInventoryItemDto,
@@ -159,6 +160,31 @@ export class CharactersService {
     await this.syncSpellSlots(updated.id, updated.class, updated.level);
     await this.combatService.syncCharacterHp(updated.id);
     return this.findOne(updated.id, userId);
+  }
+
+  async setResistances(id: string, userId: string, dto: SetResistancesDto) {
+    await this.findOne(id, userId);
+    const unique = new Map<string, { damageType: string; type: string }>();
+    for (const entry of dto.resistances) {
+      const key = `${entry.type}:${entry.damageType.trim().toLowerCase()}`;
+      unique.set(key, {
+        damageType: entry.damageType.trim(),
+        type: entry.type,
+      });
+    }
+    await this.prisma.$transaction([
+      this.prisma.characterResistance.deleteMany({
+        where: { characterId: id },
+      }),
+      this.prisma.characterResistance.createMany({
+        data: [...unique.values()].map((entry) => ({
+          characterId: id,
+          damageType: entry.damageType,
+          type: entry.type as 'RESISTANCE' | 'IMMUNITY' | 'VULNERABILITY',
+        })),
+      }),
+    ]);
+    return this.findOne(id, userId);
   }
 
   async remove(id: string, userId: string) {
