@@ -28,6 +28,7 @@ import {
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
+import { MoveCombatParticipantDto } from './dto/move-combat-participant.dto';
 import { UpdateEncounterDto } from './dto/update-encounter.dto';
 
 const PARTICIPANT_ORDER: Prisma.CombatParticipantOrderByWithRelationInput[] = [
@@ -307,6 +308,81 @@ export class CombatService {
           ? { type: 'conditions', participantId }
           : { type: 'roster' },
     );
+    return this.getEncounter(campaignId, userId);
+  }
+
+  async moveParticipant(
+    campaignId: string,
+    userId: string,
+    participantId: string,
+    dto: MoveCombatParticipantDto,
+  ) {
+    const campaign = await this.assertIsMember(campaignId, userId);
+    const encounter = await this.prisma.combatEncounter.findUnique({
+      where: { campaignId },
+      include: ENCOUNTER_INCLUDE,
+    });
+    if (!encounter) {
+      throw new NotFoundException(
+        'Nenhum combate em andamento nesta campanha.',
+      );
+    }
+    const participant = encounter.participants.find(
+      (entry) => entry.id === participantId,
+    );
+    if (!participant) {
+      throw new NotFoundException('Participante não encontrado.');
+    }
+    if (participant.isDead) {
+      throw new ConflictException('Um participante morto não se move.');
+    }
+
+    const current = encounter.participants[encounter.turnIndex];
+    if (campaign.masterId !== userId) {
+      if (current?.id !== participant.id) {
+        throw new ConflictException('Não é o turno deste participante.');
+      }
+      if (!participant.characterId) {
+        throw new ConflictException(
+          'Este turno não pertence a um personagem jogável.',
+        );
+      }
+      const character = await this.prisma.character.findUnique({
+        where: { id: participant.characterId },
+        select: { userId: true },
+      });
+      if (character?.userId !== userId) {
+        throw new ConflictException(
+          'Não é o seu turno. Aguarde ou peça ao mestre.',
+        );
+      }
+    }
+
+    const fromX = participant.x ?? 0;
+    const fromY = participant.y ?? 0;
+    // Participantes antigos entram sem coordenada: o primeiro movimento é a
+    // colocação inicial no grid, sem custo de deslocamento.
+    const placing = participant.x == null || participant.y == null;
+    const cells = placing
+      ? 0
+      : Math.max(Math.abs(dto.x - fromX), Math.abs(dto.y - fromY));
+    const feet = cells * 5;
+    const remaining = participant.speed - participant.movementUsed;
+    if (feet > remaining) {
+      throw new BadRequestException(
+        `Movimento insuficiente: restam ${remaining} pés e o deslocamento custa ${feet}.`,
+      );
+    }
+
+    await this.prisma.combatParticipant.update({
+      where: { id: participant.id },
+      data: {
+        x: dto.x,
+        y: dto.y,
+        movementUsed: participant.movementUsed + feet,
+      },
+    });
+    await this.touchEncounter(participant.encounterId);
     return this.getEncounter(campaignId, userId);
   }
 
@@ -777,6 +853,7 @@ export class CombatService {
           bonusUsed: false,
           reactionUsed: false,
           deathSaveUsed: false,
+          movementUsed: 0,
         },
       });
     });

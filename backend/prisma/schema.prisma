@@ -412,6 +412,10 @@ model CombatParticipant {
   isDead          Boolean @default(false)
   deathSaveUsed   Boolean @default(false)
   isAlly          Boolean @default(true)
+  x               Int?
+  y               Int?
+  speed           Int     @default(30)
+  movementUsed    Int     @default(0)
 
   encounter CombatEncounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
   character Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)

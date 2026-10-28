@@ -266,12 +266,18 @@ function ImmersiveContent() {
           const isCurrent = participant.id === currentId;
           return {
             id: `combat-${participant.id}`,
-            x: entry
-              ? (entry.x + 0.5) / selected.width
-              : 0.48 + (index % 2) * 0.035,
-            y: entry
-              ? (entry.y + 0.5) / selected.height
-              : 0.47 + Math.floor(index / 2) * 0.035,
+            x:
+              participant.x != null
+                ? (participant.x + 0.5) / selected.width
+                : entry
+                  ? (entry.x + 0.5) / selected.width
+                  : 0.48 + (index % 2) * 0.035,
+            y:
+              participant.y != null
+                ? (participant.y + 0.5) / selected.height
+                : entry
+                  ? (entry.y + 0.5) / selected.height
+                  : 0.47 + Math.floor(index / 2) * 0.035,
             imageUrl: entry?.imageUrl ?? NPC_IMAGES[participant.isAlly ? 0 : 2],
             size: isCurrent ? 2.5 : 2,
           };
@@ -462,8 +468,38 @@ function ImmersiveContent() {
     }
   }
 
+  async function moveCurrentCombatant(dx: number, dy: number) {
+    if (!token || !selected || !currentCombatant || busy) return;
+    const fromX = currentCombatant.x ?? Math.floor(selected.width * 0.48);
+    const fromY = currentCombatant.y ?? Math.floor(selected.height * 0.47);
+    const x = Math.max(0, Math.min(selected.width - 1, fromX + dx));
+    const y = Math.max(0, Math.min(selected.height - 1, fromY + dy));
+    if (x === fromX && y === fromY) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await api.patch<CombatEncounter>(
+        `/campaigns/${params.id}/combat/participants/${currentCombatant.id}/move`,
+        { x, y },
+        token,
+      );
+      setCombat(updated);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao mover no combate.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const isMaster = campaign?.masterId === currentUserId;
   const currentCombatant = combat?.participants[combat.turnIndex] ?? null;
+  const canMoveCurrent =
+    Boolean(currentCombatant) &&
+    (isMaster ||
+      (Boolean(myCharacter) &&
+        currentCombatant?.characterId === myCharacter?.id));
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
@@ -586,6 +622,68 @@ function ImmersiveContent() {
               );
             })}
           </ol>
+          {currentCombatant ? (
+            <div className="border-t border-border/70 p-2">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                <span>Deslocamento</span>
+                <span className="font-mono">
+                  {currentCombatant.movementUsed ?? 0}/
+                  {currentCombatant.speed ?? 30} pés
+                </span>
+              </div>
+              {canMoveCurrent ? (
+                <div className="mx-auto mt-1 grid w-28 grid-cols-3 gap-1">
+                  <span />
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    disabled={busy}
+                    aria-label="Mover para cima"
+                    onClick={() => void moveCurrentCombatant(0, -1)}
+                  >
+                    ↑
+                  </Button>
+                  <span />
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    disabled={busy}
+                    aria-label="Mover para esquerda"
+                    onClick={() => void moveCurrentCombatant(-1, 0)}
+                  >
+                    ←
+                  </Button>
+                  <span className="grid place-items-center text-[9px] text-muted-foreground">
+                    5p
+                  </span>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    disabled={busy}
+                    aria-label="Mover para direita"
+                    onClick={() => void moveCurrentCombatant(1, 0)}
+                  >
+                    →
+                  </Button>
+                  <span />
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    disabled={busy}
+                    aria-label="Mover para baixo"
+                    onClick={() => void moveCurrentCombatant(0, 1)}
+                  >
+                    ↓
+                  </Button>
+                  <span />
+                </div>
+              ) : (
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Movimento do turno de outro participante.
+                </p>
+              )}
+            </div>
+          ) : null}
           {isMaster ? (
             <div className="border-t border-border/70 p-2">
               <Button

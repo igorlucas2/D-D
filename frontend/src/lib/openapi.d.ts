@@ -500,6 +500,22 @@ export interface paths {
         patch: operations["CombatController_updateParticipant"];
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/combat/participants/{participantId}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CombatController_moveParticipant"];
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/combat/next-turn": {
         parameters: {
             query?: never;
@@ -2143,6 +2159,10 @@ export interface components {
             conditions?: string[];
             damageDefenses?: components["schemas"]["ParticipantDefenseDto"][];
         };
+        MoveCombatParticipantDto: {
+            x: number;
+            y: number;
+        };
         CreateVttMapDto: {
             name: string;
             /** @enum {string} */
@@ -3352,6 +3372,32 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateParticipantDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CombatController_moveParticipant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                participantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveCombatParticipantDto"];
             };
         };
         responses: {

@@ -30,6 +30,7 @@ import { EndConcentrationDto } from './end-concentration.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
+import { MoveCombatParticipantDto } from './dto/move-combat-participant.dto';
 import { UpdateEncounterDto } from './dto/update-encounter.dto';
 
 @UseGuards(JwtAuthGuard)
@@ -193,6 +194,22 @@ export class CombatController {
     @Body() dto: UpdateParticipantDto,
   ) {
     return this.combatService.updateParticipant(
+      campaignId,
+      user.userId,
+      participantId,
+      dto,
+    );
+  }
+
+  @Audit('combat.participant.move', 'participant')
+  @Patch('participants/:participantId/move')
+  moveParticipant(
+    @Param('campaignId') campaignId: string,
+    @Param('participantId') participantId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: MoveCombatParticipantDto,
+  ) {
+    return this.combatService.moveParticipant(
       campaignId,
       user.userId,
       participantId,
