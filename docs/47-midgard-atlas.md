@@ -25,7 +25,9 @@ mostra raízes. Uma delas desce sob o cais.
 
 ## 2. Atlas instalado
 
-**15 mapas** e **91 pontos de interação**, com o mapa continental como raiz.
+**23 mapas** e **138 pontos de interação**, com o mapa continental como raiz.
+
+### Núcleo do pacote — 15 mapas
 
 | Mapa | Tipo | Estado inicial | Pontos |
 | --- | --- | --- | --- |
@@ -44,6 +46,23 @@ mostra raízes. Uma delas desce sob o cais.
 | Glast Heim | Interior | Descoberta | 5 |
 | Torre do Relógio | Interior | Descoberta | 5 |
 | Caverna de Payon | Interior | Descoberta | 5 |
+
+### Expansão de campo — 8 mapas
+
+| Mapa | Ligado a | Estado | Pontos |
+| --- | --- | --- | --- |
+| Campos de Prontera | Prontera | Público | 5 |
+| Floresta de Payon | Payon | Público | 5 |
+| Deserto de Morroc | Morroc | Público | 5 |
+| Pântano de Comodo | Comodo | Público | 5 |
+| Campos de Geffen | Geffen | Público | 5 |
+| Minas de Glast Heim | Glast Heim | Descoberta | 5 |
+| Estrada de Juno | Juno | Público | 5 |
+| Passo de Moscóvia | Midgard | Público | 5 |
+
+Os oito mapas de campo têm entrada a partir da cidade (ou do ponto de Moscóvia)
+e pontos próprios de interação, como **Ponte de Pedra**, **Trilha dos Ecos**,
+**Oásis Partido**, **Farol Afogado**, **Veio de Prata** e **Ponte de Gelo**.
 
 Locais regionais sem mapa próprio, mas com ponto no continente: **Amatsu,
 Ayothaya, Louyang, Rachel, Veins e Moscóvia**.
@@ -134,8 +153,8 @@ Fontes de referência:
 
 ## 8. Estado da mesa
 
-- 15 mapas instalados;
-- 91 pontos de interação;
+- **23 mapas** instalados;
+- **138 pontos de interação**;
 - cena inicial: **Cais de Prontera**;
 - modo da IA: **AUTONOMOUS**;
 - prólogo público na crônica;
@@ -145,6 +164,8 @@ Fontes de referência:
 
 - Mapas são esquemáticos, não arte oficial.
 - As dungeons começam privadas até descoberta/publicação.
+- Os 8 mapas de campo são uma **expansão local** desta mesa, além do pacote base
+  de 15 mapas; ainda não fazem parte do manifesto `midgard-ecos` 1.0.0.
 - O perfil de comandos do Vale do Lume não se aplica a Midgard; o motor genérico
   de combate/itens/magias continua funcionando.
-- Field maps individuais podem ser adicionados em uma revisão futura do pacote.
+- Field maps individuais podem ser incorporados ao pacote em uma revisão futura.
