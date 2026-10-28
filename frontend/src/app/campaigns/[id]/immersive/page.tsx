@@ -143,6 +143,21 @@ interface ImmersiveWindow extends Window {
   };
 }
 
+interface AttackHudResult {
+  weapon: { name: string };
+  target: { name: string };
+  attack: {
+    roll: number;
+    modifier: number;
+    total: number;
+    ac: number;
+    hit: boolean;
+    critical: boolean;
+  };
+  damage: { amount: number; damageType: string };
+  applied: number;
+}
+
 type SideTab = "party" | "chronicle" | "combat" | "npc";
 
 function frameCss() {
@@ -173,6 +188,7 @@ function ImmersiveContent() {
   const [busy, setBusy] = useState(false);
   const [attackOpen, setAttackOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
+  const [lastAction, setLastAction] = useState<AttackHudResult | null>(null);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
@@ -664,11 +680,12 @@ function ImmersiveContent() {
     setBusy(true);
     setError(null);
     try {
-      await api.post(
+      const result = await api.post<AttackHudResult>(
         `/campaigns/${params.id}/combat/attacks`,
         { ...input, requestKey: crypto.randomUUID() },
         token,
       );
+      setLastAction(result);
       setAttackOpen(false);
       await load();
     } catch (err) {
@@ -952,6 +969,29 @@ function ImmersiveContent() {
                   <Swords className="size-3.5" /> Atacar
                 </Button>
               ) : null}
+            </div>
+          ) : null}
+          {lastAction ? (
+            <div className="border-t border-border/70 p-2 text-[10px]">
+              <p
+                className={
+                  lastAction.attack.hit
+                    ? "font-semibold text-emerald-400"
+                    : "font-semibold text-destructive"
+                }
+              >
+                {lastAction.attack.hit ? "Acertou" : "Errou"}{" "}
+                {lastAction.target.name}
+                {lastAction.attack.critical ? " · crítico" : ""}
+              </p>
+              <p className="mt-0.5 font-mono text-muted-foreground">
+                d20 {lastAction.attack.roll} + {lastAction.attack.modifier} ={" "}
+                {lastAction.attack.total} vs CA {lastAction.attack.ac}
+              </p>
+              <p className="font-mono text-muted-foreground">
+                {lastAction.weapon.name} · {lastAction.applied}{" "}
+                {lastAction.damage.damageType}
+              </p>
             </div>
           ) : null}
           {isMaster ? (
