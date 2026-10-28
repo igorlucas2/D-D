@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   ScrollText,
+  Shield,
   Swords,
   Trash2,
   Users,
@@ -71,14 +72,38 @@ const NPC_IMAGES = [
   "https://assets.latam-tools.com.br/image?job=1002&action=0&frame=0",
 ];
 
+const PORTAL_ICON = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.15"/>
+        <stop offset="55%" stop-color="#67e8f9" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="80" cy="80" r="72" fill="url(#g)"/>
+    <circle cx="80" cy="80" r="54" fill="none" stroke="#67e8f9" stroke-width="7" stroke-dasharray="12 8"/>
+    <circle cx="80" cy="80" r="34" fill="#0e7490" fill-opacity="0.7" stroke="#a5f3fc" stroke-width="4"/>
+    <path d="M80 46l22 34H58z" fill="#ecfeff"/>
+  </svg>
+`)}`;
+
+function storedPositionKey(campaignId: string, mapId: string) {
+  return `eldoria:position:${campaignId}:${mapId}`;
+}
+
+function storedMapKey(campaignId: string) {
+  return `eldoria:map:${campaignId}`;
+}
+
 const AMBIENT: Record<
   string,
   Array<{ name: string; x: number; y: number; job: number }>
 > = {
   Prontera: [
-    { name: "Guarda de Prata", x: 0.46, y: 0.51, job: 1 },
-    { name: "Pregoeiro", x: 0.54, y: 0.47, job: 2 },
-    { name: "Cidadã", x: 0.51, y: 0.55, job: 0 },
+    { name: "Guarda de Prata", x: 0.45, y: 0.42, job: 1 },
+    { name: "Pregoeiro", x: 0.57, y: 0.47, job: 2 },
+    { name: "Cidadã", x: 0.5, y: 0.58, job: 0 },
   ],
   Geffen: [
     { name: "Aprendiz da Torre", x: 0.48, y: 0.5, job: 1 },
@@ -168,7 +193,7 @@ interface AttackHudResult {
   applied: number;
 }
 
-type SideTab = "party" | "chronicle" | "combat" | "npc";
+type SideTab = "sheet" | "party" | "chronicle" | "combat" | "npc";
 
 function frameCss() {
   return `
@@ -208,7 +233,7 @@ function ImmersiveContent() {
   const [party, setParty] = useState<PartyState | null>(null);
   const [combat, setCombat] = useState<CombatEncounter | null>(null);
   const combatActive = Boolean(combat);
-  const [tab, setTab] = useState<SideTab>("party");
+  const [tab, setTab] = useState<SideTab>("sheet");
   const [error, setError] = useState<string | null>(null);
   const [npcName, setNpcName] = useState("");
   const [npcX, setNpcX] = useState("10");
@@ -228,6 +253,7 @@ function ImmersiveContent() {
   const lastSentPosition = useRef("");
   const lastCombatTurn = useRef("");
   const lastPulsedAction = useRef("");
+  const restoredPosition = useRef("");
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
@@ -282,6 +308,15 @@ function ImmersiveContent() {
       setSelectedId((current) => {
         if (current && mapData.some((map) => map.id === current))
           return current;
+        const stored =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem(storedMapKey(params.id))
+            : null;
+        if (
+          stored &&
+          mapData.some((map) => map.id === stored && LIVE_SLUG[map.name])
+        )
+          return stored;
         const scene = partyData.scene?.name ?? "";
         return (
           mapData.find((map) => scene.includes(map.name))?.id ??
@@ -358,6 +393,43 @@ function ImmersiveContent() {
     [myCharacter?.id, selected],
   );
 
+  const ownToken = useMemo(
+    () =>
+      selected?.tokens.find(
+        (entry) => entry.characterId && entry.characterId === myCharacter?.id,
+      ) ?? null,
+    [myCharacter?.id, selected],
+  );
+
+  const portalHotspots = useMemo(
+    () =>
+      (selected?.hotspots ?? []).filter(
+        (hotspot) =>
+          hotspot.visibleToPlayers &&
+          (Boolean(hotspot.targetMapId) ||
+            /portal|port[ãa]o|entrada|caverna|kafra|passagem/i.test(
+              hotspot.label,
+            )),
+      ),
+    [selected],
+  );
+
+  const ambientNpcs = useMemo(
+    () =>
+      (
+        AMBIENT[selected?.name ?? ""] ?? [
+          { name: "Morador", x: 0.48, y: 0.55, job: 0 },
+          { name: "Viajante", x: 0.58, y: 0.45, job: 1 },
+        ]
+      )
+        .map((npc, index) => ({
+          id: `ambient-${selected?.id ?? "map"}-${index}`,
+          ...npc,
+        }))
+        .filter((npc) => !npcTokens.some((token) => token.name === npc.name)),
+    [npcTokens, selected?.id, selected?.name],
+  );
+
   const actors = useMemo(() => {
     if (!selected) return [];
     if (combat) {
@@ -412,20 +484,30 @@ function ImmersiveContent() {
       imageUrl: entry.imageUrl ?? NPC_IMAGES[0],
       size: 1.8,
     }));
-    const ambient = (
-      AMBIENT[selected.name] ?? [
-        { name: "Morador", x: 0.48, y: 0.55, job: 0 },
-        { name: "Viajante", x: 0.58, y: 0.45, job: 1 },
-      ]
-    ).map((npc, index) => ({
-      id: `ambient-${selected.id}-${index}`,
+    const ambient = ambientNpcs.map((npc) => ({
+      id: npc.id,
       x: npc.x,
       y: npc.y,
       imageUrl: NPC_IMAGES[npc.job] ?? NPC_IMAGES[0],
       size: 1.7,
     }));
-    return [...tokens, ...players, ...ambient];
-  }, [combat, myCharacter, npcTokens, otherPlayerTokens, selected]);
+    const portals = portalHotspots.map((hotspot, index) => ({
+      id: `portal:${hotspot.id}`,
+      x: (hotspot.x + hotspot.width / 2) / selected.width,
+      y: (hotspot.y + hotspot.height / 2) / selected.height,
+      imageUrl: PORTAL_ICON,
+      size: 2.3 + (index % 2) * 0.15,
+    }));
+    return [...tokens, ...players, ...ambient, ...portals];
+  }, [
+    ambientNpcs,
+    combat,
+    myCharacter,
+    npcTokens,
+    otherPlayerTokens,
+    portalHotspots,
+    selected,
+  ]);
 
   const myCombatTurn = Boolean(
     combat &&
@@ -466,18 +548,49 @@ function ImmersiveContent() {
     };
   }, [applyFrame, buildCode, slug]);
 
+  const openPortal = useCallback(
+    (hotspotId: string) => {
+      const hotspot = portalHotspots.find((entry) => entry.id === hotspotId);
+      if (!hotspot) {
+        setError("Portal não encontrado.");
+        return;
+      }
+      const target = hotspot.targetMapId
+        ? maps.find((map) => map.id === hotspot.targetMapId)
+        : null;
+      if (!target) {
+        setError(`${hotspot.label} é um ponto de interesse sem passagem 3D.`);
+        return;
+      }
+      if (!LIVE_SLUG[target.name]) {
+        setError(`O portal leva a ${target.name}, que ainda não tem cena 3D.`);
+        return;
+      }
+      setSelectedId(target.id);
+      setFrameReady(false);
+      lastSentPosition.current = "";
+      restoredPosition.current = "";
+      window.localStorage.setItem(storedMapKey(params.id), target.id);
+    },
+    [maps, params.id, portalHotspots],
+  );
+
   useEffect(() => {
     if (!frameReady) return;
     const win = iframe.current?.contentWindow as ImmersiveWindow | null;
     if (!win?.__eldoria) return;
     // eslint-disable-next-line react-hooks/immutability -- ponte intencional com o iframe same-origin
     win.__eldoria.onActorClick = (id) => {
+      if (id.startsWith("portal:")) {
+        openPortal(id.slice(7));
+        return;
+      }
       setSelectedTargetId(id.startsWith("combat-") ? id.slice(7) : id);
     };
     return () => {
       if (win.__eldoria) win.__eldoria.onActorClick = undefined;
     };
-  }, [frameReady]);
+  }, [frameReady, openPortal]);
 
   useEffect(() => {
     if (!frameReady) return;
@@ -544,6 +657,58 @@ function ImmersiveContent() {
     const timer = window.setInterval(() => void load(), 2500);
     return () => window.clearInterval(timer);
   }, [load, token]);
+
+  useEffect(() => {
+    if (!selected || !slug) return;
+    window.localStorage.setItem(storedMapKey(params.id), selected.id);
+  }, [params.id, selected, slug]);
+
+  useEffect(() => {
+    if (!frameReady || !selected || combat) return;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    if (!win?.__eldoria) return;
+    const key = `${selected.id}:${ownToken?.id ?? "local"}`;
+    if (restoredPosition.current !== key) {
+      const stored = ownToken
+        ? { x: ownToken.x, y: ownToken.y }
+        : (() => {
+            try {
+              const raw = window.localStorage.getItem(
+                storedPositionKey(params.id, selected.id),
+              );
+              return raw ? (JSON.parse(raw) as { x: number; y: number }) : null;
+            } catch {
+              return null;
+            }
+          })();
+      if (stored && Number.isFinite(stored.x) && Number.isFinite(stored.y)) {
+        win.__eldoria.setPlayerCell(
+          stored.x,
+          stored.y,
+          selected.width,
+          selected.height,
+        );
+      }
+      restoredPosition.current = key;
+    }
+    const timer = window.setInterval(() => {
+      const position = win.__eldoria?.getPlayerPosition?.();
+      if (!position) return;
+      const x = Math.max(
+        0,
+        Math.min(selected.width - 1, Math.floor(position.x * selected.width)),
+      );
+      const y = Math.max(
+        0,
+        Math.min(selected.height - 1, Math.floor(position.y * selected.height)),
+      );
+      window.localStorage.setItem(
+        storedPositionKey(params.id, selected.id),
+        JSON.stringify({ x, y }),
+      );
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [combat, frameReady, ownToken, params.id, selected]);
 
   useEffect(() => {
     if (!frameReady || !myCharacter || !selected || !token) return;
@@ -660,6 +825,52 @@ function ImmersiveContent() {
       selected.height,
     );
   }, [combat, frameReady, myCombatTurn, selected]);
+
+  async function seedAmbientNpcs() {
+    if (!token || !selected || !campaign?.masterId) return;
+    setBusy(true);
+    setError(null);
+    try {
+      for (const [index, npc] of ambientNpcs.entries()) {
+        const offset = [
+          [-1, 0],
+          [1, -1],
+          [0, 2],
+        ][index % 3];
+        await api.post(
+          `/campaigns/${params.id}/vtt/maps/${selected.id}/tokens`,
+          {
+            name: npc.name,
+            x: Math.max(
+              0,
+              Math.min(
+                selected.width - 1,
+                Math.floor(selected.width / 2) + offset[0],
+              ),
+            ),
+            y: Math.max(
+              0,
+              Math.min(
+                selected.height - 1,
+                Math.floor(selected.height / 2) + offset[1],
+              ),
+            ),
+            imageUrl: NPC_IMAGES[npc.job] ?? NPC_IMAGES[0],
+            color: "#c28b45",
+            visible: true,
+          },
+          token,
+        );
+      }
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao trazer NPCs da cena.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function summonNpc() {
     if (!token || !selected || !campaign?.masterId) return;
@@ -1278,7 +1489,8 @@ function ImmersiveContent() {
         <div className="flex gap-1 border-b border-border/70 p-2">
           {(
             [
-              ["party", Users, "Party"],
+              ["sheet", Shield, "Ficha"],
+              ["party", Users, "Grupo"],
               ["chronicle", ScrollText, "Crônica"],
               ["combat", Swords, "Combate"],
               ["npc", MapPin, "NPCs"],
@@ -1296,11 +1508,114 @@ function ImmersiveContent() {
           ))}
         </div>
 
+        {portalHotspots.length ? (
+          <div className="border-b border-border/70 px-2 py-2">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Portais
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {portalHotspots.map((hotspot) => (
+                <Button
+                  key={hotspot.id}
+                  size="sm"
+                  variant="outline"
+                  className="h-7 gap-1 px-2 text-[10px]"
+                  onClick={() => openPortal(hotspot.id)}
+                >
+                  <MapPin className="size-3" /> {hotspot.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="min-h-0 flex-1 overflow-y-auto p-3">
           {error ? (
             <p role="alert" className="mb-2 text-xs text-destructive">
               {error}
             </p>
+          ) : null}
+
+          {tab === "sheet" ? (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  Ficha de Eldoria
+                </p>
+                {myCharacter ? (
+                  <>
+                    <p className="mt-1 font-heading text-xl">
+                      {myCharacter.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {myCharacter.race} · {myCharacter.class} · Nv{" "}
+                      {myCharacter.level}
+                    </p>
+                    <div className="mt-2 grid grid-cols-3 gap-1 text-center">
+                      <div className="rounded border border-border/60 bg-background/40 p-1">
+                        <p className="text-[9px] text-muted-foreground">PV</p>
+                        <p className="font-mono text-xs">
+                          {myCharacter.currentHp}/{myCharacter.maxHp}
+                        </p>
+                      </div>
+                      <div className="rounded border border-border/60 bg-background/40 p-1">
+                        <p className="text-[9px] text-muted-foreground">CA</p>
+                        <p className="font-mono text-xs">
+                          {myCharacter.armorClass}
+                        </p>
+                      </div>
+                      <div className="rounded border border-border/60 bg-background/40 p-1">
+                        <p className="text-[9px] text-muted-foreground">
+                          Desl.
+                        </p>
+                        <p className="font-mono text-xs">
+                          {myCharacter.speed} pés
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Nenhum personagem SRD vinculado. A cena 3D abre, mas seu
+                    avatar e sua posição salvos ficam limitados até vincular uma
+                    ficha.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-border/60 bg-background/40 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Cena
+                </p>
+                <p className="mt-1 text-xs">{campaign?.name ?? "—"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {selected?.name ?? "Nenhum mapa"} ·{" "}
+                  {combatActive ? "combate" : "exploração"}
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-border/60 bg-background/40 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Visual na cena
+                </p>
+                <p className="mt-1 text-xs">
+                  {selectedVisual
+                    ? `Ragnarok · ${selectedVisual.name}`
+                    : myCharacter
+                      ? `SRD · ${myCharacter.name}`
+                      : "Aprendiz padrão"}
+                </p>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                nativeButton={false}
+                render={<Link href={`/campaigns/${params.id}/play`} />}
+              >
+                <Users className="size-4" /> Vincular ficha na Mesa
+              </Button>
+            </div>
           ) : null}
 
           {tab === "party" ? (
@@ -1394,17 +1709,21 @@ function ImmersiveContent() {
                 Vida da cena
               </p>
               <p className="text-xs text-muted-foreground">
-                {(
-                  AMBIENT[selected?.name ?? ""] ?? [
-                    { name: "Morador" },
-                    { name: "Viajante" },
-                  ]
-                )
-                  .map((npc) => npc.name)
-                  .join(" · ")}
+                {ambientNpcs.length
+                  ? ambientNpcs.map((npc) => npc.name).join(" · ")
+                  : "Os moradores desta cena já estão persistentes no mapa."}
               </p>
               {isMaster && selected ? (
                 <div className="space-y-2 rounded-lg border border-primary/25 p-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full gap-1"
+                    onClick={() => void seedAmbientNpcs()}
+                    disabled={busy || !ambientNpcs.length}
+                  >
+                    <Users className="size-3.5" /> Trazer NPCs para a cena
+                  </Button>
                   <p className="text-xs font-semibold">Invocar NPC</p>
                   <Input
                     value={npcName}
