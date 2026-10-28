@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Build estático do viewer 3D (artefato minificado, não fonte).
+    "public/**",
     "next-env.d.ts",
   ]),
 ]);
