@@ -17,11 +17,16 @@ import {
 } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
+import {
+  WeaponAttackDialog,
+  type WeaponAttackInput,
+} from "@/components/table/weapon-attack-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api, ApiError } from "@/lib/api";
 import type { Campaign, Character, CombatEncounter, VttMap } from "@/lib/types";
+import type { ActionTarget, HudCharacter } from "@/lib/table-types";
 import { useAuthStore } from "@/stores/auth-store";
 
 const LIVE_SLUG: Record<string, string> = {
@@ -151,6 +156,7 @@ function ImmersiveContent() {
   const [npcY, setNpcY] = useState("10");
   const [npcJob, setNpcJob] = useState("0");
   const [busy, setBusy] = useState(false);
+  const [attackOpen, setAttackOpen] = useState(false);
   const [frameReady, setFrameReady] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   const lastSentPosition = useRef("");
@@ -185,7 +191,18 @@ function ImmersiveContent() {
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
-      setMyCharacter(charactersData[0] ?? null);
+      const primary = charactersData[0] ?? null;
+      if (primary) {
+        try {
+          setMyCharacter(
+            await api.get<Character>(`/characters/${primary.id}`, token),
+          );
+        } catch {
+          setMyCharacter(primary);
+        }
+      } else {
+        setMyCharacter(null);
+      }
       setSelectedId((current) => {
         if (current && mapData.some((map) => map.id === current))
           return current;
@@ -493,6 +510,70 @@ function ImmersiveContent() {
     }
   }
 
+  async function submitAttack(input: WeaponAttackInput) {
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/combat/attacks`,
+        { ...input, requestKey: crypto.randomUUID() },
+        token,
+      );
+      setAttackOpen(false);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Falha ao atacar.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const hudCharacter = useMemo<HudCharacter | null>(() => {
+    if (!myCharacter) return null;
+    return {
+      id: myCharacter.id,
+      characterId: myCharacter.id,
+      name: myCharacter.name,
+      isMine: true,
+      currentHp: myCharacter.currentHp,
+      maxHp: myCharacter.maxHp,
+      tempHp: myCharacter.tempHp,
+      armorClass: myCharacter.armorClass,
+      conditions: [],
+      conditionTimers: [],
+      concentration: null,
+      items: (myCharacter.inventory ?? []).map((entry) => ({
+        inventoryItemId: entry.id,
+        itemId: entry.itemId,
+        name: entry.item.name,
+        quantity: entry.quantity,
+        category: /weapon|arma/i.test(entry.item.category)
+          ? "Arma"
+          : entry.item.category,
+        properties: entry.item.properties,
+        description: entry.item.description,
+        effectKind: null,
+      })),
+      spells: [],
+      spellSlots: [],
+    };
+  }, [myCharacter]);
+
+  const combatTargets = useMemo<ActionTarget[]>(
+    () =>
+      (combat?.participants ?? []).map((participant) => ({
+        kind: "PARTICIPANT",
+        id: participant.id,
+        name: participant.name,
+        characterId: participant.characterId,
+        currentHp: participant.currentHp,
+        maxHp: participant.maxHp,
+        isAlly: participant.isAlly,
+      })),
+    [combat?.participants],
+  );
+
   const isMaster = campaign?.masterId === currentUserId;
   const currentCombatant = combat?.participants[combat.turnIndex] ?? null;
   const canMoveCurrent =
@@ -500,6 +581,9 @@ function ImmersiveContent() {
     (isMaster ||
       (Boolean(myCharacter) &&
         currentCombatant?.characterId === myCharacter?.id));
+  const canAttackCurrent =
+    Boolean(hudCharacter && currentCombatant) &&
+    currentCombatant?.characterId === myCharacter?.id;
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
@@ -682,6 +766,16 @@ function ImmersiveContent() {
                   Movimento do turno de outro participante.
                 </p>
               )}
+              {canAttackCurrent ? (
+                <Button
+                  size="sm"
+                  className="mt-2 w-full gap-1"
+                  onClick={() => setAttackOpen(true)}
+                  disabled={busy}
+                >
+                  <Swords className="size-3.5" /> Atacar
+                </Button>
+              ) : null}
             </div>
           ) : null}
           {isMaster ? (
@@ -949,6 +1043,16 @@ function ImmersiveContent() {
           ) : null}
         </div>
       </aside>
+
+      {attackOpen && hudCharacter ? (
+        <WeaponAttackDialog
+          character={hudCharacter}
+          targets={combatTargets}
+          busy={busy}
+          onOpenChange={setAttackOpen}
+          onAttack={submitAttack}
+        />
+      ) : null}
 
       {!frameReady && slug ? (
         <div className="absolute inset-0 z-20 grid place-items-center bg-background/60 text-sm text-muted-foreground">

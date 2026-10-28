@@ -52,6 +52,7 @@ export function WeaponAttackDialog({
   );
   const [weaponId, setWeaponId] = useState(weapons[0]?.inventoryItemId ?? "");
   const initialTarget =
+    targets.find((target) => target.isAlly === false) ??
     targets.find((target) => target.characterId !== character.characterId) ??
     targets[0] ??
     null;
@@ -60,7 +61,9 @@ export function WeaponAttackDialog({
   );
   const [localError, setLocalError] = useState<string | null>(null);
   const weapon =
-    weapons.find((item) => item.inventoryItemId === weaponId) ?? weapons[0] ?? null;
+    weapons.find((item) => item.inventoryItemId === weaponId) ??
+    weapons[0] ??
+    null;
   const target =
     targets.find((item) => `${item.kind}:${item.id}` === targetKey) ?? null;
 
@@ -102,7 +105,10 @@ export function WeaponAttackDialog({
                 onChange={(event) => setWeaponId(event.target.value)}
               >
                 {weapons.map((item) => (
-                  <option key={item.inventoryItemId} value={item.inventoryItemId}>
+                  <option
+                    key={item.inventoryItemId}
+                    value={item.inventoryItemId}
+                  >
                     {item.name} ({weaponDamage(item)})
                   </option>
                 ))}
@@ -132,7 +138,9 @@ export function WeaponAttackDialog({
                   ))}
                 </select>
               ) : (
-                <p className="text-sm text-destructive">Nenhum alvo disponível.</p>
+                <p className="text-sm text-destructive">
+                  Nenhum alvo disponível.
+                </p>
               )}
             </div>
 
@@ -170,7 +178,8 @@ export function WeaponAttackDialog({
         ) : (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
-              Nenhuma arma no inventário. Adicione uma arma na ficha para atacar.
+              Nenhuma arma no inventário. Adicione uma arma na ficha para
+              atacar.
             </p>
             <DialogFooter>
               <Button variant="ghost" onClick={() => onOpenChange(false)}>
