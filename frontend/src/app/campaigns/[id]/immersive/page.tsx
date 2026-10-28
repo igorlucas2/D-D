@@ -95,6 +95,12 @@ const AMBIENT: Record<
   ],
 };
 
+interface RagnarokVisual {
+  id: string;
+  name: string;
+  appearance: string | null;
+}
+
 interface PartyCharacter {
   id: string;
   characterId: string;
@@ -179,6 +185,8 @@ function ImmersiveContent() {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [maps, setMaps] = useState<VttMap[]>([]);
   const [myCharacter, setMyCharacter] = useState<Character | null>(null);
+  const [ragnarokVisuals, setRagnarokVisuals] = useState<RagnarokVisual[]>([]);
+  const [selectedRagnarokId, setSelectedRagnarokId] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
   const [combat, setCombat] = useState<CombatEncounter | null>(null);
@@ -201,8 +209,12 @@ function ImmersiveContent() {
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
+  const selectedVisual =
+    ragnarokVisuals.find((entry) => entry.id === selectedRagnarokId) ?? null;
+  const visualAppearance =
+    selectedVisual?.appearance ?? myCharacter?.appearance;
   const buildCode = useMemo(() => {
-    const raw = myCharacter?.appearance;
+    const raw = visualAppearance;
     if (!raw) return null;
     try {
       const url = new URL(raw);
@@ -211,7 +223,7 @@ function ImmersiveContent() {
     } catch {
       return null;
     }
-  }, [myCharacter]);
+  }, [visualAppearance]);
   const frameSrc = slug
     ? `/immersive/index.html${buildCode ? `?b=${encodeURIComponent(buildCode)}` : ""}#play/${slug}`
     : null;
@@ -219,16 +231,20 @@ function ImmersiveContent() {
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const [campaignData, mapData, partyData, charactersData] =
+      const [campaignData, mapData, partyData, charactersData, ragnarokData] =
         await Promise.all([
           api.get<Campaign>(`/campaigns/${params.id}`, token),
           api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
           api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
           api.get<Character[]>("/characters", token),
+          api.get<RagnarokVisual[]>("/ragnarok/characters", token),
         ]);
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
+      setRagnarokVisuals(
+        ragnarokData.filter((entry) => Boolean(entry.appearance)),
+      );
       const primary = charactersData[0] ?? null;
       if (primary) {
         try {
@@ -426,7 +442,7 @@ function ImmersiveContent() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [slug, applyFrame]);
+  }, [applyFrame, buildCode, slug]);
 
   useEffect(() => {
     if (!frameReady) return;
@@ -831,6 +847,24 @@ function ImmersiveContent() {
             {combatActive ? "combate em turnos" : "movimento livre"}
           </p>
         </div>
+        {ragnarokVisuals.length ? (
+          <select
+            aria-label="Fonte do visual"
+            className="h-9 max-w-40 rounded-md border border-input bg-background px-2 text-xs"
+            value={selectedRagnarokId}
+            onChange={(event) => {
+              setSelectedRagnarokId(event.target.value);
+              setFrameReady(false);
+            }}
+          >
+            <option value="">Visual SRD</option>
+            {ragnarokVisuals.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                RO · {entry.name}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <select
           aria-label="Mapa imersivo"
           className="h-9 max-w-44 rounded-md border border-input bg-background px-2 text-xs"

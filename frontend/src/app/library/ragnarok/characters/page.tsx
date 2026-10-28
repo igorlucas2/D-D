@@ -55,6 +55,7 @@ function RagnarokCharactersContent() {
   const [characters, setCharacters] = useState<RagnarokCharacter[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [name, setName] = useState("");
+  const [appearanceUrl, setAppearanceUrl] = useState("");
   const [jobId, setJobId] = useState("");
   const [level, setLevel] = useState("1");
   const [stats, setStats] = useState<Record<string, string>>({
@@ -146,11 +147,13 @@ function RagnarokCharactersContent() {
           ...Object.fromEntries(
             STATS.map(([key]) => [key, Number(stats[key]) || 1]),
           ),
+          appearance: appearanceUrl.trim() || undefined,
         },
         token,
       );
       setCharacters((current) => [...current, created]);
       setName("");
+      setAppearanceUrl("");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Falha ao criar ficha.");
     } finally {
@@ -290,6 +293,15 @@ function RagnarokCharactersContent() {
               max={200}
               value={level}
               onChange={(event) => setLevel(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <Label htmlFor="ro-appearance">Link do visual (opcional)</Label>
+            <Input
+              id="ro-appearance"
+              value={appearanceUrl}
+              onChange={(event) => setAppearanceUrl(event.target.value)}
+              placeholder="https://visuais.latam-tools.com.br/?b=..."
             />
           </div>
           <div className="grid grid-cols-6 gap-1">
