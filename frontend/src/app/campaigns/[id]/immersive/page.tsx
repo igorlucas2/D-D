@@ -1520,6 +1520,7 @@ function ImmersiveContent() {
           character={hudCharacter}
           targets={combatTargets}
           busy={busy}
+          initialTargetId={selectedTargetId}
           onOpenChange={setSpellOpen}
           onCast={submitSpellCast}
         />

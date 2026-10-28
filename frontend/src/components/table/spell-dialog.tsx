@@ -13,11 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import type {
-  ActionTarget,
-  HudCharacter,
-  HudSpell,
-} from "@/lib/table-types";
+import type { ActionTarget, HudCharacter, HudSpell } from "@/lib/table-types";
 
 export interface SpellCastInput {
   characterSpellId: string;
@@ -33,7 +29,14 @@ function defaultTargetsFor(
   spell: HudSpell | null,
   character: HudCharacter,
   targets: ActionTarget[],
+  preferredTargetId?: string | null,
 ): Set<string> {
+  const preferred = preferredTargetId
+    ? targets.find((target) => target.id === preferredTargetId)
+    : null;
+  if (preferred && spell?.targetMode === "SINGLE") {
+    return new Set([targetKey(preferred)]);
+  }
   if (!spell || spell.effectKind === "DAMAGE") return new Set();
   return new Set(
     targets
@@ -47,12 +50,14 @@ export function SpellDialog({
   character,
   targets,
   busy,
+  initialTargetId,
   onOpenChange,
   onCast,
 }: {
   character: HudCharacter;
   targets: ActionTarget[];
   busy: boolean;
+  initialTargetId?: string | null;
   onOpenChange: (open: boolean) => void;
   onCast: (input: SpellCastInput) => Promise<void>;
 }) {
@@ -65,27 +70,26 @@ export function SpellDialog({
     spells[0] ??
     null;
   const [slotLevel, setSlotLevel] = useState(
-    selectedSpell
-      ? Math.max(selectedSpell.level, 1)
-      : 1,
+    selectedSpell ? Math.max(selectedSpell.level, 1) : 1,
   );
   const [selectedTargets, setSelectedTargets] = useState<Set<string>>(
-    defaultTargetsFor(spells[0] ?? null, character, targets),
+    defaultTargetsFor(spells[0] ?? null, character, targets, initialTargetId),
   );
   const [localError, setLocalError] = useState<string | null>(null);
 
   const availableSlots = useMemo(() => {
     if (!selectedSpell || selectedSpell.level === 0) return [];
     return character.spellSlots.filter(
-      (slot) =>
-        slot.level >= selectedSpell.level && slot.total - slot.used > 0,
+      (slot) => slot.level >= selectedSpell.level && slot.total - slot.used > 0,
     );
   }, [character.spellSlots, selectedSpell]);
 
   function chooseSpell(spell: HudSpell) {
     setSelectedSpellId(spell.characterSpellId);
     setSlotLevel(Math.max(spell.level, 1));
-    setSelectedTargets(defaultTargetsFor(spell, character, targets));
+    setSelectedTargets(
+      defaultTargetsFor(spell, character, targets, initialTargetId),
+    );
     setLocalError(null);
   }
 
@@ -167,7 +171,10 @@ export function SpellDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={submit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1">
+        <form
+          onSubmit={submit}
+          className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1"
+        >
           <div className="flex flex-col gap-2">
             {spells.map((spell) => {
               const Icon =
@@ -176,7 +183,8 @@ export function SpellDialog({
                   : spell.effectKind === "MARK"
                     ? Sparkles
                     : HeartPulse;
-              const selected = spell.characterSpellId === selectedSpell?.characterSpellId;
+              const selected =
+                spell.characterSpellId === selectedSpell?.characterSpellId;
               return (
                 <label
                   key={spell.characterSpellId}
@@ -197,10 +205,14 @@ export function SpellDialog({
                     <div className="flex min-w-0 items-start gap-2">
                       <Icon className="mt-0.5 size-4 shrink-0 text-primary" />
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{spell.name}</p>
+                        <p className="truncate text-sm font-medium">
+                          {spell.name}
+                        </p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          {spell.level === 0 ? "Truque" : `Nível ${spell.level}`} ·{" "}
-                          {spell.school} ·{" "}
+                          {spell.level === 0
+                            ? "Truque"
+                            : `Nível ${spell.level}`}{" "}
+                          · {spell.school} ·{" "}
                           {spell.effectKind === "HEAL"
                             ? "cura"
                             : spell.effectKind === "MARK"
@@ -259,7 +271,10 @@ export function SpellDialog({
                   availableSlots.map((slot) => (
                     <option key={slot.level} value={slot.level}>
                       Nível {slot.level} ({slot.total - slot.used}{" "}
-                      {slot.total - slot.used === 1 ? "disponível" : "disponíveis"})
+                      {slot.total - slot.used === 1
+                        ? "disponível"
+                        : "disponíveis"}
+                      )
                     </option>
                   ))
                 ) : (
@@ -282,14 +297,25 @@ export function SpellDialog({
                       className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-muted/40"
                     >
                       <input
-                        type={selectedSpell?.targetMode === "SINGLE" ? "radio" : "checkbox"}
-                        name={selectedSpell?.targetMode === "SINGLE" ? "spell-target" : undefined}
+                        type={
+                          selectedSpell?.targetMode === "SINGLE"
+                            ? "radio"
+                            : "checkbox"
+                        }
+                        name={
+                          selectedSpell?.targetMode === "SINGLE"
+                            ? "spell-target"
+                            : undefined
+                        }
                         checked={checked}
                         onChange={() => toggleTarget(target)}
                         className="size-3.5 accent-[var(--rpg-gold)]"
                       />
-                      <span className="min-w-0 flex-1 truncate">{target.name}</span>
-                      {typeof target.currentHp === "number" && typeof target.maxHp === "number" ? (
+                      <span className="min-w-0 flex-1 truncate">
+                        {target.name}
+                      </span>
+                      {typeof target.currentHp === "number" &&
+                      typeof target.maxHp === "number" ? (
                         <span className="font-mono text-[10px] text-muted-foreground">
                           {target.currentHp}/{target.maxHp}
                         </span>
@@ -299,7 +325,9 @@ export function SpellDialog({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-destructive">Nenhum alvo disponível.</p>
+              <p className="text-sm text-destructive">
+                Nenhum alvo disponível.
+              </p>
             )}
           </div>
 
