@@ -688,13 +688,13 @@ function ImmersiveContent() {
     }
   }
 
-  async function runAiTurn() {
+  async function runAiRound() {
     if (!token || busy) return;
     setBusy(true);
     setError(null);
     try {
       const updated = await api.post<CombatEncounter>(
-        `/campaigns/${params.id}/combat/ai-turn`,
+        `/campaigns/${params.id}/combat/ai-round`,
         undefined,
         token,
       );
@@ -1196,10 +1196,10 @@ function ImmersiveContent() {
               <Button
                 size="sm"
                 className="w-full gap-1"
-                onClick={() => void runAiTurn()}
+                onClick={() => void runAiRound()}
                 disabled={busy}
               >
-                <Swords className="size-3.5" /> Turno da IA
+                <Swords className="size-3.5" /> Rodada da IA
               </Button>
             </div>
           ) : null}

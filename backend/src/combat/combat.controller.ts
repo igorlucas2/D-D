@@ -232,6 +232,16 @@ export class CombatController {
   }
 
   @CampaignChanged()
+  @Audit('combat.ai-round', 'encounter')
+  @Post('ai-round')
+  @HttpCode(200)
+  aiRound(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.combatService.aiRound(campaignId, user.userId);
+  }
+
   @Audit('combat.ai-turn', 'encounter')
   @Post('ai-turn')
   @HttpCode(200)

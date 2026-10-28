@@ -567,6 +567,24 @@ export class CombatService {
     return this.getEncounter(campaignId, userId);
   }
 
+  async aiRound(campaignId: string, userId: string) {
+    await this.assertIsMaster(campaignId, userId);
+    for (let guard = 0; guard < 8; guard += 1) {
+      const encounter = await this.prisma.combatEncounter.findUnique({
+        where: { campaignId },
+        include: ENCOUNTER_INCLUDE,
+      });
+      if (!encounter) {
+        throw new NotFoundException('Nenhum combate em andamento.');
+      }
+      const current = encounter.participants[encounter.turnIndex];
+      if (!current || current.isAlly) break;
+      await this.aiTurn(campaignId, userId);
+      await this.nextTurn(campaignId, userId);
+    }
+    return this.getEncounter(campaignId, userId);
+  }
+
   async removeParticipant(
     campaignId: string,
     userId: string,
