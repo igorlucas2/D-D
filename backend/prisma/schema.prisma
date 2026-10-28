@@ -90,6 +90,7 @@ model Character {
   appearance  String? @db.LongText
   backstory   String? @db.LongText
   portraitUrl String? @db.Text
+  concentration String? @db.Text // JSON: magia de concentração ativa
 
   level Int @default(1)
   xp    Int @default(0)

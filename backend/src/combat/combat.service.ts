@@ -1,14 +1,20 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { parseStringArray } from '../common/json';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
+import { DiceService } from '../dice/dice.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { VttGateway } from '../vtt/vtt.gateway';
+import {
+  parseConcentrationState,
+  type ConcentrationState,
+} from './concentration.types';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -69,6 +75,7 @@ export class CombatService {
     private readonly prisma: PrismaService,
     private readonly access: CampaignAccessService,
     private readonly vttGateway: VttGateway,
+    private readonly dice: DiceService,
   ) {}
 
   async getEncounter(campaignId: string, userId: string) {
@@ -499,6 +506,121 @@ export class CombatService {
       where: { id: participantId },
       data: { actionUsed: true },
     });
+  }
+
+  async getConcentration(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+  ): Promise<ConcentrationState | null> {
+    const character = await tx.character.findUnique({
+      where: { id: characterId },
+      select: { concentration: true },
+    });
+    const state = parseConcentrationState(character?.concentration);
+    if (!state) return null;
+    if (Date.parse(state.expiresAt) <= Date.now()) {
+      await this.clearConcentration(tx, characterId);
+      return null;
+    }
+    return state;
+  }
+
+  async setConcentration(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+    state: ConcentrationState,
+  ) {
+    await this.clearConcentration(tx, characterId);
+    await tx.character.update({
+      where: { id: characterId },
+      data: { concentration: JSON.stringify(state) },
+    });
+  }
+
+  async clearConcentration(tx: Prisma.TransactionClient, characterId: string) {
+    const character = await tx.character.findUnique({
+      where: { id: characterId },
+      select: { concentration: true },
+    });
+    const state = parseConcentrationState(character?.concentration);
+    if (state?.targetKind === 'PARTICIPANT') {
+      const participant = await tx.combatParticipant.findUnique({
+        where: { id: state.targetId },
+        select: { id: true, conditions: true },
+      });
+      if (participant) {
+        const conditions = parseStringArray(participant.conditions).filter(
+          (item) => item.toLowerCase() !== state.condition.toLowerCase(),
+        );
+        await tx.combatParticipant.update({
+          where: { id: participant.id },
+          data: {
+            conditions: conditions.length ? JSON.stringify(conditions) : null,
+          },
+        });
+      }
+    }
+    if (character?.concentration) {
+      await tx.character.update({
+        where: { id: characterId },
+        data: { concentration: null },
+      });
+    }
+  }
+
+  async endConcentration(
+    campaignId: string,
+    userId: string,
+    characterId: string,
+  ) {
+    const campaign = await this.access.member(campaignId, userId);
+    const character = await this.prisma.character.findUnique({
+      where: { id: characterId },
+      select: { userId: true, concentration: true },
+    });
+    if (!character) throw new NotFoundException('Personagem não encontrado.');
+    if (campaign.masterId !== userId && character.userId !== userId)
+      throw new ForbiddenException(
+        'Você só pode encerrar a concentração do seu personagem.',
+      );
+    await this.prisma.$transaction((tx) =>
+      this.clearConcentration(tx, characterId),
+    );
+    return { ended: Boolean(character.concentration) };
+  }
+
+  async concentrationBonus(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+    targetKind: 'CHARACTER' | 'PARTICIPANT',
+    targetId: string,
+  ): Promise<string | null> {
+    const state = await this.getConcentration(tx, characterId);
+    return state &&
+      state.targetKind === targetKind &&
+      state.targetId === targetId
+      ? state.bonusFormula
+      : null;
+  }
+
+  async breakConcentrationOnDamage(
+    tx: Prisma.TransactionClient,
+    characterId: string,
+    damage: number,
+  ): Promise<boolean> {
+    const state = await this.getConcentration(tx, characterId);
+    if (!state || damage <= 0) return false;
+    const character = await tx.character.findUnique({
+      where: { id: characterId },
+      select: { constitution: true },
+    });
+    if (!character) return false;
+    const roll = this.dice.parseAndRoll('1d20').total;
+    const modifier = Math.floor((character.constitution - 10) / 2);
+    const dc = Math.max(10, Math.floor(damage / 2));
+    if (roll + modifier >= dc) return false;
+    await this.clearConcentration(tx, characterId);
+    return true;
   }
 
   private async advanceTurn(

@@ -238,6 +238,9 @@ export class ItemUseService {
         effect.kind === 'DAMAGE' && hpBefore.current === 0 && applied > 0,
       );
     }
+    if (effect.kind === 'DAMAGE' && applied > 0) {
+      await this.combat.breakConcentrationOnDamage(tx, character.id, applied);
+    }
 
     const quantityBefore = inventory.quantity;
     const quantityAfter = quantityBefore - 1;

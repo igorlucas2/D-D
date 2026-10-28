@@ -267,6 +267,10 @@ Salvaguarda automática no início do turno em `docs/31-morte-e-estabilizacao.md
 
 Narração de ataques com arma em `docs/32-narracao-de-armas.md`.
 
+## 9.10 Fase K
+
+Marca do Caçador e concentração em `docs/33-concentracao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

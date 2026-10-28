@@ -46,6 +46,8 @@ export interface WeaponAttackResult {
     amount: number;
     damageType: DamageType;
     critical: boolean;
+    markFormula: string | null;
+    markAmount: number;
   };
   hpBefore: HpSnapshot | null;
   hpAfter: HpSnapshot | null;

@@ -64,6 +64,32 @@ function SpellCard({
   const after = first?.hpAfter ?? null;
   const slotLabel = result.slot ? `espaço ${result.slot.level}` : "truque";
 
+  if (result.effectKind === "MARK") {
+    return (
+      <article
+        className={`rounded-xl border p-3 ${TONES.CONDITION}`}
+        aria-label={`${result.spell.name} em ${first?.name ?? "alvo"}`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-2">
+            <Sparkles className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">
+                {result.spell.name} · {slotLabel}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {first?.name ?? "Alvo"}: {result.mark?.condition ?? "Marcado"} ·{" "}
+                +{result.mark?.bonusFormula ?? "1d6"} em ataques com arma ·{" "}
+                {Math.round((result.mark?.durationMinutes ?? 60) / 60)} h
+              </p>
+            </div>
+          </div>
+          <HpBadge hp={after} />
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article
       className={`rounded-xl border p-3 ${tone}`}
@@ -209,6 +235,9 @@ function WeaponCard({
               {formatNumber(result.applied)} de dano
               {result.damage.damageType
                 ? ` ${DAMAGE_TYPE_LABELS[result.damage.damageType as keyof typeof DAMAGE_TYPE_LABELS] ?? result.damage.damageType}`
+                : ""}
+              {result.damage.markAmount > 0
+                ? ` · +${formatNumber(result.damage.markAmount)} da Marca`
                 : ""}
               {result.absorbedByTempHp
                 ? ` · ${formatNumber(result.absorbedByTempHp)} absorvido por PV temporário`

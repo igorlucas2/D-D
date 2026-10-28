@@ -59,7 +59,7 @@ export interface HudSpell {
   school: string;
   concentration: boolean;
   description: string | null;
-  effectKind: "HEAL" | "DAMAGE";
+  effectKind: "HEAL" | "DAMAGE" | "MARK";
   saveAbility: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA" | null;
   halfOnSuccess: boolean;
   attack: boolean;
@@ -74,6 +74,18 @@ export interface HudSpellSlot {
   used: number;
 }
 
+export interface HudConcentration {
+  spellId: string;
+  spellName: string;
+  targetKind: "CHARACTER" | "PARTICIPANT";
+  targetId: string;
+  targetName: string;
+  condition: string;
+  bonusFormula: string;
+  startedAt: string;
+  expiresAt: string;
+}
+
 export interface HudCharacter {
   id: string;
   characterId: string;
@@ -84,6 +96,7 @@ export interface HudCharacter {
   tempHp: number;
   armorClass: number;
   conditions: string[];
+  concentration: HudConcentration | null;
   items: HudItem[];
   spells: HudSpell[];
   spellSlots: HudSpellSlot[];
@@ -184,6 +197,13 @@ export interface SpellCastResult {
     absorbedByTempHp: number;
   }>;
   damageType: string | null;
+  effectKind: "HEAL" | "DAMAGE" | "MARK";
+  mark: {
+    condition: string;
+    bonusFormula: string;
+    durationMinutes: number;
+    expiresAt: string;
+  } | null;
   source: string;
   alreadyApplied: boolean;
   createdAt: string;
@@ -219,6 +239,8 @@ export interface WeaponAttackResult {
     amount: number;
     damageType: string;
     critical: boolean;
+    markFormula: string | null;
+    markAmount: number;
   };
   hpBefore: { current: number; max: number; temp: number } | null;
   hpAfter: { current: number; max: number; temp: number } | null;

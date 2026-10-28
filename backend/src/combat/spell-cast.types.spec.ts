@@ -51,6 +51,18 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Marca do Caçador como concentração com bônus', () => {
+    expect(resolveSpellMechanics({ name: 'Marca do Caçador' })).toMatchObject({
+      kind: 'MARK',
+      targets: 'SINGLE',
+      concentration: {
+        condition: 'Marcado',
+        bonusFormula: '1d6',
+        durationMinutes: 60,
+      },
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

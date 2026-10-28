@@ -12,6 +12,7 @@ import { Prisma } from '@prisma/client';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
 import { parseStringArray } from '../common/json';
 import { parseItemEffect } from '../combat/item-use.types';
+import { parseConcentrationState } from '../combat/concentration.types';
 import { spellToHud, type SpellHud } from '../combat/spell-cast.types';
 import {
   describeMechanicalResult,
@@ -161,6 +162,7 @@ export class AiMasterService {
         tempHp: row.character.tempHp,
         armorClass: row.character.armorClass,
         conditions: conditionsByCharacter.get(row.characterId) ?? [],
+        concentration: parseConcentrationState(row.character.concentration),
         items: row.character.inventory.map((entry) => ({
           inventoryItemId: entry.id,
           itemId: entry.itemId,
@@ -450,6 +452,13 @@ export class AiMasterService {
     const result = parsePayload(action.result);
     if (!result)
       throw new ConflictException('Resultado mecânico indisponível.');
+    if (
+      action.kind === 'CAST_SPELL' &&
+      (result as { effectKind?: string }).effectKind === 'MARK'
+    )
+      throw new BadRequestException(
+        'Marca não tem dano/cura aplicado para narrar; o efeito é uma condição.',
+      );
     const facts = describeMechanicalResult(action.kind, result);
 
     const context = await this.context.build(

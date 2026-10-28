@@ -68,6 +68,7 @@ export function CharacterHud({
   onAttack,
   onEndTurn,
   onDeathSave,
+  onEndConcentration,
 }: {
   characters: HudCharacter[];
   selectedId: string;
@@ -81,6 +82,7 @@ export function CharacterHud({
   onAttack: () => void;
   onEndTurn: () => void;
   onDeathSave: () => void;
+  onEndConcentration: () => void;
 }) {
   const options = isMaster
     ? characters
@@ -287,6 +289,27 @@ export function CharacterHud({
                 {character.spells.length}
               </span>
             </Button>
+            {character.concentration ? (
+              <div className="mt-2 rounded-lg border border-[#c9a96a]/30 bg-[#c9a96a]/8 px-2.5 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#d8c08a]">
+                  Concentração
+                </p>
+                <p className="mt-1 text-xs text-foreground">
+                  {character.concentration.spellName} em{" "}
+                  {character.concentration.targetName}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1 h-7 px-0 text-[10px] text-muted-foreground hover:text-foreground"
+                  onClick={onEndConcentration}
+                  disabled={busy}
+                >
+                  Encerrar concentração
+                </Button>
+              </div>
+            ) : null}
             {character.spellSlots.length > 0 ? (
               <div className="mt-3 flex flex-wrap gap-1">
                 {character.spellSlots.map((slot) => (

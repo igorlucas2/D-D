@@ -42,7 +42,8 @@ export function Chronicle({
   const older = events.slice(1);
   const canNarrate =
     latestAction?.kind === 'USE_ITEM' ||
-    latestAction?.kind === 'CAST_SPELL' ||
+    (latestAction?.kind === 'CAST_SPELL' &&
+      latestAction.effectKind !== 'MARK') ||
     latestAction?.kind === 'WEAPON_ATTACK';
   const otherActions = actions.filter(
     (action) => action.actionId !== latestAction?.actionId,

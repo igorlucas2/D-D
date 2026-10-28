@@ -155,6 +155,12 @@ export class WeaponAttackService {
       attacker.id,
       isMaster,
     );
+    const markFormula = await this.combat.concentrationBonus(
+      tx,
+      attacker.id,
+      dto.targetKind,
+      dto.targetId,
+    );
 
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
@@ -239,6 +245,7 @@ export class WeaponAttackService {
     const hit = attackRoll.total !== 1 && (critical || total >= ac);
 
     let amount = 0;
+    let markAmount = 0;
     if (hit) {
       amount =
         (mechanics.damageFormula
@@ -248,6 +255,10 @@ export class WeaponAttackService {
         amount += mechanics.damageFormula
           ? this.dice.parseAndRoll(mechanics.damageFormula).total
           : (mechanics.fixedDamage ?? 0);
+      }
+      if (markFormula) {
+        markAmount = this.dice.parseAndRoll(markFormula).total;
+        amount += markAmount;
       }
       amount = Math.max(0, amount);
     }
@@ -274,6 +285,13 @@ export class WeaponAttackService {
         tx,
         targetParticipant.id,
         hpBefore.current === 0 && amount > 0,
+      );
+    }
+    if (targetCharacter && damage.applied > 0) {
+      await this.combat.breakConcentrationOnDamage(
+        tx,
+        targetCharacter.id,
+        damage.applied,
       );
     }
 
@@ -335,6 +353,8 @@ export class WeaponAttackService {
         amount: hit ? amount : 0,
         damageType: mechanics.damageType,
         critical,
+        markFormula,
+        markAmount,
       },
       hpBefore: hidden ? null : hpBefore,
       hpAfter: hidden ? null : hpAfter,

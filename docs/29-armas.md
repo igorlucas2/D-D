@@ -78,6 +78,7 @@ dano (fórmula, modificador, tipo), PV antes/depois, dano aplicado e absorvido.
 - Ação/economia de turno ainda não é aplicada.
 - Não há ataque desarmado nem duas mãos/versátil completo.
 - O resultado do ataque pode ser narrado pelo mestre (Fase J).
+- Alvo com `Marcado` recebe `+1d6` do conjurador (Fase K).
 
 ## 7. Testes
 

@@ -13,7 +13,7 @@ import {
 } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { CampaignAccessService } from '../campaigns/campaign-access.service';
-import { parseJson } from '../common/json';
+import { parseJson, parseStringArray } from '../common/json';
 import { DiceService } from '../dice/dice.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CombatService, hpStatus } from './combat.service';
@@ -264,6 +264,36 @@ export class SpellCastService {
     const casterModifier = spellcastingModifier(casterLocked);
     const saveDc = spellSaveDc(casterLocked.proficiencyBonus, casterModifier);
 
+    const isMark = mechanics.kind === 'MARK';
+    const markSpec = mechanics.concentration ?? null;
+    if (isMark) {
+      if (!markSpec)
+        throw new BadRequestException(
+          'Esta marca não tem regra de concentração configurada.',
+        );
+      if (targets.length !== 1 || !targets[0].participant)
+        throw new BadRequestException(
+          'A Marca do Caçador exige exatamente um participante em combate.',
+        );
+    }
+    const markStartedAt = new Date();
+    const markExpiresAt = new Date(
+      markStartedAt.getTime() + (markSpec?.durationMinutes ?? 60) * 60_000,
+    );
+    if (isMark && markSpec) {
+      await this.combat.setConcentration(tx, casterLocked.id, {
+        spellId: characterSpell.spell.id,
+        spellName: characterSpell.spell.name,
+        targetKind: 'PARTICIPANT',
+        targetId: targets[0].participant!.id,
+        targetName: targets[0].participant!.name,
+        condition: markSpec.condition,
+        bonusFormula: markSpec.bonusFormula,
+        startedAt: markStartedAt.toISOString(),
+        expiresAt: markExpiresAt.toISOString(),
+      });
+    }
+
     const targetResults: SpellCastResult['targets'] = [];
     const emits: Execution['emits'] = [];
 
@@ -290,6 +320,43 @@ export class SpellCastService {
             max: character!.maxHp,
             temp: character!.tempHp,
           };
+
+      if (isMark) {
+        if (!participant || !markSpec)
+          throw new BadRequestException(
+            'A Marca do Caçador exige um participante em combate.',
+          );
+        const conditions = parseStringArray(participant.conditions);
+        if (
+          !conditions.some(
+            (item) => item.toLowerCase() === markSpec.condition.toLowerCase(),
+          )
+        )
+          conditions.push(markSpec.condition);
+        await tx.combatParticipant.update({
+          where: { id: participant.id },
+          data: { conditions: JSON.stringify(conditions) },
+        });
+        emits.push({
+          participantId: participant.id,
+          delta: 0,
+          hpStatus: hpStatus(hpBefore.current, hpBefore.max),
+        });
+        targetResults.push({
+          kind: 'PARTICIPANT',
+          id: participant.id,
+          name: participant.name,
+          characterId: participant.characterId,
+          hpBefore,
+          hpAfter: hpBefore,
+          save: null,
+          attack: null,
+          amount: 0,
+          applied: 0,
+          absorbedByTempHp: 0,
+        });
+        continue;
+      }
 
       let save: SpellCastResult['targets'][number]['save'] = null;
       let attack: SpellCastResult['targets'][number]['attack'] = null;
@@ -364,6 +431,9 @@ export class SpellCastService {
             tempHp: hpAfter.temp,
           },
         });
+      }
+      if (character && mechanics.kind === 'DAMAGE' && applied > 0) {
+        await this.combat.breakConcentrationOnDamage(tx, character.id, applied);
       }
       if (participant) {
         await this.combat.reconcileVitals(
@@ -442,6 +512,16 @@ export class SpellCastService {
       slot: slotResult,
       targets: targetResults,
       damageType: mechanics.kind === 'DAMAGE' ? mechanics.damageType : null,
+      effectKind: mechanics.kind,
+      mark:
+        isMark && markSpec
+          ? {
+              condition: markSpec.condition,
+              bonusFormula: markSpec.bonusFormula,
+              durationMinutes: markSpec.durationMinutes,
+              expiresAt: markExpiresAt.toISOString(),
+            }
+          : null,
       source: characterSpell.spell.name,
       alreadyApplied: false,
     };

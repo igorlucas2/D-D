@@ -26,6 +26,7 @@ import { UseItemDto } from './item-use.dto';
 import { CastSpellDto } from './spell-cast.dto';
 import { WeaponAttackDto } from './weapon-attack.dto';
 import { DeathSaveDto } from './death-save.dto';
+import { EndConcentrationDto } from './end-concentration.dto';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
@@ -42,6 +43,22 @@ export class CombatController {
     private readonly weapons: WeaponAttackService,
     private readonly deathSaves: DeathSaveService,
   ) {}
+
+  @CampaignChanged()
+  @Audit('combat.concentration.end', 'combat')
+  @Post('concentration/end')
+  @HttpCode(200)
+  endConcentration(
+    @Param('campaignId') campaignId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: EndConcentrationDto,
+  ) {
+    return this.combatService.endConcentration(
+      campaignId,
+      user.userId,
+      dto.characterId,
+    );
+  }
 
   @CampaignChanged()
   @Audit('combat.death-save', 'combat')

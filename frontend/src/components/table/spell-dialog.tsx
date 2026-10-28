@@ -170,7 +170,12 @@ export function SpellDialog({
         <form onSubmit={submit} className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1">
           <div className="flex flex-col gap-2">
             {spells.map((spell) => {
-              const Icon = spell.effectKind === "DAMAGE" ? Flame : HeartPulse;
+              const Icon =
+                spell.effectKind === "DAMAGE"
+                  ? Flame
+                  : spell.effectKind === "MARK"
+                    ? Sparkles
+                    : HeartPulse;
               const selected = spell.characterSpellId === selectedSpell?.characterSpellId;
               return (
                 <label
@@ -195,7 +200,12 @@ export function SpellDialog({
                         <p className="truncate text-sm font-medium">{spell.name}</p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
                           {spell.level === 0 ? "Truque" : `Nível ${spell.level}`} ·{" "}
-                          {spell.school} · {spell.effectKind === "HEAL" ? "cura" : "dano"}
+                          {spell.school} ·{" "}
+                          {spell.effectKind === "HEAL"
+                            ? "cura"
+                            : spell.effectKind === "MARK"
+                              ? "marca"
+                              : "dano"}
                           {spell.targetMode === "MULTIPLE" ? " em área" : ""}
                         </p>
                       </div>
@@ -207,7 +217,9 @@ export function SpellDialog({
                     ) : null}
                   </div>
                   <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
-                    {spell.formula}
+                    {spell.effectKind === "MARK"
+                      ? "+1d6 em ataques contra o alvo marcado"
+                      : spell.formula}
                     {spell.attack
                       ? " · ataque mágico"
                       : spell.saveAbility

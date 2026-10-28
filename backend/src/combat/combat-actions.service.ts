@@ -327,6 +327,9 @@ export class CombatActionsService {
         dto.kind === 'DAMAGE' && hpBefore.current === 0 && applied > 0,
       );
     }
+    if (dto.kind === 'DAMAGE' && applied > 0 && character) {
+      await this.combat.breakConcentrationOnDamage(tx, character.id, applied);
+    }
 
     if (encounter) {
       if (dto.expectedRevision !== undefined) {

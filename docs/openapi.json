@@ -796,6 +796,39 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/combat/concentration/end": {
+      "post": {
+        "operationId": "CombatController_endConcentration",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndConcentrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Combat"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/combat/death-save": {
       "post": {
         "operationId": "CombatController_deathSave",
@@ -5304,6 +5337,18 @@
             "maximum": 9
           }
         }
+      },
+      "EndConcentrationDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "maxLength": 191
+          }
+        },
+        "required": [
+          "characterId"
+        ]
       },
       "DeathSaveDto": {
         "type": "object",

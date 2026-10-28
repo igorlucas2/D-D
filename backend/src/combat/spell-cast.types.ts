@@ -5,7 +5,7 @@ import {
   type HpSnapshot,
 } from './combat-action.types';
 
-export type SpellEffectKind = 'HEAL' | 'DAMAGE';
+export type SpellEffectKind = 'HEAL' | 'DAMAGE' | 'MARK';
 export type SpellTargetMode = 'SINGLE' | 'MULTIPLE';
 export type SpellAbility = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA';
 
@@ -18,6 +18,11 @@ export interface SpellMechanics {
   attack: 'SPELL' | null;
   upcast: { formula: string | null } | null;
   targets: SpellTargetMode;
+  concentration?: {
+    condition: string;
+    bonusFormula: string;
+    durationMinutes: number;
+  } | null;
 }
 
 export interface SpellHud {
@@ -84,6 +89,13 @@ export interface SpellCastResult {
     absorbedByTempHp: number;
   }>;
   damageType: DamageType | null;
+  effectKind: SpellEffectKind;
+  mark: {
+    condition: string;
+    bonusFormula: string;
+    durationMinutes: number;
+    expiresAt: string;
+  } | null;
   source: string;
   alreadyApplied: boolean;
   createdAt: string;
@@ -132,6 +144,21 @@ const FALLBACKS: Record<string, SpellMechanics> = {
     upcast: null,
     targets: 'SINGLE',
   },
+  'marca do cacador': {
+    kind: 'MARK',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'SINGLE',
+    concentration: {
+      condition: 'Marcado',
+      bonusFormula: '1d6',
+      durationMinutes: 60,
+    },
+  },
 };
 
 function normalizeName(value: string): string {
@@ -156,11 +183,17 @@ export function resolveSpellMechanics(spell: {
   if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
     const record = parsed as Record<string, unknown>;
     const kind =
-      record.kind === 'HEAL' || record.kind === 'DAMAGE' ? record.kind : null;
+      record.kind === 'HEAL' ||
+      record.kind === 'DAMAGE' ||
+      record.kind === 'MARK'
+        ? record.kind
+        : null;
     const formula =
       typeof record.formula === 'string' && validFormula(record.formula)
         ? record.formula.toLowerCase()
-        : null;
+        : kind === 'MARK'
+          ? '0'
+          : null;
     if (kind && formula) {
       const save =
         record.save && typeof record.save === 'object'
@@ -169,6 +202,10 @@ export function resolveSpellMechanics(spell: {
       const upcast =
         record.upcast && typeof record.upcast === 'object'
           ? (record.upcast as Record<string, unknown>)
+          : null;
+      const concentration =
+        record.concentration && typeof record.concentration === 'object'
+          ? (record.concentration as Record<string, unknown>)
           : null;
       const ability =
         typeof save?.ability === 'string' &&
@@ -195,6 +232,18 @@ export function resolveSpellMechanics(spell: {
             ? { formula: upcast.formula.toLowerCase() }
             : null,
         targets: record.targets === 'SINGLE' ? 'SINGLE' : 'MULTIPLE',
+        concentration:
+          concentration &&
+          typeof concentration.condition === 'string' &&
+          typeof concentration.bonusFormula === 'string' &&
+          validFormula(concentration.bonusFormula) &&
+          typeof concentration.durationMinutes === 'number'
+            ? {
+                condition: concentration.condition,
+                bonusFormula: concentration.bonusFormula.toLowerCase(),
+                durationMinutes: concentration.durationMinutes,
+              }
+            : null,
       };
     }
   }
@@ -221,7 +270,7 @@ export function spellToHud(
     name: spell.name,
     level: spell.level,
     school: spell.school,
-    concentration: spell.concentration,
+    concentration: spell.concentration || Boolean(mechanics.concentration),
     description: spell.description,
     effectKind: mechanics.kind,
     saveAbility: mechanics.save?.ability ?? null,

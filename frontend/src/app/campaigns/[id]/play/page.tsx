@@ -89,6 +89,7 @@ function AiMasterContent() {
   const [attackBusy, setAttackBusy] = useState(false);
   const [turnBusy, setTurnBusy] = useState(false);
   const [deathBusy, setDeathBusy] = useState(false);
+  const [concentrationBusy, setConcentrationBusy] = useState(false);
   const [narratingActionId, setNarratingActionId] = useState<string | null>(
     null,
   );
@@ -486,6 +487,29 @@ function AiMasterContent() {
     }
   }
 
+  async function endConcentration() {
+    if (!token || !selectedCharacter || concentrationBusy) return;
+    setConcentrationBusy(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/combat/concentration/end`,
+        { characterId: selectedCharacter.characterId },
+        token,
+      );
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível encerrar a concentração.",
+      );
+      await load();
+    } finally {
+      setConcentrationBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16">
@@ -694,6 +718,7 @@ function AiMasterContent() {
               attackBusy ||
               turnBusy ||
               deathBusy ||
+              concentrationBusy ||
               busy
             }
             onAction={openAction}
@@ -702,6 +727,7 @@ function AiMasterContent() {
             onAttack={() => setAttackDialogOpen(true)}
             onEndTurn={() => void endTurn()}
             onDeathSave={() => void rollDeathSave()}
+            onEndConcentration={() => void endConcentration()}
           />
         </div>
       </div>
