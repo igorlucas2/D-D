@@ -2001,6 +2001,11 @@ export interface components {
             hpDisplay?: "DESCRIPTIVE" | "NUMERIC";
             expectedRevision?: number;
         };
+        ParticipantDefenseDto: {
+            damageType: string;
+            /** @enum {string} */
+            type: "RESISTANCE" | "IMMUNITY" | "VULNERABILITY";
+        };
         AddParticipantDto: {
             characterId?: string;
             name?: string;
@@ -2008,6 +2013,7 @@ export interface components {
             maxHp?: number;
             currentHp?: number;
             isAlly?: boolean;
+            damageDefenses?: components["schemas"]["ParticipantDefenseDto"][];
         };
         UpdateParticipantDto: {
             initiative?: number;
@@ -2015,6 +2021,7 @@ export interface components {
             maxHp?: number;
             isAlly?: boolean;
             conditions?: string[];
+            damageDefenses?: components["schemas"]["ParticipantDefenseDto"][];
         };
         CreateVttMapDto: {
             name: string;

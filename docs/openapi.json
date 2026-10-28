@@ -5592,6 +5592,27 @@
           }
         }
       },
+      "ParticipantDefenseDto": {
+        "type": "object",
+        "properties": {
+          "damageType": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RESISTANCE",
+              "IMMUNITY",
+              "VULNERABILITY"
+            ]
+          }
+        },
+        "required": [
+          "damageType",
+          "type"
+        ]
+      },
       "AddParticipantDto": {
         "type": "object",
         "properties": {
@@ -5615,6 +5636,12 @@
           },
           "isAlly": {
             "type": "boolean"
+          },
+          "damageDefenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParticipantDefenseDto"
+            }
           }
         }
       },
@@ -5639,6 +5666,12 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "damageDefenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParticipantDefenseDto"
             }
           }
         }

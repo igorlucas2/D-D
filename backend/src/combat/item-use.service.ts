@@ -210,6 +210,7 @@ export class ItemUseService {
         character.id,
         effect.damageType,
         amount,
+        participant?.id,
       );
       amount = defense.adjusted;
     }

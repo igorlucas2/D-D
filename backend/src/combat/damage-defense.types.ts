@@ -46,6 +46,36 @@ export function normalizeDamageType(value: string): string {
   return LABELS[normalized] ?? normalized;
 }
 
+export function parseDamageDefenses(
+  value: string | null | undefined,
+): ResistanceEntry[] {
+  if (!value) return [];
+  try {
+    const data = JSON.parse(value) as unknown;
+    if (!Array.isArray(data)) return [];
+    return data
+      .map((item) => {
+        if (!item || typeof item !== 'object' || Array.isArray(item))
+          return null;
+        const record = item as Record<string, unknown>;
+        if (
+          typeof record.damageType !== 'string' ||
+          (record.type !== 'RESISTANCE' &&
+            record.type !== 'IMMUNITY' &&
+            record.type !== 'VULNERABILITY')
+        )
+          return null;
+        return {
+          damageType: record.damageType,
+          type: record.type,
+        };
+      })
+      .filter((item): item is ResistanceEntry => Boolean(item));
+  } catch {
+    return [];
+  }
+}
+
 export function resolveDamageDefense(
   amount: number,
   damageType: string | null | undefined,

@@ -303,6 +303,10 @@ Heroísmo e PV temporários em `docs/40-heroismo.md`.
 
 Resistências, imunidades e vulnerabilidades em `docs/41-resistencias.md`.
 
+## 9.19 Fase T
+
+Defesas de participantes em `docs/42-defesas-de-participantes.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

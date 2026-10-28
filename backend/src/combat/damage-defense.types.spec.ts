@@ -1,4 +1,7 @@
-import { resolveDamageDefense } from './damage-defense.types';
+import {
+  parseDamageDefenses,
+  resolveDamageDefense,
+} from './damage-defense.types';
 
 describe('damage defense', () => {
   it('metade na resistência', () => {
@@ -44,5 +47,16 @@ describe('damage defense', () => {
       type: null,
       adjusted: 8,
     });
+  });
+
+  it('lê defesas JSON de participante', () => {
+    expect(
+      parseDamageDefenses(
+        JSON.stringify([
+          { damageType: 'fogo', type: 'RESISTANCE' },
+          { damageType: 'x', type: 'NOPE' },
+        ]),
+      ),
+    ).toEqual([{ damageType: 'fogo', type: 'RESISTANCE' }]);
   });
 });

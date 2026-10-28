@@ -92,6 +92,7 @@ export interface CombatParticipant {
   hpStatus: HpStatus;
   conditions: string[];
   timedConditions?: string | null;
+  damageDefenses?: string | null;
   isAlly: boolean;
   actionUsed?: boolean;
   bonusUsed?: boolean;

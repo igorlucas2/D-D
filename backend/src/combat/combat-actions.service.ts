@@ -277,12 +277,13 @@ export class CombatActionsService {
       amount = dto.amount ?? 0;
     }
 
-    if (dto.kind === 'DAMAGE' && character) {
+    if (dto.kind === 'DAMAGE') {
       defense = await this.combat.resolveDamageDefense(
         tx,
-        character.id,
+        character?.id ?? null,
         dto.damageType,
         amount,
+        participant?.id,
       );
       amount = defense.adjusted;
     }

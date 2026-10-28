@@ -275,12 +275,13 @@ export class WeaponAttackService {
       amount = Math.max(0, amount);
     }
     let defense: DamageDefense | null = null;
-    if (targetCharacter && hit) {
+    if (hit && (targetCharacter || targetParticipant)) {
       defense = await this.combat.resolveDamageDefense(
         tx,
-        targetCharacter.id,
+        targetCharacter?.id ?? null,
         mechanics.damageType,
         amount,
+        targetParticipant?.id,
       );
       amount = defense.adjusted;
     }

@@ -20,8 +20,10 @@ import {
   tickTimedConditions,
 } from './condition-duration.types';
 import {
+  parseDamageDefenses,
   resolveDamageDefense,
   type DamageDefense,
+  type ResistanceEntry,
 } from './damage-defense.types';
 import { StartEncounterDto } from './dto/start-encounter.dto';
 import { AddParticipantDto } from './dto/add-participant.dto';
@@ -228,6 +230,9 @@ export class CombatService {
         maxHp: resolvedMaxHp,
         currentHp: currentHp ?? resolvedMaxHp,
         isAlly: dto.isAlly ?? Boolean(dto.characterId),
+        damageDefenses: dto.damageDefenses?.length
+          ? JSON.stringify(dto.damageDefenses)
+          : null,
       },
     });
 
@@ -255,6 +260,11 @@ export class CombatService {
     if (dto.conditions !== undefined) {
       data.conditions = dto.conditions.length
         ? JSON.stringify(dto.conditions)
+        : null;
+    }
+    if (dto.damageDefenses !== undefined) {
+      data.damageDefenses = dto.damageDefenses.length
+        ? JSON.stringify(dto.damageDefenses)
         : null;
     }
     if (dto.currentHp !== undefined) {
@@ -668,14 +678,27 @@ export class CombatService {
 
   async resolveDamageDefense(
     tx: Prisma.TransactionClient,
-    characterId: string,
+    characterId: string | null,
     damageType: string | null | undefined,
     amount: number,
+    participantId?: string | null,
   ): Promise<DamageDefense> {
-    const entries = await tx.characterResistance.findMany({
-      where: { characterId },
-      select: { damageType: true, type: true },
-    });
+    const entries: ResistanceEntry[] = [];
+    if (participantId) {
+      const participant = await tx.combatParticipant.findUnique({
+        where: { id: participantId },
+        select: { damageDefenses: true },
+      });
+      entries.push(...parseDamageDefenses(participant?.damageDefenses));
+    }
+    if (characterId) {
+      entries.push(
+        ...(await tx.characterResistance.findMany({
+          where: { characterId },
+          select: { damageType: true, type: true },
+        })),
+      );
+    }
     return resolveDamageDefense(amount, damageType, entries);
   }
 

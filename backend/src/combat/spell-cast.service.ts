@@ -528,12 +528,13 @@ export class SpellCastService {
       let applied = 0;
       let absorbedByTempHp = 0;
       let defense: DamageDefense | null = null;
-      if (mechanics.kind === 'DAMAGE' && character) {
+      if (mechanics.kind === 'DAMAGE' && (character || participant)) {
         defense = await this.combat.resolveDamageDefense(
           tx,
-          character.id,
+          character?.id ?? null,
           mechanics.damageType,
           amount,
+          participant?.id,
         );
         amount = defense.adjusted;
       }

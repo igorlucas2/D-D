@@ -5,7 +5,10 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ParticipantDefenseDto } from './participant-defense.dto';
 
 export class UpdateParticipantDto {
   @IsOptional()
@@ -30,4 +33,10 @@ export class UpdateParticipantDto {
   @IsArray()
   @IsString({ each: true })
   conditions?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ParticipantDefenseDto)
+  damageDefenses?: ParticipantDefenseDto[];
 }

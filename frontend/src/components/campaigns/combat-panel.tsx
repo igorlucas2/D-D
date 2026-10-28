@@ -52,6 +52,40 @@ function hpBarColor(current: number, max: number) {
   return "bg-primary";
 }
 
+type DefenseKind = "RESISTANCE" | "IMMUNITY" | "VULNERABILITY";
+
+interface ParticipantDefense {
+  damageType: string;
+  type: DefenseKind;
+}
+
+const DEFENSE_LABELS: Record<DefenseKind, string> = {
+  RESISTANCE: "resistência",
+  IMMUNITY: "imunidade",
+  VULNERABILITY: "vulnerabilidade",
+};
+
+function defensesOf(value: string | null | undefined): ParticipantDefense[] {
+  if (!value) return [];
+  try {
+    const data = JSON.parse(value) as unknown;
+    if (!Array.isArray(data)) return [];
+    return data.filter(
+      (item): item is ParticipantDefense =>
+        Boolean(
+          item &&
+            typeof item === "object" &&
+            typeof (item as ParticipantDefense).damageType === "string" &&
+            ["RESISTANCE", "IMMUNITY", "VULNERABILITY"].includes(
+              (item as ParticipantDefense).type,
+            ),
+        ),
+    );
+  } catch {
+    return [];
+  }
+}
+
 // Sem PV exato, a barra mostra só a faixa do estado: não revela mais que o rótulo.
 const STATUS_BAR: Record<HpStatus, { width: number; color: string }> = {
   UNHURT: { width: 100, color: "bg-primary" },
@@ -88,6 +122,8 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
 
   const [hpDelta, setHpDelta] = useState<Record<string, string>>({});
   const [conditionInput, setConditionInput] = useState<Record<string, string>>({});
+  const [defenseType, setDefenseType] = useState<Record<string, string>>({});
+  const [defenseKind, setDefenseKind] = useState<Record<string, DefenseKind>>({});
 
   async function refresh() {
     if (!token) return;
@@ -264,6 +300,47 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
     await api.patch(
       `/campaigns/${campaignId}/combat/participants/${participant.id}`,
       { conditions: participant.conditions.filter((item) => item !== condition) },
+      token,
+    );
+    await refresh();
+  }
+
+  async function handleAddDefense(participant: CombatParticipant) {
+    if (!token) return;
+    const damageType = defenseType[participant.id]?.trim();
+    if (!damageType) return;
+    const type = defenseKind[participant.id] ?? "RESISTANCE";
+    const current = defensesOf(participant.damageDefenses);
+    const updated = [
+      ...current.filter(
+        (item) =>
+          item.damageType.toLowerCase() !== damageType.toLowerCase() ||
+          item.type !== type,
+      ),
+      { damageType, type },
+    ];
+    await api.patch(
+      `/campaigns/${campaignId}/combat/participants/${participant.id}`,
+      { damageDefenses: updated },
+      token,
+    );
+    setDefenseType((prev) => ({ ...prev, [participant.id]: "" }));
+    await refresh();
+  }
+
+  async function handleRemoveDefense(
+    participant: CombatParticipant,
+    damageType: string,
+    type: DefenseKind,
+  ) {
+    if (!token) return;
+    await api.patch(
+      `/campaigns/${campaignId}/combat/participants/${participant.id}`,
+      {
+        damageDefenses: defensesOf(participant.damageDefenses).filter(
+          (item) => !(item.damageType === damageType && item.type === type),
+        ),
+      },
       token,
     );
     await refresh();
@@ -524,6 +601,34 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
                   </div>
                 ) : null}
 
+                {defensesOf(participant.damageDefenses).length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {defensesOf(participant.damageDefenses).map((defense) => (
+                      <Badge
+                        key={`${defense.damageType}:${defense.type}`}
+                        variant="outline"
+                        className="gap-1 text-[10px]"
+                      >
+                        {defense.damageType}: {DEFENSE_LABELS[defense.type]}
+                        {isMaster ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRemoveDefense(
+                                participant,
+                                defense.damageType,
+                                defense.type,
+                              )
+                            }
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        ) : null}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+
                 {isMaster ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <Input
@@ -561,6 +666,34 @@ export function CombatPanel({ campaignId, isMaster }: CombatPanelProps) {
                     />
                     <Button size="sm" variant="outline" onClick={() => handleAddCondition(participant)}>
                       Adicionar condição
+                    </Button>
+                    <Input
+                      placeholder="Defesa (ex: fogo)"
+                      value={defenseType[participant.id] ?? ""}
+                      onChange={(event) =>
+                        setDefenseType((prev) => ({
+                          ...prev,
+                          [participant.id]: event.target.value,
+                        }))
+                      }
+                      className="h-7 min-w-28 flex-1"
+                    />
+                    <select
+                      className="h-7 rounded-md border border-input bg-transparent px-2 text-xs"
+                      value={defenseKind[participant.id] ?? "RESISTANCE"}
+                      onChange={(event) =>
+                        setDefenseKind((prev) => ({
+                          ...prev,
+                          [participant.id]: event.target.value as DefenseKind,
+                        }))
+                      }
+                    >
+                      <option value="RESISTANCE">resistência</option>
+                      <option value="IMMUNITY">imunidade</option>
+                      <option value="VULNERABILITY">vulnerabilidade</option>
+                    </select>
+                    <Button size="sm" variant="outline" onClick={() => handleAddDefense(participant)}>
+                      Adicionar defesa
                     </Button>
                   </div>
                 ) : null}
