@@ -9,7 +9,7 @@ Fechar o ciclo entre o motor e a crônica: depois de **usar um item ou conjurar
 uma magia**, o jogador pode pedir ao mestre para narrar **aquele resultado já
 aplicado**, sem recalcular nada e sem criar efeitos novos.
 
-O botão **Narrar consequência** aparece no cartão do último resultado de **item, magia ou ataque com arma**. Ajustes manuais de PV não geram narração automática — são cartões mecânicos, não ações de ficção. A
+O botão **Narrar consequência** aparece no cartão do último resultado de **item, magia ou ataque com arma**. Ajustes manuais de PV e magias que apenas aplicam condição (Marca/Abençoar) não geram narração automática — são cartões mecânicos. A
 narração é persistida como evento público e passa a ser a leitura principal da
 crônica.
 

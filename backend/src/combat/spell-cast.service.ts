@@ -264,29 +264,42 @@ export class SpellCastService {
     const casterModifier = spellcastingModifier(casterLocked);
     const saveDc = spellSaveDc(casterLocked.proficiencyBonus, casterModifier);
 
-    const isMark = mechanics.kind === 'MARK';
+    const isCondition = mechanics.kind === 'MARK' || mechanics.kind === 'BUFF';
     const markSpec = mechanics.concentration ?? null;
-    if (isMark) {
+    if (isCondition) {
       if (!markSpec)
         throw new BadRequestException(
-          'Esta marca não tem regra de concentração configurada.',
+          'Esta magia não tem regra de concentração configurada.',
         );
-      if (targets.length !== 1 || !targets[0].participant)
-        throw new BadRequestException(
-          'A Marca do Caçador exige exatamente um participante em combate.',
-        );
+      if (mechanics.kind === 'MARK') {
+        if (targets.length !== 1 || !targets[0].participant)
+          throw new BadRequestException(
+            'A Marca do Caçador exige exatamente um participante em combate.',
+          );
+      } else {
+        if (
+          targets.length < 1 ||
+          targets.length > 3 ||
+          targets.some((target) => !target.participant)
+        )
+          throw new BadRequestException(
+            'Bênção exige de um a três participantes em combate.',
+          );
+      }
     }
     const markStartedAt = new Date();
     const markExpiresAt = new Date(
       markStartedAt.getTime() + (markSpec?.durationMinutes ?? 60) * 60_000,
     );
-    if (isMark && markSpec) {
+    if (isCondition && markSpec) {
       await this.combat.setConcentration(tx, casterLocked.id, {
         spellId: characterSpell.spell.id,
         spellName: characterSpell.spell.name,
-        targetKind: 'PARTICIPANT',
-        targetId: targets[0].participant!.id,
-        targetName: targets[0].participant!.name,
+        targets: targets.map((target) => ({
+          kind: 'PARTICIPANT',
+          id: target.participant!.id,
+          name: target.participant!.name,
+        })),
         condition: markSpec.condition,
         bonusFormula: markSpec.bonusFormula,
         startedAt: markStartedAt.toISOString(),
@@ -321,10 +334,10 @@ export class SpellCastService {
             temp: character!.tempHp,
           };
 
-      if (isMark) {
+      if (isCondition) {
         if (!participant || !markSpec)
           throw new BadRequestException(
-            'A Marca do Caçador exige um participante em combate.',
+            'Esta concentração exige participantes em combate.',
           );
         const conditions = parseStringArray(participant.conditions);
         if (
@@ -364,8 +377,14 @@ export class SpellCastService {
       if (mechanics.kind === 'DAMAGE' && mechanics.save) {
         const ability = mechanics.save.ability;
         const modifier = character ? this.saveModifier(character, ability) : 0;
+        const blessFormula = participant
+          ? await this.combat.saveRollBonus(tx, participant.id)
+          : null;
+        const blessAmount = blessFormula
+          ? this.dice.parseAndRoll(blessFormula).total
+          : 0;
         const roll = this.dice.parseAndRoll('1d20');
-        const total = roll.total + modifier;
+        const total = roll.total + modifier + blessAmount;
         const success = total >= saveDc;
         save = {
           ability,
@@ -374,13 +393,23 @@ export class SpellCastService {
           total,
           dc: saveDc,
           success,
+          blessFormula,
+          blessAmount,
         };
         if (success)
           amount = mechanics.save.halfOnSuccess ? Math.floor(amount / 2) : 0;
       } else if (mechanics.kind === 'DAMAGE' && mechanics.attack) {
         const modifier = casterLocked.proficiencyBonus + casterModifier;
+        const blessFormula = await this.combat.attackRollBonus(
+          tx,
+          campaignId,
+          casterLocked.id,
+        );
+        const blessAmount = blessFormula
+          ? this.dice.parseAndRoll(blessFormula).total
+          : 0;
         const roll = this.dice.parseAndRoll('1d20');
-        const total = roll.total + modifier;
+        const total = roll.total + modifier + blessAmount;
         const ac = character?.armorClass ?? 10;
         const critical = roll.total === 20;
         const hit = roll.total !== 1 && (critical || total >= ac);
@@ -391,6 +420,8 @@ export class SpellCastService {
           ac,
           hit,
           critical,
+          blessFormula,
+          blessAmount,
         };
         if (!hit) {
           amount = 0;
@@ -514,7 +545,7 @@ export class SpellCastService {
       damageType: mechanics.kind === 'DAMAGE' ? mechanics.damageType : null,
       effectKind: mechanics.kind,
       mark:
-        isMark && markSpec
+        isCondition && markSpec
           ? {
               condition: markSpec.condition,
               bonusFormula: markSpec.bonusFormula,

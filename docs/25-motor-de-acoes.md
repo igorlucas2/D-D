@@ -271,6 +271,10 @@ Narração de ataques com arma em `docs/32-narracao-de-armas.md`.
 
 Marca do Caçador e concentração em `docs/33-concentracao.md`.
 
+## 9.11 Fase L
+
+Abençoar e bônus de concentração em `docs/34-bencao.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

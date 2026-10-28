@@ -18,8 +18,34 @@ describe('parseConcentrationState', () => {
       ),
     ).toMatchObject({
       spellName: 'Marca do Caçador',
-      targetId: 'p1',
       bonusFormula: '1d6',
+      targets: [{ kind: 'PARTICIPANT', id: 'p1', name: 'Goblin' }],
+    });
+  });
+
+  it('lê múltiplos alvos de Bênção', () => {
+    expect(
+      parseConcentrationState(
+        JSON.stringify({
+          spellId: 's2',
+          spellName: 'Abençoar',
+          targets: [
+            { kind: 'PARTICIPANT', id: 'p1', name: 'elfo' },
+            { kind: 'PARTICIPANT', id: 'p2', name: 'aliado' },
+          ],
+          condition: 'Abençoado',
+          bonusFormula: '1d4',
+          startedAt: '2026-10-28T00:00:00.000Z',
+          expiresAt: '2026-10-28T00:01:00.000Z',
+        }),
+      ),
+    ).toMatchObject({
+      spellName: 'Abençoar',
+      targets: [
+        { kind: 'PARTICIPANT', id: 'p1', name: 'elfo' },
+        { kind: 'PARTICIPANT', id: 'p2', name: 'aliado' },
+      ],
+      condition: 'Abençoado',
     });
   });
 

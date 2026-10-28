@@ -5,7 +5,7 @@ import {
   type HpSnapshot,
 } from './combat-action.types';
 
-export type SpellEffectKind = 'HEAL' | 'DAMAGE' | 'MARK';
+export type SpellEffectKind = 'HEAL' | 'DAMAGE' | 'MARK' | 'BUFF';
 export type SpellTargetMode = 'SINGLE' | 'MULTIPLE';
 export type SpellAbility = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA';
 
@@ -75,6 +75,8 @@ export interface SpellCastResult {
       total: number;
       dc: number;
       success: boolean;
+      blessFormula: string | null;
+      blessAmount: number;
     } | null;
     attack: {
       roll: number;
@@ -83,6 +85,8 @@ export interface SpellCastResult {
       ac: number;
       hit: boolean;
       critical: boolean;
+      blessFormula: string | null;
+      blessAmount: number;
     } | null;
     amount: number;
     applied: number;
@@ -159,6 +163,36 @@ const FALLBACKS: Record<string, SpellMechanics> = {
       durationMinutes: 60,
     },
   },
+  bencao: {
+    kind: 'BUFF',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'MULTIPLE',
+    concentration: {
+      condition: 'Abençoado',
+      bonusFormula: '1d4',
+      durationMinutes: 1,
+    },
+  },
+  abencoar: {
+    kind: 'BUFF',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'MULTIPLE',
+    concentration: {
+      condition: 'Abençoado',
+      bonusFormula: '1d4',
+      durationMinutes: 1,
+    },
+  },
 };
 
 function normalizeName(value: string): string {
@@ -185,13 +219,14 @@ export function resolveSpellMechanics(spell: {
     const kind =
       record.kind === 'HEAL' ||
       record.kind === 'DAMAGE' ||
-      record.kind === 'MARK'
+      record.kind === 'MARK' ||
+      record.kind === 'BUFF'
         ? record.kind
         : null;
     const formula =
       typeof record.formula === 'string' && validFormula(record.formula)
         ? record.formula.toLowerCase()
-        : kind === 'MARK'
+        : kind === 'MARK' || kind === 'BUFF'
           ? '0'
           : null;
     if (kind && formula) {

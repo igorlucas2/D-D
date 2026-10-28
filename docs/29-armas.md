@@ -79,6 +79,7 @@ dano (fórmula, modificador, tipo), PV antes/depois, dano aplicado e absorvido.
 - Não há ataque desarmado nem duas mãos/versátil completo.
 - O resultado do ataque pode ser narrado pelo mestre (Fase J).
 - Alvo com `Marcado` recebe `+1d6` do conjurador (Fase K).
+- Atacante com `Abençoado` recebe `+1d4` no ataque (Fase L).
 
 ## 7. Testes
 

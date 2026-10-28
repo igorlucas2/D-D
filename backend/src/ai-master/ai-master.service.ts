@@ -454,10 +454,11 @@ export class AiMasterService {
       throw new ConflictException('Resultado mecânico indisponível.');
     if (
       action.kind === 'CAST_SPELL' &&
-      (result as { effectKind?: string }).effectKind === 'MARK'
+      ((result as { effectKind?: string }).effectKind === 'MARK' ||
+        (result as { effectKind?: string }).effectKind === 'BUFF')
     )
       throw new BadRequestException(
-        'Marca não tem dano/cura aplicado para narrar; o efeito é uma condição.',
+        'Esta magia aplica uma condição, não dano/cura imediato para narrar.',
       );
     const facts = describeMechanicalResult(action.kind, result);
 

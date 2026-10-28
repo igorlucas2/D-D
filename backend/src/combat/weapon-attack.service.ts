@@ -161,6 +161,11 @@ export class WeaponAttackService {
       dto.targetKind,
       dto.targetId,
     );
+    const blessFormula = await this.combat.attackRollBonus(
+      tx,
+      campaignId,
+      attacker.id,
+    );
 
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
@@ -240,7 +245,10 @@ export class WeaponAttackService {
     const abilityModifier = attackAbilityModifier(abilityScore);
     const attackModifier = attacker.proficiencyBonus + abilityModifier;
     const attackRoll = this.dice.parseAndRoll('1d20');
-    const total = attackRoll.total + attackModifier;
+    const blessAmount = blessFormula
+      ? this.dice.parseAndRoll(blessFormula).total
+      : 0;
+    const total = attackRoll.total + attackModifier + blessAmount;
     const critical = attackRoll.total === 20;
     const hit = attackRoll.total !== 1 && (critical || total >= ac);
 
@@ -345,6 +353,8 @@ export class WeaponAttackService {
         ac,
         hit,
         critical,
+        blessFormula,
+        blessAmount,
       },
       damage: {
         formula: mechanics.damageFormula,

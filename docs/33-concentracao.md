@@ -1,6 +1,8 @@
 # Marca do Caçador e concentração — Fase K
 
 Status: **implementada**.
+
+> A segunda magia de concentração, **Abençoar**, está em `docs/34-bencao.md`.
 Última atualização: 28/10/2026.
 
 ## 1. Objetivo

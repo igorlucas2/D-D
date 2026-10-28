@@ -38,6 +38,8 @@ export interface WeaponAttackResult {
     ac: number;
     hit: boolean;
     critical: boolean;
+    blessFormula: string | null;
+    blessAmount: number;
   };
   damage: {
     formula: string | null;

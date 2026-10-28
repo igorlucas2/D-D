@@ -63,6 +63,18 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Abençoar como buff de concentração', () => {
+    expect(resolveSpellMechanics({ name: 'Abençoar' })).toMatchObject({
+      kind: 'BUFF',
+      targets: 'MULTIPLE',
+      concentration: {
+        condition: 'Abençoado',
+        bonusFormula: '1d4',
+        durationMinutes: 1,
+      },
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

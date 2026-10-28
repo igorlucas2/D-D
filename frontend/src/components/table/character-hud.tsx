@@ -296,7 +296,9 @@ export function CharacterHud({
                 </p>
                 <p className="mt-1 text-xs text-foreground">
                   {character.concentration.spellName} em{" "}
-                  {character.concentration.targetName}
+                  {(character.concentration.targets ?? [])
+                    .map((target) => target.name)
+                    .join(", ") || character.concentration.targetName}
                 </p>
                 <Button
                   type="button"

@@ -43,7 +43,8 @@ export function Chronicle({
   const canNarrate =
     latestAction?.kind === 'USE_ITEM' ||
     (latestAction?.kind === 'CAST_SPELL' &&
-      latestAction.effectKind !== 'MARK') ||
+      latestAction.effectKind !== 'MARK' &&
+      latestAction.effectKind !== 'BUFF') ||
     latestAction?.kind === 'WEAPON_ATTACK';
   const otherActions = actions.filter(
     (action) => action.actionId !== latestAction?.actionId,

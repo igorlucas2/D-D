@@ -64,7 +64,8 @@ function SpellCard({
   const after = first?.hpAfter ?? null;
   const slotLabel = result.slot ? `espaço ${result.slot.level}` : "truque";
 
-  if (result.effectKind === "MARK") {
+  if (result.effectKind === "MARK" || result.effectKind === "BUFF") {
+    const marked = result.effectKind === "MARK";
     return (
       <article
         className={`rounded-xl border p-3 ${TONES.CONDITION}`}
@@ -78,9 +79,12 @@ function SpellCard({
                 {result.spell.name} · {slotLabel}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {first?.name ?? "Alvo"}: {result.mark?.condition ?? "Marcado"} ·{" "}
-                +{result.mark?.bonusFormula ?? "1d6"} em ataques com arma ·{" "}
-                {Math.round((result.mark?.durationMinutes ?? 60) / 60)} h
+                {first?.name ?? "Alvo"}: {result.mark?.condition ?? (marked ? "Marcado" : "Abençoado")} · +
+                {result.mark?.bonusFormula ?? (marked ? "1d6" : "1d4")} em{" "}
+                {marked ? "ataques com arma" : "ataques e salvaguardas"} ·{" "}
+                {result.mark?.durationMinutes === 1
+                  ? "1 min"
+                  : `${Math.round((result.mark?.durationMinutes ?? 60) / 60)} h`}
               </p>
             </div>
           </div>
@@ -231,7 +235,10 @@ function WeaponCard({
               {result.weapon.name} · {result.target.name}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {outcome} ({result.attack.total} vs CA {result.attack.ac}) ·{" "}
+              {outcome} ({result.attack.total} vs CA {result.attack.ac})
+              {result.attack.blessAmount > 0
+                ? ` · +${formatNumber(result.attack.blessAmount)} bênção`
+                : ""} ·{" "}
               {formatNumber(result.applied)} de dano
               {result.damage.damageType
                 ? ` ${DAMAGE_TYPE_LABELS[result.damage.damageType as keyof typeof DAMAGE_TYPE_LABELS] ?? result.damage.damageType}`

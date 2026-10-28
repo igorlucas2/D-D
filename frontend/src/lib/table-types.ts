@@ -59,7 +59,7 @@ export interface HudSpell {
   school: string;
   concentration: boolean;
   description: string | null;
-  effectKind: "HEAL" | "DAMAGE" | "MARK";
+  effectKind: "HEAL" | "DAMAGE" | "MARK" | "BUFF";
   saveAbility: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA" | null;
   halfOnSuccess: boolean;
   attack: boolean;
@@ -77,9 +77,12 @@ export interface HudSpellSlot {
 export interface HudConcentration {
   spellId: string;
   spellName: string;
-  targetKind: "CHARACTER" | "PARTICIPANT";
-  targetId: string;
-  targetName: string;
+  targets: Array<{
+    kind: "CHARACTER" | "PARTICIPANT";
+    id: string;
+    name: string;
+  }>;
+  targetName?: string;
   condition: string;
   bonusFormula: string;
   startedAt: string;
@@ -183,6 +186,8 @@ export interface SpellCastResult {
       total: number;
       dc: number;
       success: boolean;
+      blessFormula: string | null;
+      blessAmount: number;
     } | null;
     attack: {
       roll: number;
@@ -191,13 +196,15 @@ export interface SpellCastResult {
       ac: number;
       hit: boolean;
       critical: boolean;
+      blessFormula: string | null;
+      blessAmount: number;
     } | null;
     amount: number;
     applied: number;
     absorbedByTempHp: number;
   }>;
   damageType: string | null;
-  effectKind: "HEAL" | "DAMAGE" | "MARK";
+  effectKind: "HEAL" | "DAMAGE" | "MARK" | "BUFF";
   mark: {
     condition: string;
     bonusFormula: string;
@@ -231,6 +238,8 @@ export interface WeaponAttackResult {
     ac: number;
     hit: boolean;
     critical: boolean;
+    blessFormula: string | null;
+    blessAmount: number;
   };
   damage: {
     formula: string | null;

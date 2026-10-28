@@ -25,6 +25,14 @@ const PARTICIPANT_ORDER: Prisma.CombatParticipantOrderByWithRelationInput[] = [
   { id: 'asc' },
 ];
 
+function normalizedCondition(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
 const ENCOUNTER_INCLUDE = {
   participants: { orderBy: PARTICIPANT_ORDER },
 } satisfies Prisma.CombatEncounterInclude;
@@ -543,12 +551,14 @@ export class CombatService {
       select: { concentration: true },
     });
     const state = parseConcentrationState(character?.concentration);
-    if (state?.targetKind === 'PARTICIPANT') {
-      const participant = await tx.combatParticipant.findUnique({
-        where: { id: state.targetId },
-        select: { id: true, conditions: true },
-      });
-      if (participant) {
+    if (state) {
+      for (const target of state.targets) {
+        if (target.kind !== 'PARTICIPANT') continue;
+        const participant = await tx.combatParticipant.findUnique({
+          where: { id: target.id },
+          select: { id: true, conditions: true },
+        });
+        if (!participant) continue;
         const conditions = parseStringArray(participant.conditions).filter(
           (item) => item.toLowerCase() !== state.condition.toLowerCase(),
         );
@@ -589,6 +599,39 @@ export class CombatService {
     return { ended: Boolean(character.concentration) };
   }
 
+  async attackRollBonus(
+    tx: Prisma.TransactionClient,
+    campaignId: string,
+    characterId: string,
+  ): Promise<string | null> {
+    const participant = await tx.combatParticipant.findFirst({
+      where: { encounter: { campaignId }, characterId },
+      select: { conditions: true },
+    });
+    if (!participant) return null;
+    return parseStringArray(participant.conditions).some(
+      (item) => normalizedCondition(item) === 'abencoado',
+    )
+      ? '1d4'
+      : null;
+  }
+
+  async saveRollBonus(
+    tx: Prisma.TransactionClient,
+    participantId: string,
+  ): Promise<string | null> {
+    const participant = await tx.combatParticipant.findUnique({
+      where: { id: participantId },
+      select: { conditions: true },
+    });
+    if (!participant) return null;
+    return parseStringArray(participant.conditions).some(
+      (item) => normalizedCondition(item) === 'abencoado',
+    )
+      ? '1d4'
+      : null;
+  }
+
   async concentrationBonus(
     tx: Prisma.TransactionClient,
     characterId: string,
@@ -597,8 +640,9 @@ export class CombatService {
   ): Promise<string | null> {
     const state = await this.getConcentration(tx, characterId);
     return state &&
-      state.targetKind === targetKind &&
-      state.targetId === targetId
+      state.targets.some(
+        (target) => target.kind === targetKind && target.id === targetId,
+      )
       ? state.bonusFormula
       : null;
   }

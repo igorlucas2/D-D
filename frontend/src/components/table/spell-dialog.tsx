@@ -205,7 +205,9 @@ export function SpellDialog({
                             ? "cura"
                             : spell.effectKind === "MARK"
                               ? "marca"
-                              : "dano"}
+                              : spell.effectKind === "BUFF"
+                                ? "bênção"
+                                : "dano"}
                           {spell.targetMode === "MULTIPLE" ? " em área" : ""}
                         </p>
                       </div>
@@ -219,7 +221,9 @@ export function SpellDialog({
                   <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
                     {spell.effectKind === "MARK"
                       ? "+1d6 em ataques contra o alvo marcado"
-                      : spell.formula}
+                      : spell.effectKind === "BUFF"
+                        ? "+1d4 em ataques e salvaguardas"
+                        : spell.formula}
                     {spell.attack
                       ? " · ataque mágico"
                       : spell.saveAbility
