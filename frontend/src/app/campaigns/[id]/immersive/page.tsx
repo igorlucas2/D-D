@@ -775,6 +775,17 @@ function ImmersiveContent() {
           <ol className="max-h-72 space-y-0.5 overflow-y-auto p-2">
             {combat.participants.map((participant, index) => {
               const isCurrent = index === combat.turnIndex;
+              const current = combat.participants[combat.turnIndex];
+              const feet =
+                current?.x != null &&
+                current.y != null &&
+                participant.x != null &&
+                participant.y != null
+                  ? Math.max(
+                      Math.abs(current.x - participant.x),
+                      Math.abs(current.y - participant.y),
+                    ) * 5
+                  : null;
               return (
                 <li
                   key={participant.id}
@@ -788,6 +799,9 @@ function ImmersiveContent() {
                   <span className="min-w-0 flex-1 truncate">
                     {participant.name}
                     {participant.isAlly ? "" : " · inimigo"}
+                  </span>
+                  <span className="w-9 text-right font-mono text-[9px] text-muted-foreground">
+                    {feet != null ? `${feet}p` : "—"}
                   </span>
                   <span className="font-mono text-[9px] text-muted-foreground">
                     {participant.currentHp ?? "?"}/{participant.maxHp ?? "?"}

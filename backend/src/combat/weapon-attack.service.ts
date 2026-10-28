@@ -170,6 +170,7 @@ export class WeaponAttackService {
 
     const encounter = await tx.combatEncounter.findUnique({
       where: { campaignId },
+      include: { participants: true },
     });
     let targetCharacter: Character | null = null;
     let targetParticipant: CombatParticipant | null = null;
@@ -219,6 +220,29 @@ export class WeaponAttackService {
     }
     if (!targetCharacter && !targetParticipant)
       throw new NotFoundException('Alvo não encontrado.');
+
+    const attackerParticipant = economy?.participantId
+      ? encounter?.participants.find(
+          (participant) => participant.id === economy.participantId,
+        )
+      : null;
+    if (
+      !mechanics.ranged &&
+      attackerParticipant?.x != null &&
+      attackerParticipant.y != null &&
+      targetParticipant?.x != null &&
+      targetParticipant.y != null
+    ) {
+      const distance = Math.max(
+        Math.abs(attackerParticipant.x - targetParticipant.x),
+        Math.abs(attackerParticipant.y - targetParticipant.y),
+      );
+      if (distance > 1) {
+        throw new BadRequestException(
+          `Alvo fora do alcance corpo a corpo (5 pés): ${distance * 5} pés.`,
+        );
+      }
+    }
 
     if (
       encounter &&
