@@ -108,6 +108,18 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Heroísmo com PV temporários', () => {
+    expect(resolveSpellMechanics({ name: 'Heroísmo' })).toMatchObject({
+      kind: 'BUFF',
+      tempHp: 'SPELLCASTING_MOD',
+      targets: 'SINGLE',
+      concentration: {
+        condition: 'Heroico',
+        durationMinutes: 1,
+      },
+    });
+  });
+
   it('ignora magia sem mecânica conhecida', () => {
     expect(resolveSpellMechanics({ name: 'Luz' })).toBeNull();
   });

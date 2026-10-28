@@ -212,6 +212,7 @@ export interface SpellCastResult {
     amount: number;
     applied: number;
     absorbedByTempHp: number;
+    tempHpAmount?: number;
   }>;
   damageType: string | null;
   effectKind: "HEAL" | "DAMAGE" | "MARK" | "BUFF";

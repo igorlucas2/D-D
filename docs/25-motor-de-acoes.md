@@ -295,6 +295,10 @@ Escudo da Fé e ação bônus em `docs/38-escudo-da-fe.md`.
 
 Escudo Arcano e reação em `docs/39-escudo-arcano.md`.
 
+## 9.17 Fase R
+
+Heroísmo e PV temporários em `docs/40-heroismo.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

@@ -231,7 +231,9 @@ export function SpellDialog({
                           ? "+2 CA por concentração"
                           : spell.name === "Escudo Arcano"
                             ? "+5 CA por 1 rodada"
-                            : "+1d4 em ataques e salvaguardas"
+                            : spell.name === "Heroísmo"
+                              ? "+mod. de conjuração em PV temporário"
+                              : "+1d4 em ataques e salvaguardas"
                         : spell.formula}
                     {spell.attack
                       ? " · ataque mágico"

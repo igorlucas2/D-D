@@ -21,7 +21,12 @@ import {
   parseTimedConditions,
 } from './condition-duration.types';
 import { CombatService, hpStatus } from './combat.service';
-import { applyDamage, applyHeal, type HpSnapshot } from './combat-action.types';
+import {
+  applyDamage,
+  applyHeal,
+  applyTempHp,
+  type HpSnapshot,
+} from './combat-action.types';
 import { canonical } from '../game-actions/game-action.types';
 import { CastSpellDto } from './spell-cast.dto';
 import {
@@ -406,14 +411,31 @@ export class SpellCastService {
           )
         )
           conditions.push(markSpec.condition);
+        let hpAfter = hpBefore;
+        let tempHpAmount = 0;
+        if (mechanics.tempHp) {
+          const amount =
+            mechanics.tempHp === 'SPELLCASTING_MOD'
+              ? Math.max(1, spellcastingModifier(casterLocked))
+              : mechanics.tempHp;
+          hpAfter = applyTempHp(hpBefore, amount);
+          tempHpAmount = hpAfter.temp - hpBefore.temp;
+          await tx.character.update({
+            where: { id: participant.characterId! },
+            data: { tempHp: hpAfter.temp },
+          });
+        }
         await tx.combatParticipant.update({
           where: { id: participant.id },
-          data: { conditions: JSON.stringify(conditions) },
+          data: {
+            conditions: JSON.stringify(conditions),
+            tempHp: hpAfter.temp,
+          },
         });
         emits.push({
           participantId: participant.id,
           delta: 0,
-          hpStatus: hpStatus(hpBefore.current, hpBefore.max),
+          hpStatus: hpStatus(hpAfter.current, hpAfter.max),
         });
         targetResults.push({
           kind: 'PARTICIPANT',
@@ -421,12 +443,13 @@ export class SpellCastService {
           name: participant.name,
           characterId: participant.characterId,
           hpBefore,
-          hpAfter: hpBefore,
+          hpAfter,
           save: null,
           attack: null,
           amount: 0,
-          applied: 0,
+          applied: tempHpAmount,
           absorbedByTempHp: 0,
+          tempHpAmount,
         });
         continue;
       }

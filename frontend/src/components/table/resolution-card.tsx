@@ -68,6 +68,8 @@ function SpellCard({
     const marked = result.effectKind === "MARK";
     const shield = result.mark?.condition === "Protegido";
     const ward = result.ward;
+    const heroism = result.mark?.condition === "Heroico";
+    const tempHp = result.targets[0]?.tempHpAmount ?? 0;
     return (
       <article
         className={`rounded-xl border p-3 ${TONES.CONDITION}`}
@@ -84,13 +86,15 @@ function SpellCard({
                 {first?.name ?? "Alvo"}:{" "}
                 {result.mark?.condition ?? ward?.condition ?? (marked ? "Marcado" : "Abençoado")}{" "}
                 ·{" "}
-                {ward
-                  ? `+${ward.acBonus} CA`
-                  : shield
-                    ? "+2 CA"
-                    : `+${result.mark?.bonusFormula ?? (marked ? "1d6" : "1d4")} em ${
-                        marked ? "ataques com arma" : "ataques e salvaguardas"
-                      }`}{" "}
+                {heroism
+                  ? `+${tempHp} PV temp`
+                  : ward
+                    ? `+${ward.acBonus} CA`
+                    : shield
+                      ? "+2 CA"
+                      : `+${result.mark?.bonusFormula ?? (marked ? "1d6" : "1d4")} em ${
+                          marked ? "ataques com arma" : "ataques e salvaguardas"
+                        }`}{" "}
                 ·{" "}
                 {ward
                   ? `${ward.rounds} rodada(s)`

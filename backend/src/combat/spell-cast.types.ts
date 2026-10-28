@@ -20,6 +20,7 @@ export interface SpellMechanics {
   upcast: { formula: string | null } | null;
   targets: SpellTargetMode;
   action?: SpellActionType;
+  tempHp?: 'SPELLCASTING_MOD' | number | null;
   ward?: {
     condition: string;
     acBonus: number;
@@ -100,6 +101,7 @@ export interface SpellCastResult {
     amount: number;
     applied: number;
     absorbedByTempHp: number;
+    tempHpAmount?: number;
   }>;
   damageType: DamageType | null;
   effectKind: SpellEffectKind;
@@ -249,6 +251,22 @@ const FALLBACKS: Record<string, SpellMechanics> = {
       rounds: 1,
     },
   },
+  heroismo: {
+    kind: 'BUFF',
+    formula: '0',
+    damageType: 'untyped',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: null,
+    targets: 'SINGLE',
+    tempHp: 'SPELLCASTING_MOD',
+    concentration: {
+      condition: 'Heroico',
+      bonusFormula: '0',
+      durationMinutes: 1,
+    },
+  },
 };
 
 function normalizeName(value: string): string {
@@ -302,6 +320,11 @@ export function resolveSpellMechanics(spell: {
         record.ward && typeof record.ward === 'object'
           ? (record.ward as Record<string, unknown>)
           : null;
+      const tempHp =
+        record.tempHp === 'SPELLCASTING_MOD' ||
+        typeof record.tempHp === 'number'
+          ? record.tempHp
+          : null;
       const ability =
         typeof save?.ability === 'string' &&
         ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].includes(save.ability)
@@ -344,6 +367,7 @@ export function resolveSpellMechanics(spell: {
                 rounds: ward.rounds,
               }
             : null,
+        tempHp,
         concentration:
           concentration &&
           typeof concentration.condition === 'string' &&
