@@ -18,6 +18,10 @@ import {
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
 import {
+  SpellDialog,
+  type SpellCastInput,
+} from "@/components/table/spell-dialog";
+import {
   WeaponAttackDialog,
   type WeaponAttackInput,
 } from "@/components/table/weapon-attack-dialog";
@@ -102,18 +106,9 @@ interface RagnarokVisual {
   appearance: string | null;
 }
 
-interface PartyCharacter {
-  id: string;
-  characterId: string;
-  name: string;
-  currentHp: number;
-  maxHp: number;
-  conditions: string[];
-}
-
 interface PartyState {
   scene: { name: string } | null;
-  characters: PartyCharacter[];
+  characters: HudCharacter[];
   events: Array<{
     sequence: number;
     summary: string;
@@ -218,6 +213,7 @@ function ImmersiveContent() {
   const [busy, setBusy] = useState(false);
   const [attackOpen, setAttackOpen] = useState(false);
   const [itemOpen, setItemOpen] = useState(false);
+  const [spellOpen, setSpellOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<AttackHudResult | null>(null);
   const [actionLog, setActionLog] = useState<CombatActionResult[]>([]);
@@ -797,7 +793,34 @@ function ImmersiveContent() {
     }
   }
 
+  async function submitSpellCast(input: SpellCastInput) {
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/combat/spells/cast`,
+        {
+          ...input,
+          requestKey: crypto.randomUUID(),
+          expectedRevision: combat?.revision,
+        },
+        token,
+      );
+      setSpellOpen(false);
+      await load();
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao conjurar a magia.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const hudCharacter = useMemo<HudCharacter | null>(() => {
+    const mine = party?.characters.find((entry) => entry.isMine);
+    if (mine) return mine;
     if (!myCharacter) return null;
     return {
       id: myCharacter.id,
@@ -826,7 +849,7 @@ function ImmersiveContent() {
       spells: [],
       spellSlots: [],
     };
-  }, [myCharacter]);
+  }, [myCharacter, party]);
 
   const combatTargets = useMemo<ActionTarget[]>(
     () =>
@@ -855,6 +878,7 @@ function ImmersiveContent() {
   const canUseItem = Boolean(
     hudCharacter?.items.some((item) => item.effectKind && item.quantity > 0),
   );
+  const canCastSpell = Boolean(canAttackCurrent && hudCharacter?.spells.length);
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
@@ -1101,6 +1125,17 @@ function ImmersiveContent() {
                   disabled={busy}
                 >
                   Usar item
+                </Button>
+              ) : null}
+              {canCastSpell ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-1 w-full gap-1"
+                  onClick={() => setSpellOpen(true)}
+                  disabled={busy}
+                >
+                  Conjurar
                 </Button>
               ) : null}
             </div>
@@ -1452,6 +1487,16 @@ function ImmersiveContent() {
           busy={busy}
           onOpenChange={setItemOpen}
           onUse={submitItemUse}
+        />
+      ) : null}
+
+      {spellOpen && hudCharacter ? (
+        <SpellDialog
+          character={hudCharacter}
+          targets={combatTargets}
+          busy={busy}
+          onOpenChange={setSpellOpen}
+          onCast={submitSpellCast}
         />
       ) : null}
 
