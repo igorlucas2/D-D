@@ -78,6 +78,26 @@ describe('describeMechanicalResult', () => {
     expect(facts.targets[0].result).toContain('PV 0/8');
   });
 
+  it('não chama dano automático de cura', () => {
+    const facts = describeMechanicalResult('CAST_SPELL', {
+      spell: { name: 'Míssil Mágico' },
+      slot: { level: 1 },
+      damageType: 'force',
+      effectKind: 'DAMAGE',
+      targets: [
+        {
+          name: 'Goblin',
+          attack: null,
+          save: null,
+          applied: 12,
+          hpAfter: { current: 0, max: 12, temp: 0 },
+        },
+      ],
+    });
+    expect(facts.targets[0].result).toContain('12 de dano');
+    expect(facts.targets[0].result).not.toContain('cura');
+  });
+
   it('não quebra com resultado desconhecido', () => {
     const facts = describeMechanicalResult('UNKNOWN', null);
     expect(facts.action).toBe('Condição');

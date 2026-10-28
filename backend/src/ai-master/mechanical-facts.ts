@@ -127,7 +127,10 @@ export function describeMechanicalResult(
         }
         return {
           name: targetName,
-          result: `${numberValue(target.applied)} de cura · ${hpText(target.hpAfter)}`,
+          result:
+            data.damageType || data.effectKind === 'DAMAGE'
+              ? `${numberValue(target.applied)} de dano · ${hpText(target.hpAfter)}`
+              : `${numberValue(target.applied)} de cura · ${hpText(target.hpAfter)}`,
         };
       });
     return {

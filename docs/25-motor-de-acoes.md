@@ -283,6 +283,10 @@ Descanso longo e concentração em `docs/35-descanso-concentracao.md`.
 
 Condições com duração em `docs/36-condicoes-com-duracao.md`.
 
+## 9.14 Fase O
+
+Míssil Mágico e dano automático em `docs/37-missil-magico.md`.
+
 ## 10. Testes e aceite
 
 Unitários:

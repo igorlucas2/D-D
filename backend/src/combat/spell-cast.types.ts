@@ -163,6 +163,16 @@ const FALLBACKS: Record<string, SpellMechanics> = {
       durationMinutes: 60,
     },
   },
+  'missil magico': {
+    kind: 'DAMAGE',
+    formula: '3d4+3',
+    damageType: 'force',
+    addSpellcastingModifier: false,
+    save: null,
+    attack: null,
+    upcast: { formula: '1d4+1' },
+    targets: 'SINGLE',
+  },
   bencao: {
     kind: 'BUFF',
     formula: '0',

@@ -63,6 +63,17 @@ describe('spell mechanics', () => {
     });
   });
 
+  it('resolve Míssil Mágico como dano automático', () => {
+    expect(resolveSpellMechanics({ name: 'Míssil Mágico' })).toMatchObject({
+      kind: 'DAMAGE',
+      formula: '3d4+3',
+      damageType: 'force',
+      attack: null,
+      save: null,
+      targets: 'SINGLE',
+    });
+  });
+
   it('resolve Abençoar como buff de concentração', () => {
     expect(resolveSpellMechanics({ name: 'Abençoar' })).toMatchObject({
       kind: 'BUFF',
