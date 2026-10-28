@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { CreateRagnarokCharacterDto } from './dto/create-ragnarok-character.dto';
 import { UpdateRagnarokCharacterDto } from './dto/update-ragnarok-character.dto';
+import { AddRagnarokSkillDto } from './dto/add-ragnarok-skill.dto';
 import { RagnarokCharactersService } from './ragnarok-characters.service';
 
 @UseGuards(JwtAuthGuard)
@@ -39,6 +40,28 @@ export class RagnarokCharactersController {
     @Body() dto: UpdateRagnarokCharacterDto,
   ) {
     return this.characters.update(user.userId, id, dto);
+  }
+
+  @Post(':id/skills')
+  addSkill(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Body() dto: AddRagnarokSkillDto,
+  ) {
+    return this.characters.addSkill(user.userId, id, dto);
+  }
+
+  @Delete(':id/skills/:skillId')
+  removeSkill(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Param('skillId') skillId: string,
+  ) {
+    return this.characters.removeSkill(
+      user.userId,
+      id,
+      Number.parseInt(skillId, 10),
+    );
   }
 
   @Delete(':id')

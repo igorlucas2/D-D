@@ -29,6 +29,15 @@ interface RagnarokCharacter {
   dexterity: number;
   luck: number;
   appearance: string | null;
+  maxHp: number;
+  currentHp: number;
+  maxSp: number;
+  currentSp: number;
+  skills: Array<{
+    id: string;
+    level: number;
+    skill: { id: number; name: string; maxLevel: number };
+  }>;
   job: Job;
 }
 
@@ -59,6 +68,43 @@ function RagnarokCharactersContent() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [skillCharacterId, setSkillCharacterId] = useState("");
+  const [skillSearch, setSkillSearch] = useState("");
+  const [skillResults, setSkillResults] = useState<
+    Array<{ id: number; name: string; maxLevel: number }>
+  >([]);
+  const [skillChoice, setSkillChoice] = useState("");
+  const [skillLevel, setSkillLevel] = useState("1");
+  const [skillBusy, setSkillBusy] = useState(false);
+
+  useEffect(() => {
+    if (!token || skillSearch.trim().length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa a busca curta
+      setSkillResults([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await api.get<
+          Array<{ id: number; name: string; maxLevel: number }>
+        >(
+          `/ragnarok/skills?take=20&search=${encodeURIComponent(skillSearch.trim())}`,
+          token,
+        );
+        if (!cancelled) {
+          setSkillResults(result);
+          setSkillChoice(String(result[0]?.id ?? ""));
+        }
+      } catch {
+        if (!cancelled) setSkillResults([]);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [skillSearch, token]);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -70,6 +116,7 @@ function RagnarokCharactersContent() {
       setCharacters(roster);
       setJobs(classes);
       setJobId((current) => current || String(classes[0]?.id ?? ""));
+      setSkillCharacterId((current) => current || roster[0]?.id || "");
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Falha ao carregar fichas.",
@@ -119,6 +166,51 @@ function RagnarokCharactersContent() {
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Falha ao remover ficha.",
+      );
+    }
+  }
+
+  async function learnSkill(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token || !skillCharacterId || !skillChoice || skillBusy) return;
+    setSkillBusy(true);
+    setError(null);
+    try {
+      const updated = await api.post<RagnarokCharacter>(
+        `/ragnarok/characters/${skillCharacterId}/skills`,
+        { skillId: Number(skillChoice), level: Number(skillLevel) || 1 },
+        token,
+      );
+      setCharacters((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setSkillSearch("");
+      setSkillResults([]);
+      setSkillChoice("");
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao aprender skill.",
+      );
+    } finally {
+      setSkillBusy(false);
+    }
+  }
+
+  async function forgetSkill(characterId: string, skillId: number) {
+    if (!token) return;
+    try {
+      const updated = await api.delete<RagnarokCharacter>(
+        `/ragnarok/characters/${characterId}/skills/${skillId}`,
+        token,
+      );
+      if (updated) {
+        setCharacters((current) =>
+          current.map((item) => (item.id === updated.id ? updated : item)),
+        );
+      }
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao remover skill.",
       );
     }
   }
@@ -234,6 +326,67 @@ function RagnarokCharactersContent() {
         ) : null}
       </form>
 
+      <form
+        onSubmit={(event) => void learnSkill(event)}
+        className="space-y-3 rounded-xl border border-border/70 bg-card/60 p-4"
+      >
+        <p className="font-heading text-lg">Aprender skill</p>
+        <div className="grid gap-2 sm:grid-cols-4">
+          <select
+            aria-label="Ficha para skill"
+            value={skillCharacterId}
+            onChange={(event) => setSkillCharacterId(event.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            {characters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
+              </option>
+            ))}
+          </select>
+          <Input
+            value={skillSearch}
+            onChange={(event) => setSkillSearch(event.target.value)}
+            placeholder="Buscar skill…"
+            className="h-9"
+            aria-label="Buscar skill"
+          />
+          <select
+            aria-label="Skill"
+            value={skillChoice}
+            onChange={(event) => setSkillChoice(event.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            {skillResults.map((skill) => (
+              <option key={skill.id} value={skill.id}>
+                {skill.name} (Nv {skill.maxLevel})
+              </option>
+            ))}
+          </select>
+          <div className="flex gap-1">
+            <Input
+              aria-label="Nível da skill"
+              type="number"
+              min={1}
+              max={10}
+              value={skillLevel}
+              onChange={(event) => setSkillLevel(event.target.value)}
+              className="h-9 w-16"
+            />
+            <Button
+              type="submit"
+              className="h-9 flex-1"
+              disabled={skillBusy || !skillCharacterId || !skillChoice}
+            >
+              {skillBusy ? "…" : "Aprender"}
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Digite ao menos 2 letras para buscar entre as 1.732 skills.
+        </p>
+      </form>
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando fichas…</p>
       ) : characters.length ? (
@@ -277,6 +430,66 @@ function RagnarokCharactersContent() {
                     <p className="font-mono text-xs">{character[key]}</p>
                   </div>
                 ))}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
+                <div className="rounded-md border border-border/60 bg-background/40 px-2 py-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">HP</span>
+                    <span className="font-mono">
+                      {character.currentHp}/{character.maxHp}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-emerald-500"
+                      style={{
+                        width: `${Math.min(100, (character.currentHp / Math.max(1, character.maxHp)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="rounded-md border border-border/60 bg-background/40 px-2 py-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">SP</span>
+                    <span className="font-mono">
+                      {character.currentSp}/{character.maxSp}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-sky-500"
+                      style={{
+                        width: `${Math.min(100, (character.currentSp / Math.max(1, character.maxSp)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {character.skills.map((entry) => (
+                  <Badge
+                    key={entry.id}
+                    variant="secondary"
+                    className="gap-1 text-[9px]"
+                  >
+                    {entry.skill.name} Nv {entry.level}
+                    <button
+                      type="button"
+                      aria-label={`Remover ${entry.skill.name}`}
+                      className="text-muted-foreground hover:text-destructive"
+                      onClick={() =>
+                        void forgetSkill(character.id, entry.skill.id)
+                      }
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+                {!character.skills.length ? (
+                  <span className="text-[10px] text-muted-foreground">
+                    Nenhuma skill aprendida.
+                  </span>
+                ) : null}
               </div>
               <Badge variant="outline" className="mt-3 font-mono text-[10px]">
                 {character.job.jt}

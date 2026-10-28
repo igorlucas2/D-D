@@ -1627,13 +1627,14 @@ model RagnarokJob {
 }
 
 model RagnarokSkill {
-  id          Int      @id
+  id          Int                      @id
   name        String
-  maxLevel    Int      @default(1)
-  description String?  @db.LongText
+  maxLevel    Int                      @default(1)
+  description String?                  @db.LongText
   delay       Json?
-  parent      String?  @db.Text
-  createdAt   DateTime @default(now())
+  parent      String?                  @db.Text
+  createdAt   DateTime                 @default(now())
+  characters  RagnarokCharacterSkill[]
 
   @@index([name])
 }
@@ -1658,6 +1659,20 @@ model RagnarokItem {
   @@index([costume])
 }
 
+model RagnarokCharacterSkill {
+  id          String   @id @default(cuid())
+  characterId String
+  skillId     Int
+  level       Int      @default(1)
+  createdAt   DateTime @default(now())
+
+  character RagnarokCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  skill     RagnarokSkill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, skillId])
+  @@index([skillId])
+}
+
 model RagnarokMap {
   name      String   @id
   createdAt DateTime @default(now())
@@ -1676,11 +1691,16 @@ model RagnarokCharacter {
   dexterity    Int      @default(1)
   luck         Int      @default(1)
   appearance   String?  @db.LongText
+  maxHp        Int      @default(1)
+  currentHp    Int      @default(1)
+  maxSp        Int      @default(1)
+  currentSp    Int      @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job  RagnarokJob @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  user   User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job    RagnarokJob              @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  skills RagnarokCharacterSkill[]
 
   @@index([userId])
   @@index([jobId])

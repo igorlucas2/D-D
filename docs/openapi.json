@@ -3730,6 +3730,84 @@
         ]
       }
     },
+    "/api/ragnarok/characters/{id}/skills": {
+      "post": {
+        "operationId": "RagnarokCharactersController_addSkill",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRagnarokSkillDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
+    "/api/ragnarok/characters/{id}/skills/{skillId}": {
+      "delete": {
+        "operationId": "RagnarokCharactersController_removeSkill",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skillId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
       "get": {
         "operationId": "ExplorationController_getState",
@@ -7069,6 +7147,24 @@
       "UpdateRagnarokCharacterDto": {
         "type": "object",
         "properties": {}
+      },
+      "AddRagnarokSkillDto": {
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "number",
+            "minimum": 1
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "skillId",
+          "level"
+        ]
       },
       "TravelDto": {
         "type": "object",

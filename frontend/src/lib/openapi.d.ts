@@ -1300,6 +1300,38 @@ export interface paths {
         patch: operations["RagnarokCharactersController_update"];
         trace?: never;
     };
+    "/api/ragnarok/characters/{id}/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCharactersController_addSkill"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ragnarok/characters/{id}/skills/{skillId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["RagnarokCharactersController_removeSkill"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
         parameters: {
             query?: never;
@@ -2410,6 +2442,10 @@ export interface components {
             appearance?: string;
         };
         UpdateRagnarokCharacterDto: Record<string, never>;
+        AddRagnarokSkillDto: {
+            skillId: number;
+            level: number;
+        };
         TravelDto: {
             hotspotId: string;
         };
@@ -4936,6 +4972,53 @@ export interface operations {
                 "application/json": components["schemas"]["UpdateRagnarokCharacterDto"];
             };
         };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_addSkill: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddRagnarokSkillDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_removeSkill: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                skillId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {
