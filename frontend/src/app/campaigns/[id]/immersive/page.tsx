@@ -14,13 +14,16 @@ import {
   Plus,
   RefreshCw,
   ScrollText,
-  Shield,
   Swords,
   Trash2,
   Users,
 } from "lucide-react";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { CombatPanel } from "@/components/campaigns/combat-panel";
+import {
+  CharacterScreen,
+  type RagnarokSheet,
+} from "@/components/immersive/character-screen";
 import { NarrationComposer } from "@/components/campaigns/narration-composer";
 import { TableDiceControls } from "@/components/campaigns/table-dice-controls";
 import {
@@ -212,7 +215,7 @@ interface AttackHudResult {
   applied: number;
 }
 
-type SideTab = "sheet" | "party" | "chronicle" | "combat" | "npc" | "master";
+type SideTab = "party" | "chronicle" | "combat" | "npc" | "master";
 
 function frameCss() {
   return `
@@ -247,12 +250,14 @@ function ImmersiveContent() {
   const [maps, setMaps] = useState<VttMap[]>([]);
   const [myCharacter, setMyCharacter] = useState<Character | null>(null);
   const [ragnarokVisuals, setRagnarokVisuals] = useState<RagnarokVisual[]>([]);
+  const [ragnarokSheets, setRagnarokSheets] = useState<RagnarokSheet[]>([]);
+  const [characterOpen, setCharacterOpen] = useState(false);
   const [selectedRagnarokId, setSelectedRagnarokId] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
   const [combat, setCombat] = useState<CombatEncounter | null>(null);
   const combatActive = Boolean(combat);
-  const [tab, setTab] = useState<SideTab>("sheet");
+  const [tab, setTab] = useState<SideTab>("party");
   const [error, setError] = useState<string | null>(null);
   const [npcName, setNpcName] = useState("");
   const [npcX, setNpcX] = useState("10");
@@ -294,6 +299,10 @@ function ImmersiveContent() {
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
   const selectedVisual =
     ragnarokVisuals.find((entry) => entry.id === selectedRagnarokId) ?? null;
+  const selectedSheet =
+    ragnarokSheets.find((entry) => entry.id === selectedRagnarokId) ??
+    ragnarokSheets[0] ??
+    null;
   const visualAppearance =
     selectedVisual?.appearance ?? myCharacter?.appearance;
   const buildCode = useMemo(() => {
@@ -320,11 +329,12 @@ function ImmersiveContent() {
           api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
           api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
           api.get<Character[]>("/characters", token),
-          api.get<RagnarokVisual[]>("/ragnarok/characters", token),
+          api.get<RagnarokSheet[]>("/ragnarok/characters", token),
         ]);
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
+      setRagnarokSheets(ragnarokData);
       setRagnarokVisuals(
         ragnarokData.filter((entry) => Boolean(entry.appearance)),
       );
@@ -563,9 +573,9 @@ function ImmersiveContent() {
       doc.head.appendChild(style);
     }
     win.__eldoria.setActors(actors);
-    win.__eldoria.setLocked(combatActive && !myCombatTurn);
+    win.__eldoria.setLocked(characterOpen || (combatActive && !myCombatTurn));
     return true;
-  }, [actors, combatActive, myCombatTurn]);
+  }, [actors, characterOpen, combatActive, myCombatTurn]);
 
   useEffect(() => {
     if (!slug) return;
@@ -1323,6 +1333,34 @@ function ImmersiveContent() {
   );
   const canCastSpell = Boolean(canAttackCurrent && hudCharacter?.spells.length);
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (event.key === "c" || event.key === "C") {
+        event.preventDefault();
+        setCharacterOpen((current) => !current);
+      }
+      if (event.key === "Escape") {
+        setCharacterOpen(false);
+      }
+      if ((event.key === "m" || event.key === "M") && isMaster) {
+        event.preventDefault();
+        setTab("master");
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMaster]);
+
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
       {selected && slug ? (
@@ -1697,7 +1735,6 @@ function ImmersiveContent() {
         <div className="flex gap-1 border-b border-border/70 p-2">
           {(
             [
-              ["sheet", Shield, "Ficha"],
               ["party", Users, "Grupo"],
               ["chronicle", ScrollText, "Crônica"],
               ["combat", Swords, "Combate"],
@@ -1743,88 +1780,6 @@ function ImmersiveContent() {
             <p role="alert" className="mb-2 text-xs text-destructive">
               {error}
             </p>
-          ) : null}
-
-          {tab === "sheet" ? (
-            <div className="space-y-3">
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-                  Ficha de Eldoria
-                </p>
-                {myCharacter ? (
-                  <>
-                    <p className="mt-1 font-heading text-xl">
-                      {myCharacter.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {myCharacter.race} · {myCharacter.class} · Nv{" "}
-                      {myCharacter.level}
-                    </p>
-                    <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-                      <div className="rounded border border-border/60 bg-background/40 p-1">
-                        <p className="text-[9px] text-muted-foreground">PV</p>
-                        <p className="font-mono text-xs">
-                          {myCharacter.currentHp}/{myCharacter.maxHp}
-                        </p>
-                      </div>
-                      <div className="rounded border border-border/60 bg-background/40 p-1">
-                        <p className="text-[9px] text-muted-foreground">CA</p>
-                        <p className="font-mono text-xs">
-                          {myCharacter.armorClass}
-                        </p>
-                      </div>
-                      <div className="rounded border border-border/60 bg-background/40 p-1">
-                        <p className="text-[9px] text-muted-foreground">
-                          Desl.
-                        </p>
-                        <p className="font-mono text-xs">
-                          {myCharacter.speed} pés
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Nenhum personagem SRD vinculado. A cena 3D abre, mas seu
-                    avatar e sua posição salvos ficam limitados até vincular uma
-                    ficha.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-lg border border-border/60 bg-background/40 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Cena
-                </p>
-                <p className="mt-1 text-xs">{campaign?.name ?? "—"}</p>
-                <p className="text-xs text-muted-foreground">
-                  {selected?.name ?? "Nenhum mapa"} ·{" "}
-                  {combatActive ? "combate" : "exploração"}
-                </p>
-              </div>
-
-              <div className="rounded-lg border border-border/60 bg-background/40 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Visual na cena
-                </p>
-                <p className="mt-1 text-xs">
-                  {selectedVisual
-                    ? `Ragnarok · ${selectedVisual.name}`
-                    : myCharacter
-                      ? `SRD · ${myCharacter.name}`
-                      : "Aprendiz padrão"}
-                </p>
-              </div>
-
-              <Button
-                variant="outline"
-                className="w-full gap-2"
-                nativeButton={false}
-                render={<Link href={`/campaigns/${params.id}/play`} />}
-              >
-                <Users className="size-4" /> Vincular ficha na Mesa
-              </Button>
-            </div>
           ) : null}
 
           {tab === "master" ? (
@@ -2330,6 +2285,80 @@ function ImmersiveContent() {
           />
         </DialogContent>
       </Dialog>
+
+      <CharacterScreen
+        open={characterOpen}
+        onClose={() => setCharacterOpen(false)}
+        srd={myCharacter}
+        hud={hudCharacter}
+        ragnarok={selectedSheet}
+      />
+
+      <div className="absolute bottom-3 left-1/2 z-40 flex w-[min(45rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-1 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+              <span className="truncate">
+                {ragnarokSheets[0]?.name ?? myCharacter?.name ?? "Aventureiro"}
+              </span>
+              <span className="font-mono">
+                {hudCharacter
+                  ? `${hudCharacter.currentHp}/${hudCharacter.maxHp} PV`
+                  : "—"}
+              </span>
+            </div>
+            <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-emerald-500"
+                style={{
+                  width: `${
+                    hudCharacter
+                      ? Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            (hudCharacter.currentHp /
+                              Math.max(1, hudCharacter.maxHp)) *
+                              100,
+                          ),
+                        )
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5, 6].map((slot) => (
+              <div
+                key={slot}
+                title="Hotbar em integração"
+                className="grid size-8 place-items-center rounded border border-border/70 bg-background/60 font-mono text-[10px] text-muted-foreground"
+              >
+                {slot}
+              </div>
+            ))}
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1 px-2 text-[10px]"
+            onClick={() => setCharacterOpen(true)}
+          >
+            C · Personagem
+          </Button>
+          {isMaster ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1 px-2 text-[10px]"
+              onClick={() => setTab("master")}
+            >
+              M · Mestre
+            </Button>
+          ) : null}
+        </div>
+      </div>
 
       {!frameReady && slug ? (
         <div className="absolute inset-0 z-20 grid place-items-center bg-background/60 text-sm text-muted-foreground">
