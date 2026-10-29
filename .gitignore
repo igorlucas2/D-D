@@ -61,3 +61,7 @@ playwright-report/
 test-results/
 blob-report/
 .tmp-auth.json
+
+# Assets proprietários do cliente Ragnarok (uso local; não redistribuir)
+*.grf
+frontend/public/ragassets/
