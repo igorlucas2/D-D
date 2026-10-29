@@ -322,6 +322,7 @@ model Campaign {
   auditLogs          AuditLog[]
   combatActions      CombatAction[]
   ragnarokCharacters CampaignRagnarokCharacter[]
+  ragnarokConfig     RagnarokCampaignConfig?
 }
 
 model AuditLog {
@@ -1681,26 +1682,36 @@ model RagnarokMap {
 }
 
 model RagnarokCharacter {
-  id           String   @id @default(cuid())
-  userId       String
-  jobId        Int
-  name         String
-  level        Int      @default(1)
-  strength     Int      @default(1)
-  agility      Int      @default(1)
-  vitality     Int      @default(1)
-  intelligence Int      @default(1)
-  dexterity    Int      @default(1)
-  luck         Int      @default(1)
-  appearance   String?  @db.LongText
-  maxHp        Int      @default(1)
-  currentHp    Int      @default(1)
-  maxSp        Int      @default(1)
-  currentSp    Int      @default(1)
-  statPoints   Int      @default(0)
-  skillPoints  Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String
+  jobId            Int
+  name             String
+  level            Int       @default(1)
+  jobLevel         Int       @default(1)
+  jobExp           Int       @default(0)
+  zeny             Int       @default(0)
+  gender           String    @default("M")
+  hairStyle        Int       @default(1)
+  hairColor        Int       @default(0)
+  clothesColor     Int       @default(0)
+  skinTone         Int       @default(0)
+  classGrantedAt   DateTime?
+  classGrantedById String?
+  strength         Int       @default(1)
+  agility          Int       @default(1)
+  vitality         Int       @default(1)
+  intelligence     Int       @default(1)
+  dexterity        Int       @default(1)
+  luck             Int       @default(1)
+  appearance       String?   @db.LongText
+  maxHp            Int       @default(1)
+  currentHp        Int       @default(1)
+  maxSp            Int       @default(1)
+  currentSp        Int       @default(1)
+  statPoints       Int       @default(0)
+  skillPoints      Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   user          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
   job           RagnarokJob                 @relation(fields: [jobId], references: [id], onDelete: Restrict)
@@ -1737,4 +1748,18 @@ model CampaignRagnarokCharacter {
 
   @@id([campaignId, characterId])
   @@index([campaignId])
+}
+
+model RagnarokCampaignConfig {
+  campaignId            String   @id
+  baseExpRate           Int      @default(5)
+  jobExpRate            Int      @default(5)
+  dropRate              Int      @default(5)
+  zenyRate              Int      @default(5)
+  lootMode              String   @default("KILLER")
+  lootProtectionSeconds Int      @default(45)
+  updatedById           String?
+  updatedAt             DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 }

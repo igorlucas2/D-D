@@ -13,6 +13,8 @@ import { CreateRagnarokCharacterDto } from './dto/create-ragnarok-character.dto'
 import { AllocateStatDto } from './dto/allocate-stat.dto';
 import { UpdateRagnarokCharacterDto } from './dto/update-ragnarok-character.dto';
 
+const NOVICE_JOB_ID = 0;
+
 const INCLUDE = {
   job: true,
   skills: { include: { skill: true }, orderBy: { createdAt: 'asc' } },
@@ -39,30 +41,34 @@ export class RagnarokCharactersService {
   }
 
   async create(userId: string, dto: CreateRagnarokCharacterDto) {
-    await this.assertJob(dto.jobId);
-    const stats = derived(
-      dto.level ?? 1,
-      dto.vitality ?? 1,
-      dto.intelligence ?? 1,
-    );
+    await this.assertJob(NOVICE_JOB_ID);
+    const stats = derived(1, 1, 1);
     return this.prisma.ragnarokCharacter.create({
       data: {
         userId,
-        jobId: dto.jobId,
+        jobId: NOVICE_JOB_ID,
         name: dto.name.trim(),
-        level: dto.level ?? 1,
-        strength: dto.strength ?? 1,
-        agility: dto.agility ?? 1,
-        vitality: dto.vitality ?? 1,
-        intelligence: dto.intelligence ?? 1,
-        dexterity: dto.dexterity ?? 1,
-        luck: dto.luck ?? 1,
+        level: 1,
+        jobLevel: 1,
+        jobExp: 0,
+        zeny: 0,
+        strength: 1,
+        agility: 1,
+        vitality: 1,
+        intelligence: 1,
+        dexterity: 1,
+        luck: 1,
         appearance: dto.appearance ?? null,
+        gender: dto.gender ?? 'M',
+        hairStyle: dto.hairStyle ?? 1,
+        hairColor: dto.hairColor ?? 0,
+        clothesColor: dto.clothesColor ?? 0,
+        skinTone: dto.skinTone ?? 0,
         ...stats,
         currentHp: stats.maxHp,
         currentSp: stats.maxSp,
-        statPoints: (dto.level ?? 1) > 1 ? (dto.level ?? 1) * 3 : 15,
-        skillPoints: (dto.level ?? 1) > 1 ? (dto.level ?? 1) : 1,
+        statPoints: 15,
+        skillPoints: 1,
       },
       include: INCLUDE,
     });
@@ -71,41 +77,23 @@ export class RagnarokCharactersService {
   async update(userId: string, id: string, dto: UpdateRagnarokCharacterDto) {
     const current = await this.prisma.ragnarokCharacter.findFirst({
       where: { id, userId },
+      select: { id: true },
     });
     if (!current) throw new NotFoundException('Ficha Ragnarok não encontrada.');
-    if (dto.jobId !== undefined) await this.assertJob(dto.jobId);
-    const stats = derived(
-      dto.level ?? current.level,
-      dto.vitality ?? current.vitality,
-      dto.intelligence ?? current.intelligence,
-    );
-    const levelGain = Math.max(0, (dto.level ?? current.level) - current.level);
     return this.prisma.ragnarokCharacter.update({
       where: { id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.jobId !== undefined ? { jobId: dto.jobId } : {}),
-        ...(dto.level !== undefined ? { level: dto.level } : {}),
-        ...(dto.strength !== undefined ? { strength: dto.strength } : {}),
-        ...(dto.agility !== undefined ? { agility: dto.agility } : {}),
-        ...(dto.vitality !== undefined ? { vitality: dto.vitality } : {}),
-        ...(dto.intelligence !== undefined
-          ? { intelligence: dto.intelligence }
-          : {}),
-        ...(dto.dexterity !== undefined ? { dexterity: dto.dexterity } : {}),
-        ...(dto.luck !== undefined ? { luck: dto.luck } : {}),
         ...(dto.appearance !== undefined
           ? { appearance: dto.appearance || null }
           : {}),
-        ...(levelGain
-          ? {
-              statPoints: { increment: levelGain * 3 },
-              skillPoints: { increment: levelGain },
-            }
+        ...(dto.gender !== undefined ? { gender: dto.gender } : {}),
+        ...(dto.hairStyle !== undefined ? { hairStyle: dto.hairStyle } : {}),
+        ...(dto.hairColor !== undefined ? { hairColor: dto.hairColor } : {}),
+        ...(dto.clothesColor !== undefined
+          ? { clothesColor: dto.clothesColor }
           : {}),
-        ...stats,
-        currentHp: Math.min(stats.maxHp, current.currentHp),
-        currentSp: Math.min(stats.maxSp, current.currentSp),
+        ...(dto.skinTone !== undefined ? { skinTone: dto.skinTone } : {}),
       },
       include: INCLUDE,
     });

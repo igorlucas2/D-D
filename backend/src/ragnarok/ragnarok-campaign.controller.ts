@@ -10,6 +10,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BindRagnarokCharacterDto } from './dto/bind-ragnarok-character.dto';
+import { GrantRagnarokClassDto } from './dto/grant-ragnarok-class.dto';
 import { RagnarokCampaignService } from './ragnarok-campaign.service';
 
 @UseGuards(JwtAuthGuard)
@@ -32,6 +33,16 @@ export class RagnarokCampaignController {
     @Body() dto: BindRagnarokCharacterDto,
   ) {
     return this.service.bind(campaignId, user.userId, dto.characterId);
+  }
+
+  @Post(':characterId/class')
+  grantClass(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: GrantRagnarokClassDto,
+  ) {
+    return this.service.grantClass(campaignId, user.userId, characterId, dto);
   }
 
   @Delete(':characterId')

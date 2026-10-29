@@ -1460,6 +1460,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/class": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCampaignController_grantClass"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}": {
         parameters: {
             query?: never;
@@ -1474,6 +1490,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ragnarok-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RagnarokConfigController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["RagnarokConfigController_update"];
         trace?: never;
     };
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
@@ -2585,7 +2617,7 @@ export interface components {
         };
         CreateRagnarokCharacterDto: {
             name: string;
-            jobId: number;
+            jobId?: number;
             level?: number;
             strength?: number;
             agility?: number;
@@ -2594,8 +2626,23 @@ export interface components {
             dexterity?: number;
             luck?: number;
             appearance?: string;
+            /** @enum {string} */
+            gender?: "M" | "F";
+            hairStyle?: number;
+            hairColor?: number;
+            clothesColor?: number;
+            skinTone?: number;
         };
-        UpdateRagnarokCharacterDto: Record<string, never>;
+        UpdateRagnarokCharacterDto: {
+            name?: string;
+            appearance?: string;
+            /** @enum {string} */
+            gender?: "M" | "F";
+            hairStyle?: number;
+            hairColor?: number;
+            clothesColor?: number;
+            skinTone?: number;
+        };
         AllocateStatDto: {
             /** @enum {string} */
             stat: "strength" | "agility" | "vitality" | "intelligence" | "dexterity" | "luck";
@@ -2616,6 +2663,18 @@ export interface components {
         };
         BindRagnarokCharacterDto: {
             characterId: string;
+        };
+        GrantRagnarokClassDto: {
+            jobId: number;
+        };
+        UpdateRagnarokConfigDto: {
+            baseExpRate?: number;
+            jobExpRate?: number;
+            dropRate?: number;
+            zenyRate?: number;
+            /** @enum {string} */
+            lootMode?: "FFA" | "KILLER" | "PARTY";
+            lootProtectionSeconds?: number;
         };
         TravelDto: {
             hotspotId: string;
@@ -5433,6 +5492,32 @@ export interface operations {
             };
         };
     };
+    RagnarokCampaignController_grantClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantRagnarokClassDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
     RagnarokCampaignController_unbind: {
         parameters: {
             query?: never;
@@ -5444,6 +5529,48 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RagnarokConfigController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RagnarokConfigController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRagnarokConfigDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {

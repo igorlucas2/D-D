@@ -22,6 +22,15 @@ interface RagnarokCharacter {
   name: string;
   jobId: number;
   level: number;
+  jobLevel: number;
+  jobExp: number;
+  zeny: number;
+  gender: string;
+  hairStyle: number;
+  hairColor: number;
+  clothesColor: number;
+  skinTone: number;
+  classGrantedAt: string | null;
   strength: number;
   agility: number;
   vitality: number;
@@ -57,22 +66,41 @@ const STATS = [
   ["luck", "SOR"],
 ] as const;
 
+const HAIR_COLORS = [
+  "#2b2118",
+  "#4a3020",
+  "#7a4a2a",
+  "#c08a4a",
+  "#e0c080",
+  "#d8d8d8",
+  "#9a3a3a",
+  "#4a6a9a",
+  "#6a4a8a",
+  "#3a6a4a",
+];
+
+const CLOTHES_COLORS = [
+  "#6b7280",
+  "#8b5e3c",
+  "#2f6f4e",
+  "#2f4f6f",
+  "#6f2f4f",
+  "#7a5a2f",
+  "#4f4f4f",
+  "#8f6a6a",
+  "#3f5f5f",
+  "#5f4f7f",
+];
+
 function RagnarokCharactersContent() {
   const token = useAuthStore((state) => state.token);
   const [characters, setCharacters] = useState<RagnarokCharacter[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
   const [name, setName] = useState("");
-  const [appearanceUrl, setAppearanceUrl] = useState("");
-  const [jobId, setJobId] = useState("");
-  const [level, setLevel] = useState("1");
-  const [stats, setStats] = useState<Record<string, string>>({
-    strength: "1",
-    agility: "1",
-    vitality: "1",
-    intelligence: "1",
-    dexterity: "1",
-    luck: "1",
-  });
+  const [gender, setGender] = useState("M");
+  const [hairStyle, setHairStyle] = useState("1");
+  const [hairColor, setHairColor] = useState("0");
+  const [clothesColor, setClothesColor] = useState("0");
+  const [skinTone, setSkinTone] = useState("0");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -124,13 +152,11 @@ function RagnarokCharactersContent() {
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const [roster, classes] = await Promise.all([
-        api.get<RagnarokCharacter[]>("/ragnarok/characters", token),
-        api.get<Job[]>("/ragnarok/classes", token),
-      ]);
+      const roster = await api.get<RagnarokCharacter[]>(
+        "/ragnarok/characters",
+        token,
+      );
       setCharacters(roster);
-      setJobs(classes);
-      setJobId((current) => current || String(classes[0]?.id ?? ""));
       setSkillCharacterId((current) => current || roster[0]?.id || "");
       setItemCharacterId((current) => current || roster[0]?.id || "");
     } catch (err) {
@@ -191,18 +217,16 @@ function RagnarokCharactersContent() {
         "/ragnarok/characters",
         {
           name: name.trim(),
-          jobId: Number(jobId),
-          level: Number(level) || 1,
-          ...Object.fromEntries(
-            STATS.map(([key]) => [key, Number(stats[key]) || 1]),
-          ),
-          appearance: appearanceUrl.trim() || undefined,
+          gender,
+          hairStyle: Number(hairStyle),
+          hairColor: Number(hairColor),
+          clothesColor: Number(clothesColor),
+          skinTone: Number(skinTone),
         },
         token,
       );
       setCharacters((current) => [...current, created]);
       setName("");
-      setAppearanceUrl("");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Falha ao criar ficha.");
     } finally {
@@ -388,62 +412,90 @@ function RagnarokCharactersContent() {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="ro-job">Classe</Label>
+            <Label htmlFor="ro-gender">Gênero</Label>
             <select
-              id="ro-job"
-              value={jobId}
-              onChange={(event) => setJobId(event.target.value)}
+              id="ro-gender"
+              value={gender}
+              onChange={(event) => setGender(event.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
             >
-              {jobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.name} ({job.jt})
-                </option>
-              ))}
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
             </select>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="ro-level">Nível</Label>
-            <Input
-              id="ro-level"
-              type="number"
-              min={1}
-              max={200}
-              value={level}
-              onChange={(event) => setLevel(event.target.value)}
-            />
-          </div>
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="ro-appearance">Link do visual (opcional)</Label>
-            <Input
-              id="ro-appearance"
-              value={appearanceUrl}
-              onChange={(event) => setAppearanceUrl(event.target.value)}
-              placeholder="https://visuais.latam-tools.com.br/?b=..."
-            />
+            <p className="rounded-md border border-primary/25 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+              Todo personagem começa como <strong>Aprendiz</strong>. A classe é
+              concedida pelo mestre na campanha.
+            </p>
           </div>
-          <div className="grid grid-cols-6 gap-1">
-            {STATS.map(([key, label]) => (
-              <div key={key} className="space-y-1">
-                <Label htmlFor={`ro-${key}`} className="text-[10px]">
-                  {label}
-                </Label>
-                <Input
-                  id={`ro-${key}`}
-                  type="number"
-                  min={1}
-                  max={999}
-                  value={stats[key]}
-                  onChange={(event) =>
-                    setStats((current) => ({
-                      ...current,
-                      [key]: event.target.value,
-                    }))
-                  }
-                  className="h-9 px-1 text-center"
-                />
-              </div>
-            ))}
+          <div className="grid grid-cols-2 gap-2 sm:col-span-2 sm:grid-cols-4">
+            <div className="space-y-1">
+              <Label htmlFor="ro-hair-style">Corte</Label>
+              <select
+                id="ro-hair-style"
+                value={hairStyle}
+                onChange={(event) => setHairStyle(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+              >
+                {Array.from({ length: 10 }, (_, index) => index + 1).map(
+                  (style) => (
+                    <option key={style} value={style}>
+                      Estilo {style}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="ro-hair-color">Cor do cabelo</Label>
+              <select
+                id="ro-hair-color"
+                value={hairColor}
+                onChange={(event) => setHairColor(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+              >
+                {Array.from({ length: 10 }, (_, index) => index).map(
+                  (color) => (
+                    <option key={color} value={color}>
+                      Tom {color}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="ro-clothes-color">Cor da roupa</Label>
+              <select
+                id="ro-clothes-color"
+                value={clothesColor}
+                onChange={(event) => setClothesColor(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+              >
+                {Array.from({ length: 10 }, (_, index) => index).map(
+                  (color) => (
+                    <option key={color} value={color}>
+                      Tom {color}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="ro-skin-tone">Pele</Label>
+              <select
+                id="ro-skin-tone"
+                value={skinTone}
+                onChange={(event) => setSkinTone(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+              >
+                {Array.from({ length: 6 }, (_, index) => index).map((tone) => (
+                  <option key={tone} value={tone}>
+                    Tom {tone}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
         <Button type="submit" className="gap-2" disabled={busy || !name.trim()}>
@@ -579,11 +631,20 @@ function RagnarokCharactersContent() {
               className="rounded-xl border border-border/70 bg-card/70 p-4"
             >
               <div className="flex items-start gap-3">
-                <img
-                  src={`https://assets.latam-tools.com.br/image?job=${character.jobId}&action=0&frame=0`}
-                  alt=""
-                  className="size-14 rounded-lg border border-border/60 object-contain"
-                />
+                <div
+                  className="flex size-14 items-center justify-center rounded-lg border-2 font-heading text-lg"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[character.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[character.hairColor] ?? HAIR_COLORS[0],
+                    color: HAIR_COLORS[character.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                  aria-hidden
+                >
+                  {character.name.slice(0, 1).toUpperCase()}
+                </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-heading text-lg">
                     {character.name}

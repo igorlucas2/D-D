@@ -24,6 +24,7 @@ import {
   CharacterScreen,
   type RagnarokSheet,
   type RagnarokStat,
+  type RagnarokAppearance,
 } from "@/components/immersive/character-screen";
 import { NarrationComposer } from "@/components/campaigns/narration-composer";
 import { TableDiceControls } from "@/components/campaigns/table-dice-controls";
@@ -156,6 +157,21 @@ interface RagnarokVisual {
   appearance: string | null;
 }
 
+interface RagnarokConfig {
+  baseExpRate: number;
+  jobExpRate: number;
+  dropRate: number;
+  zenyRate: number;
+  lootMode: string;
+  lootProtectionSeconds: number;
+}
+
+interface RagnarokJob {
+  id: number;
+  name: string;
+  jt: string;
+}
+
 interface PartyState {
   scene: { name: string } | null;
   characters: HudCharacter[];
@@ -257,6 +273,23 @@ function ImmersiveContent() {
   const [allocating, setAllocating] = useState(false);
   const [learningSkill, setLearningSkill] = useState(false);
   const [bindingSheet, setBindingSheet] = useState(false);
+  const [savingAppearance, setSavingAppearance] = useState(false);
+  const [ragnarokJobs, setRagnarokJobs] = useState<RagnarokJob[]>([]);
+  const [ragnarokConfig, setRagnarokConfig] = useState<RagnarokConfig | null>(
+    null,
+  );
+  const [classTarget, setClassTarget] = useState("");
+  const [classJob, setClassJob] = useState("");
+  const [grantingClass, setGrantingClass] = useState(false);
+  const [savingRates, setSavingRates] = useState(false);
+  const [ratesForm, setRatesForm] = useState({
+    baseExpRate: "5",
+    jobExpRate: "5",
+    dropRate: "5",
+    zenyRate: "5",
+    lootMode: "KILLER",
+    lootProtectionSeconds: "45",
+  });
   const [selectedRagnarokId, setSelectedRagnarokId] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
@@ -338,6 +371,8 @@ function ImmersiveContent() {
         charactersData,
         ragnarokData,
         boundData,
+        configData,
+        jobsData,
       ] = await Promise.all([
         api.get<Campaign>(`/campaigns/${params.id}`, token),
         api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
@@ -348,12 +383,32 @@ function ImmersiveContent() {
           `/campaigns/${params.id}/ragnarok-characters`,
           token,
         ),
+        api.get<RagnarokConfig>(
+          `/campaigns/${params.id}/ragnarok-config`,
+          token,
+        ),
+        api.get<RagnarokJob[]>("/ragnarok/classes", token),
       ]);
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
       setRagnarokSheets(ragnarokData);
       setBoundRagnarokIds(boundData.map((entry) => entry.id));
+      setRagnarokConfig(configData);
+      setRatesForm({
+        baseExpRate: String(configData.baseExpRate),
+        jobExpRate: String(configData.jobExpRate),
+        dropRate: String(configData.dropRate),
+        zenyRate: String(configData.zenyRate),
+        lootMode: configData.lootMode,
+        lootProtectionSeconds: String(configData.lootProtectionSeconds),
+      });
+      setRagnarokJobs(jobsData);
+      setClassJob(
+        (current) =>
+          current || String(jobsData.find((job) => job.id !== 0)?.id ?? ""),
+      );
+      setClassTarget((current) => current || boundData[0]?.id || "");
       setRagnarokVisuals(
         ragnarokData.filter((entry) => Boolean(entry.appearance)),
       );
@@ -1336,6 +1391,28 @@ function ImmersiveContent() {
     }
   }
 
+  async function saveSheetAppearance(appearance: RagnarokAppearance) {
+    if (!token || !selectedSheet || savingAppearance) return;
+    setSavingAppearance(true);
+    setError(null);
+    try {
+      const updated = await api.patch<RagnarokSheet>(
+        `/ragnarok/characters/${selectedSheet.id}`,
+        appearance,
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao salvar aparência.",
+      );
+    } finally {
+      setSavingAppearance(false);
+    }
+  }
+
   async function bindSheetToCampaign() {
     if (!token || !selectedSheet || bindingSheet) return;
     setBindingSheet(true);
@@ -1379,6 +1456,57 @@ function ImmersiveContent() {
       );
     } finally {
       setLearningSkill(false);
+    }
+  }
+
+  async function grantRagnarokClass() {
+    if (!token || !classTarget || !classJob || grantingClass) return;
+    setGrantingClass(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/campaigns/${params.id}/ragnarok-characters/${classTarget}/class`,
+        { jobId: Number(classJob) },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setMasterMessage(`Classe concedida: ${updated.job.name}.`);
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao conceder classe.",
+      );
+    } finally {
+      setGrantingClass(false);
+    }
+  }
+
+  async function saveRagnarokConfig() {
+    if (!token || savingRates) return;
+    setSavingRates(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.patch<RagnarokConfig>(
+        `/campaigns/${params.id}/ragnarok-config`,
+        {
+          baseExpRate: Number(ratesForm.baseExpRate),
+          jobExpRate: Number(ratesForm.jobExpRate),
+          dropRate: Number(ratesForm.dropRate),
+          zenyRate: Number(ratesForm.zenyRate),
+          lootMode: ratesForm.lootMode,
+          lootProtectionSeconds: Number(ratesForm.lootProtectionSeconds),
+        },
+        token,
+      );
+      setRagnarokConfig(updated);
+      setMasterMessage("Rates e loot atualizados.");
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao salvar rates.",
+      );
+    } finally {
+      setSavingRates(false);
     }
   }
 
@@ -2062,6 +2190,131 @@ function ImmersiveContent() {
                 )}
               </div>
 
+              <div className="space-y-2 rounded-lg border border-primary/30 p-2">
+                <p className="text-xs font-semibold">Ragnarok — classe</p>
+                {boundRagnarokIds.length ? (
+                  <>
+                    <select
+                      value={classTarget}
+                      onChange={(event) => setClassTarget(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Ficha Ragnarok que recebe a classe"
+                    >
+                      {ragnarokSheets
+                        .filter((entry) => boundRagnarokIds.includes(entry.id))
+                        .map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {entry.name} · {entry.job.name}
+                          </option>
+                        ))}
+                    </select>
+                    <select
+                      value={classJob}
+                      onChange={(event) => setClassJob(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Classe a conceder"
+                    >
+                      {ragnarokJobs
+                        .filter((job) => job.id !== 0)
+                        .map((job) => (
+                          <option key={job.id} value={job.id}>
+                            {job.name} ({job.jt})
+                          </option>
+                        ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      className="h-8 w-full"
+                      disabled={grantingClass || !classTarget || !classJob}
+                      onClick={() => void grantRagnarokClass()}
+                    >
+                      {grantingClass ? "Concedendo..." : "Conceder classe"}
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Nenhuma ficha Ragnarok vinculada.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                <p className="text-xs font-semibold">Ragnarok — rates e loot</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {(
+                    [
+                      ["baseExpRate", "Base EXP"],
+                      ["jobExpRate", "Job EXP"],
+                      ["dropRate", "Drop"],
+                      ["zenyRate", "Zeny"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="space-y-0.5 text-[10px]">
+                      <span className="text-muted-foreground">{label}</span>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={ratesForm[key]}
+                        onChange={(event) =>
+                          setRatesForm((current) => ({
+                            ...current,
+                            [key]: event.target.value,
+                          }))
+                        }
+                        className="h-8 text-xs"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  <select
+                    value={ratesForm.lootMode}
+                    onChange={(event) =>
+                      setRatesForm((current) => ({
+                        ...current,
+                        lootMode: event.target.value,
+                      }))
+                    }
+                    className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    aria-label="Modo de loot"
+                  >
+                    <option value="KILLER">Killer cooperativo</option>
+                    <option value="FFA">FFA</option>
+                    <option value="PARTY">Festa</option>
+                  </select>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={300}
+                    value={ratesForm.lootProtectionSeconds}
+                    onChange={(event) =>
+                      setRatesForm((current) => ({
+                        ...current,
+                        lootProtectionSeconds: event.target.value,
+                      }))
+                    }
+                    className="h-8 text-xs"
+                    aria-label="Proteção do loot em segundos"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 w-full"
+                  disabled={savingRates}
+                  onClick={() => void saveRagnarokConfig()}
+                >
+                  {savingRates ? "Salvando..." : "Salvar rates"}
+                </Button>
+                {ragnarokConfig ? (
+                  <p className="text-[9px] text-muted-foreground">
+                    Padrão 5x · loot {ragnarokConfig.lootMode} · proteção{" "}
+                    {ragnarokConfig.lootProtectionSeconds}s
+                  </p>
+                ) : null}
+              </div>
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -2388,6 +2641,8 @@ function ImmersiveContent() {
         )}
         onBind={bindSheetToCampaign}
         binding={bindingSheet}
+        onSaveAppearance={saveSheetAppearance}
+        savingAppearance={savingAppearance}
       />
 
       <div className="absolute bottom-3 left-1/2 z-40 flex w-[min(45rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-1 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">

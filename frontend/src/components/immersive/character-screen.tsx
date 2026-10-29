@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Backpack,
   Coins,
+  Palette,
   ScrollText,
   Shield,
   Sparkles,
@@ -31,6 +32,15 @@ export interface RagnarokSheet {
   intelligence: number;
   dexterity: number;
   luck: number;
+  jobLevel: number;
+  jobExp: number;
+  zeny: number;
+  gender: string;
+  hairStyle: number;
+  hairColor: number;
+  clothesColor: number;
+  skinTone: number;
+  classGrantedAt: string | null;
   statPoints: number;
   skillPoints: number;
   appearance: string | null;
@@ -54,7 +64,51 @@ export interface RagnarokSheet {
 export type RagnarokStat =
   "strength" | "agility" | "vitality" | "intelligence" | "dexterity" | "luck";
 
-type Section = "stats" | "skills" | "equipment" | "inventory" | "quests";
+export interface RagnarokAppearance {
+  gender: string;
+  hairStyle: number;
+  hairColor: number;
+  clothesColor: number;
+  skinTone: number;
+}
+
+const HAIR_COLORS = [
+  "#2b2118",
+  "#4a3020",
+  "#7a4a2a",
+  "#c08a4a",
+  "#e0c080",
+  "#d8d8d8",
+  "#9a3a3a",
+  "#4a6a9a",
+  "#6a4a8a",
+  "#3a6a4a",
+];
+
+const CLOTHES_COLORS = [
+  "#6b7280",
+  "#8b5e3c",
+  "#2f6f4e",
+  "#2f4f6f",
+  "#6f2f4f",
+  "#7a5a2f",
+  "#4f4f4f",
+  "#8f6a6a",
+  "#3f5f5f",
+  "#5f4f7f",
+];
+
+const SKIN_TONES = [
+  "#f0c8a0",
+  "#d8a878",
+  "#b88858",
+  "#986848",
+  "#704830",
+  "#4a3020",
+];
+
+type Section =
+  "stats" | "appearance" | "skills" | "equipment" | "inventory" | "quests";
 
 interface SkillCatalogEntry {
   id: number;
@@ -66,6 +120,7 @@ interface SkillCatalogEntry {
 
 const SECTION_LABEL: Record<Section, string> = {
   stats: "Atributos",
+  appearance: "Aparência",
   skills: "Habilidades",
   equipment: "Equipamento",
   inventory: "Inventário",
@@ -127,6 +182,8 @@ export function CharacterScreen({
   bound = false,
   onBind,
   binding = false,
+  onSaveAppearance,
+  savingAppearance = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -137,15 +194,39 @@ export function CharacterScreen({
   bound?: boolean;
   onBind?: () => Promise<void> | void;
   binding?: boolean;
+  onSaveAppearance?: (appearance: RagnarokAppearance) => Promise<void> | void;
+  savingAppearance?: boolean;
   srd: Character | null;
   hud: HudCharacter | null;
   ragnarok: RagnarokSheet | null;
 }) {
   const token = useAuthStore((state) => state.token);
   const [activeSection, setActiveSection] = useState<Section>("stats");
+  const [appearance, setAppearance] = useState<RagnarokAppearance>({
+    gender: "M",
+    hairStyle: 1,
+    hairColor: 0,
+    clothesColor: 0,
+    skinTone: 0,
+  });
   const [skillQuery, setSkillQuery] = useState("");
   const [skillResults, setSkillResults] = useState<SkillCatalogEntry[]>([]);
   const [skillLoading, setSkillLoading] = useState(false);
+  const appearanceSheetId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!ragnarok) return;
+    if (appearanceSheetId.current === ragnarok.id) return;
+    appearanceSheetId.current = ragnarok.id;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a ficha carregada
+    setAppearance({
+      gender: ragnarok.gender ?? "M",
+      hairStyle: ragnarok.hairStyle ?? 1,
+      hairColor: ragnarok.hairColor ?? 0,
+      clothesColor: ragnarok.clothesColor ?? 0,
+      skinTone: ragnarok.skinTone ?? 0,
+    });
+  }, [ragnarok]);
 
   useEffect(() => {
     if (!open || !token || !ragnarok) return;
@@ -214,7 +295,7 @@ export function CharacterScreen({
           <h1 className="font-heading text-2xl">{name}</h1>
           <p className="text-xs text-muted-foreground">
             {className} · Nv {level}
-            {ragnarok ? ` · ${ragnarok.job.jt}` : ""}
+            {ragnarok ? ` · ${ragnarok.job.jt} · Job ${ragnarok.jobLevel}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -236,7 +317,8 @@ export function CharacterScreen({
             ) : null
           ) : null}
           <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-            <Coins className="size-3.5" /> Zeny —
+            <Coins className="size-3.5" /> Zeny{" "}
+            {ragnarok ? ragnarok.zeny.toLocaleString("pt-BR") : "—"}
           </div>
           <Button
             variant="ghost"
@@ -255,12 +337,73 @@ export function CharacterScreen({
             <div className="absolute bottom-8 h-16 w-40 rounded-[50%] bg-black/50 blur-2xl" />
             <div className="relative flex flex-col items-center">
               <div className="relative h-44 w-28">
-                <div className="absolute left-1/2 top-0 size-12 -translate-x-1/2 rounded-full border border-primary/50 bg-[#1e211c]" />
-                <div className="absolute left-1/2 top-11 h-20 w-16 -translate-x-1/2 rounded-t-[2rem] border border-primary/40 bg-[#1a1d19]" />
-                <div className="absolute left-1 top-12 h-16 w-3 rotate-6 rounded-full border border-primary/30 bg-[#1a1d19]" />
-                <div className="absolute right-1 top-12 h-16 w-3 -rotate-6 rounded-full border border-primary/30 bg-[#1a1d19]" />
-                <div className="absolute bottom-0 left-1/2 h-16 w-5 -translate-x-7 rounded-b-full border border-primary/30 bg-[#1a1d19]" />
-                <div className="absolute bottom-0 left-1/2 h-16 w-5 translate-x-2 rounded-b-full border border-primary/30 bg-[#1a1d19]" />
+                <div
+                  className="absolute left-1/2 top-0 size-12 -translate-x-1/2 rounded-full border-2"
+                  style={{
+                    backgroundColor:
+                      SKIN_TONES[appearance.skinTone] ?? SKIN_TONES[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
+                <div
+                  className="absolute left-1/2 top-0 h-4 w-14 -translate-x-1/2 rounded-t-full"
+                  style={{
+                    backgroundColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                    height: `${10 + appearance.hairStyle * 1.5}px`,
+                  }}
+                />
+                <div
+                  className="absolute left-1/2 top-11 h-20 w-16 -translate-x-1/2 rounded-t-[2rem] border"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[appearance.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
+                <div
+                  className="absolute left-1 top-12 h-16 w-3 rotate-6 rounded-full border"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[appearance.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
+                <div
+                  className="absolute right-1 top-12 h-16 w-3 -rotate-6 rounded-full border"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[appearance.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 left-1/2 h-16 w-5 -translate-x-7 rounded-b-full border"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[appearance.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 left-1/2 h-16 w-5 translate-x-2 rounded-b-full border"
+                  style={{
+                    backgroundColor:
+                      CLOTHES_COLORS[appearance.clothesColor] ??
+                      CLOTHES_COLORS[0],
+                    borderColor:
+                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+                  }}
+                />
                 <div className="absolute inset-x-0 bottom-5 text-center font-heading text-2xl text-primary/80">
                   {initials(name)}
                 </div>
@@ -323,6 +466,8 @@ export function CharacterScreen({
               >
                 {section === "stats" ? (
                   <Shield className="size-3.5" />
+                ) : section === "appearance" ? (
+                  <Palette className="size-3.5" />
                 ) : section === "skills" ? (
                   <Sparkles className="size-3.5" />
                 ) : section === "equipment" ? (
@@ -433,6 +578,145 @@ export function CharacterScreen({
                     </p>
                   </div>
                 </div>
+              </section>
+
+              <section
+                data-character-panel="appearance"
+                className="rounded-xl border border-border/60 bg-background/35 p-4"
+              >
+                <h2 className="font-heading text-lg">Aparência</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Cabelo, cor, roupa e pele. A prévia é provisória; o renderer
+                  local de sprites entra na próxima camada.
+                </p>
+                {ragnarok ? (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted-foreground">
+                        Gênero
+                      </label>
+                      <select
+                        value={appearance.gender}
+                        onChange={(event) =>
+                          setAppearance((current) => ({
+                            ...current,
+                            gender: event.target.value,
+                          }))
+                        }
+                        className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted-foreground">
+                        Corte
+                      </label>
+                      <select
+                        value={appearance.hairStyle}
+                        onChange={(event) =>
+                          setAppearance((current) => ({
+                            ...current,
+                            hairStyle: Number(event.target.value),
+                          }))
+                        }
+                        className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        {Array.from(
+                          { length: 10 },
+                          (_, index) => index + 1,
+                        ).map((style) => (
+                          <option key={style} value={style}>
+                            Estilo {style}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted-foreground">
+                        Cabelo
+                      </label>
+                      <select
+                        value={appearance.hairColor}
+                        onChange={(event) =>
+                          setAppearance((current) => ({
+                            ...current,
+                            hairColor: Number(event.target.value),
+                          }))
+                        }
+                        className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        {Array.from({ length: 10 }, (_, index) => index).map(
+                          (color) => (
+                            <option key={color} value={color}>
+                              Tom {color}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted-foreground">
+                        Roupa
+                      </label>
+                      <select
+                        value={appearance.clothesColor}
+                        onChange={(event) =>
+                          setAppearance((current) => ({
+                            ...current,
+                            clothesColor: Number(event.target.value),
+                          }))
+                        }
+                        className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        {Array.from({ length: 10 }, (_, index) => index).map(
+                          (color) => (
+                            <option key={color} value={color}>
+                              Tom {color}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted-foreground">
+                        Pele
+                      </label>
+                      <select
+                        value={appearance.skinTone}
+                        onChange={(event) =>
+                          setAppearance((current) => ({
+                            ...current,
+                            skinTone: Number(event.target.value),
+                          }))
+                        }
+                        className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        {Array.from({ length: 6 }, (_, index) => index).map(
+                          (tone) => (
+                            <option key={tone} value={tone}>
+                              Tom {tone}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </div>
+                    <div className="sm:col-span-5">
+                      <Button
+                        size="sm"
+                        disabled={!onSaveAppearance || savingAppearance}
+                        onClick={() => void onSaveAppearance?.(appearance)}
+                      >
+                        {savingAppearance ? "Salvando..." : "Salvar aparência"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Aparência disponível apenas para ficha Ragnarok.
+                  </p>
+                )}
               </section>
 
               <section

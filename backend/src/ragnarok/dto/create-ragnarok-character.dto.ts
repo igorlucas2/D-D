@@ -1,4 +1,5 @@
 import {
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -14,9 +15,11 @@ export class CreateRagnarokCharacterDto {
   @MaxLength(80)
   name!: string;
 
+  // Mantido por compatibilidade; o servidor sempre cria Aprendiz.
+  @IsOptional()
   @IsInt()
   @Min(0)
-  jobId!: number;
+  jobId?: number;
 
   @IsOptional()
   @IsInt()
@@ -64,4 +67,32 @@ export class CreateRagnarokCharacterDto {
   @IsString()
   @MaxLength(5000)
   appearance?: string;
+
+  @IsOptional()
+  @IsIn(['M', 'F'])
+  gender?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(15)
+  hairStyle?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(15)
+  hairColor?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(15)
+  clothesColor?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(10)
+  skinTone?: number;
 }

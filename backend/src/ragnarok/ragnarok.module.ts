@@ -5,6 +5,7 @@ import { RagnarokCharactersController } from './ragnarok-characters.controller';
 import { RagnarokCharactersService } from './ragnarok-characters.service';
 import { RagnarokCampaignController } from './ragnarok-campaign.controller';
 import { RagnarokCampaignService } from './ragnarok-campaign.service';
+import { RagnarokConfigController } from './ragnarok-config.controller';
 import { RagnarokService } from './ragnarok.service';
 
 @Module({
@@ -13,6 +14,7 @@ import { RagnarokService } from './ragnarok.service';
     RagnarokController,
     RagnarokCharactersController,
     RagnarokCampaignController,
+    RagnarokConfigController,
   ],
   providers: [
     RagnarokService,
