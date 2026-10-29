@@ -449,32 +449,49 @@ Importar 14.397 itens com:
 - loot rights;
 - log.
 
-### 8.4 Loot
+### 8.4 Loot no chão
 
-Três modos configuráveis pelo mestre:
+Todo drop nasce como um **objeto físico no mapa**:
+
+```text
+RagnarokGroundDrop
+  id, instanceId, itemId, quantity
+  x, y, droppedAt, expiresAt
+  ownerCharacterId, ownerPartyId
+  protectionUntil, state
+```
+
+O cliente desenha o ícone/nome no chão. O jogador clica para pegar; o servidor
+valida distância, dono, prazo e espaço no inventário.
 
 **FFA (free-for-all)**
-- o primeiro que clicar pega;
-- qualquer jogador no mapa pode pegar;
-- o crédito de EXP/quest continua sendo de quem matou ou da festa;
+- qualquer jogador pode pegar imediatamente;
+- o crédito de EXP/quest continua com quem matou ou com a festa;
 - simples, mas sujeito a “ninja loot”.
 
 **Killer**
-- o item pertence a quem deu o golpe final ou maior dano;
-- dono tem uma janela de alguns segundos;
-- membros da festa podem ter prioridade;
-- bom para manter autoria da caçada;
-- ruim se o jogador estiver longe ou morrer.
+- o drop pertence a quem matou;
+- se quem matou está em festa, o dono é a **festa**;
+- membros da festa podem pegar;
+- proteção curta, por exemplo **45 segundos**;
+- depois da proteção, abre para FFA;
+- se o dono estiver longe/morto, o item continua no chão até expirar.
 
 **Festa (party)**
-- o loot entra no pool da festa;
-- distribuição por rodízio, need/greed ou decisão do líder;
-- itens de quest vão para quem precisa;
-- melhor para mesa cooperativa;
+- o drop pertence à festa;
+- raros usam need/greed/rodízio;
+- comuns podem ser pegos por qualquer membro;
 - exige UI de distribuição.
 
-Padrão recomendado: **Festa**, com need/greed para raros. O mestre pode
-trocar por FFA ou Killer no painel.
+**Padrão recomendado: Killer cooperativo.**
+O item cai no chão, quem matou tem prioridade curta e a festa pode pegar; depois
+abre para FFA. Isso preserva o loot físico do Ragnarok e evita ninja loot
+imediato.
+
+Itens de quest são pessoais/automáticos para os elegíveis e não entram no
+leilão da festa.
+
+O mestre configura o modo e a janela de proteção no painel.
 
 Itens de quest são sempre pessoais/automáticos para os elegíveis, mesmo em FFA
 ou Killer.
@@ -799,7 +816,8 @@ actor, action, target, payload, timestamp, requestId
 - `RagnarokPet`;
 - `RagnarokCombatLog`;
 - `RagnarokAdminAudit`;
-- `RagnarokCampaignConfig` (rates, loot mode, level cap);
+- `RagnarokGroundDrop` (item no chão, dono, proteção, expiração);
+- `RagnarokCampaignConfig` (rates, loot mode, loot protection, level cap);
 - `RagnarokClassGrant` (quem concedeu, classe, quando).
 
 ## 14. APIs e sockets
@@ -817,6 +835,7 @@ GET  /characters/:id/inventory
 POST /characters/:id/inventory/use
 POST /characters/:id/equipment
 GET  /characters/:id/quests
+POST /campaigns/:id/world/drops/:dropId/pickup
 POST /campaigns/:id/shops/:shopId/buy
 POST /campaigns/:id/shops/:shopId/sell
 POST /campaigns/:id/kafra/teleport
@@ -833,6 +852,9 @@ world:join
 world:leave
 actor:move
 actor:stop
+drop:spawn
+drop:pickup
+drop:expire
 actor:attack
 actor:skill
 npc:interact
@@ -993,7 +1015,7 @@ Aceite: comprar poção e teleportar.
 - EXP;
 - respawn.
 
-Aceite: matar Poring e receber loot/EXP.
+Aceite: matar Poring, o loot cair no chão, o killer/festa pegar primeiro e outro jogador só pegar após a proteção.
 
 ### M6 — Quests/classe
 - engine;
@@ -1043,7 +1065,7 @@ Aceite: mestre dá item/zeny/EXP, spawna mob, configura rates e concede classe.
 12. concluir quest;
 13. receber classe do mestre;
 14. mestre conceder item/zeny/EXP/classe;
-15. mestre criar quest e configurar rates/loot;
+15. mestre criar quest, configurar rates e modo de loot;
 16. tudo persiste após reload;
 17. servidor autoritativo.
 
@@ -1064,7 +1086,7 @@ Aceite: mestre dá item/zeny/EXP, spawna mob, configura rates e concede classe.
 1. Todo personagem começa como **Aprendiz**.
 2. **Quem concede a classe é o mestre**, pelo painel.
 3. Rates configuráveis na aba do mestre; **5x** por padrão.
-4. Loot padrão: **Festa**, com opção de FFA/Killer.
+4. Loot padrão: **Killer cooperativo** (cai no chão, killer/festa tem prioridade curta, depois FFA).
 5. Janelas: **nossa UI por padrão**, com fallback inspirado no original apenas
    quando o custo for desproporcional.
 
