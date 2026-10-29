@@ -11,8 +11,12 @@ import {
   Swords,
   X,
 } from "lucide-react";
+import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth-store";
 import type { Character } from "@/lib/types";
 import type { HudCharacter, HudItem, HudSpell } from "@/lib/table-types";
 
@@ -51,6 +55,14 @@ export type RagnarokStat =
   "strength" | "agility" | "vitality" | "intelligence" | "dexterity" | "luck";
 
 type Section = "stats" | "skills" | "equipment" | "inventory" | "quests";
+
+interface SkillCatalogEntry {
+  id: number;
+  name: string;
+  maxLevel: number;
+  description: string | null;
+  parent: string | null;
+}
 
 const SECTION_LABEL: Record<Section, string> = {
   stats: "Atributos",
@@ -110,16 +122,50 @@ export function CharacterScreen({
   ragnarok,
   onAllocateStat,
   allocating = false,
+  onLearnSkill,
+  learning = false,
 }: {
   open: boolean;
   onClose: () => void;
   onAllocateStat?: (stat: RagnarokStat) => Promise<void> | void;
   allocating?: boolean;
+  onLearnSkill?: (skillId: number, level: number) => Promise<void> | void;
+  learning?: boolean;
   srd: Character | null;
   hud: HudCharacter | null;
   ragnarok: RagnarokSheet | null;
 }) {
+  const token = useAuthStore((state) => state.token);
   const [activeSection, setActiveSection] = useState<Section>("stats");
+  const [skillQuery, setSkillQuery] = useState("");
+  const [skillResults, setSkillResults] = useState<SkillCatalogEntry[]>([]);
+  const [skillLoading, setSkillLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open || !token || !ragnarok) return;
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setSkillLoading(true);
+      try {
+        const query = skillQuery.trim();
+        const result = await api.get<SkillCatalogEntry[]>(
+          `/ragnarok/skills?take=20${
+            query.length >= 2 ? `&search=${encodeURIComponent(query)}` : ""
+          }`,
+          token,
+        );
+        if (!cancelled) setSkillResults(result);
+      } catch {
+        if (!cancelled) setSkillResults([]);
+      } finally {
+        if (!cancelled) setSkillLoading(false);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [open, ragnarok, skillQuery, token]);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -143,6 +189,9 @@ export function CharacterScreen({
       ? `${hud.currentHp}/${hud.maxHp}`
       : "—";
   const sp = ragnarok ? `${ragnarok.currentSp}/${ragnarok.maxSp}` : "—";
+  const knownSkills = new Map(
+    (ragnarok?.skills ?? []).map((entry) => [entry.skill.id, entry.level]),
+  );
 
   return createPortal(
     <div
@@ -407,6 +456,60 @@ export function CharacterScreen({
                     </p>
                   )}
                 </div>
+
+                {ragnarok && onLearnSkill ? (
+                  <div className="mt-4 border-t border-border/60 pt-3">
+                    <div className="flex items-center gap-2">
+                      <Search className="size-4 text-muted-foreground" />
+                      <Input
+                        value={skillQuery}
+                        onChange={(event) => setSkillQuery(event.target.value)}
+                        placeholder="Buscar skill para aprender…"
+                        className="h-8 text-xs"
+                        aria-label="Buscar skill"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {skillQuery.trim().length >= 2
+                        ? "Resultados da busca."
+                        : "Primeiras skills do catálogo; digite 2+ letras para filtrar."}
+                      {skillLoading ? " Carregando…" : ""}
+                    </p>
+                    <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                      {skillResults.map((skill) => {
+                        const currentLevel = knownSkills.get(skill.id) ?? 0;
+                        const canLearn =
+                          ragnarok.skillPoints > 0 &&
+                          currentLevel < skill.maxLevel &&
+                          !learning;
+                        return (
+                          <div
+                            key={skill.id}
+                            className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background/35 px-2 py-1.5"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate text-xs">{skill.name}</p>
+                              <p className="font-mono text-[9px] text-muted-foreground">
+                                {currentLevel}/{skill.maxLevel}
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 shrink-0 px-2 text-[10px]"
+                              disabled={!canLearn}
+                              onClick={() =>
+                                void onLearnSkill(skill.id, currentLevel + 1)
+                              }
+                            >
+                              Aprender
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </section>
 
               <section

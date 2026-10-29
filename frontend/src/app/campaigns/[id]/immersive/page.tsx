@@ -254,6 +254,7 @@ function ImmersiveContent() {
   const [ragnarokSheets, setRagnarokSheets] = useState<RagnarokSheet[]>([]);
   const [characterOpen, setCharacterOpen] = useState(false);
   const [allocating, setAllocating] = useState(false);
+  const [learningSkill, setLearningSkill] = useState(false);
   const [selectedRagnarokId, setSelectedRagnarokId] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
@@ -1319,6 +1320,28 @@ function ImmersiveContent() {
     }
   }
 
+  async function learnSheetSkill(skillId: number, level: number) {
+    if (!token || !selectedSheet || learningSkill) return;
+    setLearningSkill(true);
+    setError(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/ragnarok/characters/${selectedSheet.id}/skills`,
+        { skillId, level },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao aprender a skill.",
+      );
+    } finally {
+      setLearningSkill(false);
+    }
+  }
+
   async function levelMasterCharacter() {
     if (!token || !levelTarget) return;
     setMasterBusy(true);
@@ -2318,6 +2341,8 @@ function ImmersiveContent() {
         ragnarok={selectedSheet}
         onAllocateStat={allocateSheetStat}
         allocating={allocating}
+        onLearnSkill={learnSheetSkill}
+        learning={learningSkill}
       />
 
       <div className="absolute bottom-3 left-1/2 z-40 flex w-[min(45rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-1 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">
