@@ -60,7 +60,7 @@ desktop.ini
 playwright-report/
 test-results/
 blob-report/
-.tmp-auth.json
+.tmp-auth.json\n.tmp-*
 
 # Assets proprietários do cliente Ragnarok (uso local; não redistribuir)
 *.grf
