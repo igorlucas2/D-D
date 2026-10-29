@@ -1444,6 +1444,38 @@ export interface paths {
         patch: operations["RagnarokCharactersController_updateItem"];
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/ragnarok-characters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RagnarokCampaignController_list"];
+        put?: never;
+        post: operations["RagnarokCampaignController_bind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["RagnarokCampaignController_unbind"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
         parameters: {
             query?: never;
@@ -2581,6 +2613,9 @@ export interface components {
         UpdateRagnarokItemDto: {
             equipped?: boolean;
             slot?: string;
+        };
+        BindRagnarokCharacterDto: {
+            characterId: string;
         };
         TravelDto: {
             hotspotId: string;
@@ -5349,6 +5384,72 @@ export interface operations {
                 content: {
                     "application/json": Record<string, never>;
                 };
+            };
+        };
+    };
+    RagnarokCampaignController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_bind: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BindRagnarokCharacterDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_unbind: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

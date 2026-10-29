@@ -306,21 +306,22 @@ model Campaign {
   assistantMonthlyLimit Int             @default(30)
   createdAt             DateTime        @default(now())
 
-  master            User                        @relation("CampaignMaster", fields: [masterId], references: [id], onDelete: Cascade)
-  members           CampaignMember[]
-  combatEncounter   CombatEncounter?
-  journalEntries    CampaignJournalEntry[]
-  vttMaps           VttMap[]
-  worldEntries      CampaignWorldEntry[]
-  worldCalendar     CampaignCalendar?
-  explorationStates CharacterExplorationState[]
-  worldEvents       CampaignWorldEvent[]
-  diceRolls         DiceRoll[]
-  narrationDrafts   NarrationDraft[]
-  chatMessages      ChatMessage[]
-  assistantRequests AssistantRequest[]
-  auditLogs         AuditLog[]
-  combatActions     CombatAction[]
+  master             User                        @relation("CampaignMaster", fields: [masterId], references: [id], onDelete: Cascade)
+  members            CampaignMember[]
+  combatEncounter    CombatEncounter?
+  journalEntries     CampaignJournalEntry[]
+  vttMaps            VttMap[]
+  worldEntries       CampaignWorldEntry[]
+  worldCalendar      CampaignCalendar?
+  explorationStates  CharacterExplorationState[]
+  worldEvents        CampaignWorldEvent[]
+  diceRolls          DiceRoll[]
+  narrationDrafts    NarrationDraft[]
+  chatMessages       ChatMessage[]
+  assistantRequests  AssistantRequest[]
+  auditLogs          AuditLog[]
+  combatActions      CombatAction[]
+  ragnarokCharacters CampaignRagnarokCharacter[]
 }
 
 model AuditLog {
@@ -1701,10 +1702,11 @@ model RagnarokCharacter {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job       RagnarokJob              @relation(fields: [jobId], references: [id], onDelete: Restrict)
-  skills    RagnarokCharacterSkill[]
-  equipment RagnarokCharacterItem[]
+  user          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job           RagnarokJob                 @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  skills        RagnarokCharacterSkill[]
+  equipment     RagnarokCharacterItem[]
+  campaignLinks CampaignRagnarokCharacter[]
 
   @@index([userId])
   @@index([jobId])
@@ -1723,4 +1725,16 @@ model RagnarokCharacterItem {
 
   @@unique([characterId, itemId])
   @@index([itemId])
+}
+
+model CampaignRagnarokCharacter {
+  campaignId  String
+  characterId String   @unique
+  joinedAt    DateTime @default(now())
+
+  campaign  Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  character RagnarokCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@id([campaignId, characterId])
+  @@index([campaignId])
 }

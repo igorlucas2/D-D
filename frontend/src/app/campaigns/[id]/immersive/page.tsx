@@ -252,9 +252,11 @@ function ImmersiveContent() {
   const [myCharacter, setMyCharacter] = useState<Character | null>(null);
   const [ragnarokVisuals, setRagnarokVisuals] = useState<RagnarokVisual[]>([]);
   const [ragnarokSheets, setRagnarokSheets] = useState<RagnarokSheet[]>([]);
+  const [boundRagnarokIds, setBoundRagnarokIds] = useState<string[]>([]);
   const [characterOpen, setCharacterOpen] = useState(false);
   const [allocating, setAllocating] = useState(false);
   const [learningSkill, setLearningSkill] = useState(false);
+  const [bindingSheet, setBindingSheet] = useState(false);
   const [selectedRagnarokId, setSelectedRagnarokId] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [party, setParty] = useState<PartyState | null>(null);
@@ -302,8 +304,11 @@ function ImmersiveContent() {
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
   const selectedVisual =
     ragnarokVisuals.find((entry) => entry.id === selectedRagnarokId) ?? null;
+  const boundSheet =
+    ragnarokSheets.find((entry) => boundRagnarokIds.includes(entry.id)) ?? null;
   const selectedSheet =
     ragnarokSheets.find((entry) => entry.id === selectedRagnarokId) ??
+    boundSheet ??
     ragnarokSheets[0] ??
     null;
   const visualAppearance =
@@ -326,18 +331,29 @@ function ImmersiveContent() {
   const load = useCallback(async () => {
     if (!token) return;
     try {
-      const [campaignData, mapData, partyData, charactersData, ragnarokData] =
-        await Promise.all([
-          api.get<Campaign>(`/campaigns/${params.id}`, token),
-          api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
-          api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
-          api.get<Character[]>("/characters", token),
-          api.get<RagnarokSheet[]>("/ragnarok/characters", token),
-        ]);
+      const [
+        campaignData,
+        mapData,
+        partyData,
+        charactersData,
+        ragnarokData,
+        boundData,
+      ] = await Promise.all([
+        api.get<Campaign>(`/campaigns/${params.id}`, token),
+        api.get<VttMap[]>(`/campaigns/${params.id}/vtt/maps`, token),
+        api.get<PartyState>(`/campaigns/${params.id}/ai-master/state`, token),
+        api.get<Character[]>("/characters", token),
+        api.get<RagnarokSheet[]>("/ragnarok/characters", token),
+        api.get<RagnarokSheet[]>(
+          `/campaigns/${params.id}/ragnarok-characters`,
+          token,
+        ),
+      ]);
       setCampaign(campaignData);
       setMaps(mapData);
       setParty(partyData);
       setRagnarokSheets(ragnarokData);
+      setBoundRagnarokIds(boundData.map((entry) => entry.id));
       setRagnarokVisuals(
         ragnarokData.filter((entry) => Boolean(entry.appearance)),
       );
@@ -1317,6 +1333,30 @@ function ImmersiveContent() {
       );
     } finally {
       setAllocating(false);
+    }
+  }
+
+  async function bindSheetToCampaign() {
+    if (!token || !selectedSheet || bindingSheet) return;
+    setBindingSheet(true);
+    setError(null);
+    try {
+      await api.post(
+        `/campaigns/${params.id}/ragnarok-characters`,
+        { characterId: selectedSheet.id },
+        token,
+      );
+      setBoundRagnarokIds((current) =>
+        current.includes(selectedSheet.id)
+          ? current
+          : [...current, selectedSheet.id],
+      );
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao vincular a ficha.",
+      );
+    } finally {
+      setBindingSheet(false);
     }
   }
 
@@ -2343,6 +2383,11 @@ function ImmersiveContent() {
         allocating={allocating}
         onLearnSkill={learnSheetSkill}
         learning={learningSkill}
+        bound={Boolean(
+          selectedSheet && boundRagnarokIds.includes(selectedSheet.id),
+        )}
+        onBind={bindSheetToCampaign}
+        binding={bindingSheet}
       />
 
       <div className="absolute bottom-3 left-1/2 z-40 flex w-[min(45rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-1 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">

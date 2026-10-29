@@ -124,6 +124,9 @@ export function CharacterScreen({
   allocating = false,
   onLearnSkill,
   learning = false,
+  bound = false,
+  onBind,
+  binding = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -131,6 +134,9 @@ export function CharacterScreen({
   allocating?: boolean;
   onLearnSkill?: (skillId: number, level: number) => Promise<void> | void;
   learning?: boolean;
+  bound?: boolean;
+  onBind?: () => Promise<void> | void;
+  binding?: boolean;
   srd: Character | null;
   hud: HudCharacter | null;
   ragnarok: RagnarokSheet | null;
@@ -212,6 +218,23 @@ export function CharacterScreen({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {ragnarok ? (
+            bound ? (
+              <Badge variant="default" className="text-[10px]">
+                Vinculada à campanha
+              </Badge>
+            ) : onBind ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={binding}
+                onClick={() => void onBind()}
+              >
+                {binding ? "Vinculando..." : "Vincular à campanha"}
+              </Button>
+            ) : null
+          ) : null}
           <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
             <Coins className="size-3.5" /> Zeny —
           </div>

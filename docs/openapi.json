@@ -4098,6 +4098,108 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/ragnarok-characters": {
+      "get": {
+        "operationId": "RagnarokCampaignController_list",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      },
+      "post": {
+        "operationId": "RagnarokCampaignController_bind",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BindRagnarokCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}": {
+      "delete": {
+        "operationId": "RagnarokCampaignController_unbind",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/characters/{characterId}/exploration": {
       "get": {
         "operationId": "ExplorationController_getState",
@@ -7555,6 +7657,18 @@
             "maxLength": 60
           }
         }
+      },
+      "BindRagnarokCharacterDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "maxLength": 191
+          }
+        },
+        "required": [
+          "characterId"
+        ]
       },
       "TravelDto": {
         "type": "object",
