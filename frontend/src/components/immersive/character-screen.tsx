@@ -20,6 +20,7 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Character } from "@/lib/types";
 import type { HudCharacter, HudItem, HudSpell } from "@/lib/table-types";
+import { NoviceSprite } from "./novice-sprite";
 
 export interface RagnarokSheet {
   id: string;
@@ -165,6 +166,76 @@ function SpellRow({ spell }: { spell: HudSpell }) {
         {spell.school} · {spell.actionType}
         {spell.concentration ? " · concentração" : ""}
       </p>
+    </div>
+  );
+}
+
+function PaperDoll({
+  appearance,
+  name,
+}: {
+  appearance: RagnarokAppearance;
+  name: string;
+}) {
+  return (
+    <div className="relative h-44 w-28">
+      <div
+        className="absolute left-1/2 top-0 size-12 -translate-x-1/2 rounded-full border-2"
+        style={{
+          backgroundColor: SKIN_TONES[appearance.skinTone] ?? SKIN_TONES[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div
+        className="absolute left-1/2 top-0 h-4 w-14 -translate-x-1/2 rounded-t-full"
+        style={{
+          backgroundColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+          height: `${10 + appearance.hairStyle * 1.5}px`,
+        }}
+      />
+      <div
+        className="absolute left-1/2 top-11 h-20 w-16 -translate-x-1/2 rounded-t-[2rem] border"
+        style={{
+          backgroundColor:
+            CLOTHES_COLORS[appearance.clothesColor] ?? CLOTHES_COLORS[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div
+        className="absolute left-1 top-12 h-16 w-3 rotate-6 rounded-full border"
+        style={{
+          backgroundColor:
+            CLOTHES_COLORS[appearance.clothesColor] ?? CLOTHES_COLORS[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div
+        className="absolute right-1 top-12 h-16 w-3 -rotate-6 rounded-full border"
+        style={{
+          backgroundColor:
+            CLOTHES_COLORS[appearance.clothesColor] ?? CLOTHES_COLORS[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-1/2 h-16 w-5 -translate-x-7 rounded-b-full border"
+        style={{
+          backgroundColor:
+            CLOTHES_COLORS[appearance.clothesColor] ?? CLOTHES_COLORS[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-1/2 h-16 w-5 translate-x-2 rounded-b-full border"
+        style={{
+          backgroundColor:
+            CLOTHES_COLORS[appearance.clothesColor] ?? CLOTHES_COLORS[0],
+          borderColor: HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
+        }}
+      />
+      <div className="absolute inset-x-0 bottom-5 text-center font-heading text-2xl text-primary/80">
+        {initials(name)}
+      </div>
     </div>
   );
 }
@@ -336,80 +407,19 @@ export function CharacterScreen({
           <div className="relative flex min-h-64 flex-1 items-center justify-center overflow-hidden rounded-2xl border border-primary/25 bg-[radial-gradient(circle_at_50%_35%,rgba(201,162,94,0.18),transparent_55%),linear-gradient(160deg,#181b18,#0c0e0c)]">
             <div className="absolute bottom-8 h-16 w-40 rounded-[50%] bg-black/50 blur-2xl" />
             <div className="relative flex flex-col items-center">
-              <div className="relative h-44 w-28">
-                <div
-                  className="absolute left-1/2 top-0 size-12 -translate-x-1/2 rounded-full border-2"
-                  style={{
-                    backgroundColor:
-                      SKIN_TONES[appearance.skinTone] ?? SKIN_TONES[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
+              {ragnarok?.job.id === 0 ? (
+                <NoviceSprite
+                  gender={appearance.gender}
+                  hairStyle={appearance.hairStyle}
+                  fallback={<PaperDoll appearance={appearance} name={name} />}
                 />
-                <div
-                  className="absolute left-1/2 top-0 h-4 w-14 -translate-x-1/2 rounded-t-full"
-                  style={{
-                    backgroundColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                    height: `${10 + appearance.hairStyle * 1.5}px`,
-                  }}
-                />
-                <div
-                  className="absolute left-1/2 top-11 h-20 w-16 -translate-x-1/2 rounded-t-[2rem] border"
-                  style={{
-                    backgroundColor:
-                      CLOTHES_COLORS[appearance.clothesColor] ??
-                      CLOTHES_COLORS[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
-                />
-                <div
-                  className="absolute left-1 top-12 h-16 w-3 rotate-6 rounded-full border"
-                  style={{
-                    backgroundColor:
-                      CLOTHES_COLORS[appearance.clothesColor] ??
-                      CLOTHES_COLORS[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
-                />
-                <div
-                  className="absolute right-1 top-12 h-16 w-3 -rotate-6 rounded-full border"
-                  style={{
-                    backgroundColor:
-                      CLOTHES_COLORS[appearance.clothesColor] ??
-                      CLOTHES_COLORS[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
-                />
-                <div
-                  className="absolute bottom-0 left-1/2 h-16 w-5 -translate-x-7 rounded-b-full border"
-                  style={{
-                    backgroundColor:
-                      CLOTHES_COLORS[appearance.clothesColor] ??
-                      CLOTHES_COLORS[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
-                />
-                <div
-                  className="absolute bottom-0 left-1/2 h-16 w-5 translate-x-2 rounded-b-full border"
-                  style={{
-                    backgroundColor:
-                      CLOTHES_COLORS[appearance.clothesColor] ??
-                      CLOTHES_COLORS[0],
-                    borderColor:
-                      HAIR_COLORS[appearance.hairColor] ?? HAIR_COLORS[0],
-                  }}
-                />
-                <div className="absolute inset-x-0 bottom-5 text-center font-heading text-2xl text-primary/80">
-                  {initials(name)}
-                </div>
-              </div>
+              ) : (
+                <PaperDoll appearance={appearance} name={name} />
+              )}
               <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-                Paper doll
+                {ragnarok?.job.id === 0
+                  ? "Sprite local · Aprendiz"
+                  : "Paper doll"}
               </p>
               <p className="mt-1 font-heading text-lg">{name}</p>
               <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">

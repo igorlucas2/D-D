@@ -32,7 +32,7 @@ appearance (legado)
 
 - criação na biblioteca;
 - edição dentro da ficha em tela cheia;
-- prévia CSS provisória;
+- sprite local em cache; paper doll CSS como fallback;
 - API `PATCH /ragnarok/characters/:id`.
 
 A prévia é local; ainda não usa sprite Ragnarok.
@@ -126,7 +126,7 @@ Screenshots:
 
 ## 7. Limites
 
-- prévia CSS, não sprite/paleta Ragnarok;
+- sprite local estático de Aprendiz; cores de cabelo/roupa ainda não aplicadas;
 - cabelo/corte ainda abstratos;
 - rates não são aplicados em combate porque o combate Ragnarok ainda não existe;
 - classe não valida job level/missão;
