@@ -27,6 +27,8 @@ export interface RagnarokSheet {
   intelligence: number;
   dexterity: number;
   luck: number;
+  statPoints: number;
+  skillPoints: number;
   appearance: string | null;
   maxHp: number;
   currentHp: number;
@@ -44,6 +46,9 @@ export interface RagnarokSheet {
     item: { id: number; name: string };
   }>;
 }
+
+export type RagnarokStat =
+  "strength" | "agility" | "vitality" | "intelligence" | "dexterity" | "luck";
 
 type Section = "stats" | "skills" | "equipment" | "inventory" | "quests";
 
@@ -103,9 +108,13 @@ export function CharacterScreen({
   srd,
   hud,
   ragnarok,
+  onAllocateStat,
+  allocating = false,
 }: {
   open: boolean;
   onClose: () => void;
+  onAllocateStat?: (stat: RagnarokStat) => Promise<void> | void;
+  allocating?: boolean;
   srd: Character | null;
   hud: HudCharacter | null;
   ragnarok: RagnarokSheet | null;
@@ -264,21 +273,23 @@ export function CharacterScreen({
               >
                 <h2 className="font-heading text-lg">Atributos</h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Base, equipamento e progressão. Os pontos ainda não são
-                  distribuíveis neste modo.
+                  Base, equipamento e progressão.
+                  {ragnarok
+                    ? ` Pontos disponíveis: ${ragnarok.statPoints}.`
+                    : " Ficha SRD em modo somente leitura."}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {ragnarok
                     ? (
                         [
-                          ["FOR", ragnarok.strength],
-                          ["AGI", ragnarok.agility],
-                          ["VIT", ragnarok.vitality],
-                          ["INT", ragnarok.intelligence],
-                          ["DES", ragnarok.dexterity],
-                          ["SOR", ragnarok.luck],
+                          ["FOR", ragnarok.strength, "strength"],
+                          ["AGI", ragnarok.agility, "agility"],
+                          ["VIT", ragnarok.vitality, "vitality"],
+                          ["INT", ragnarok.intelligence, "intelligence"],
+                          ["DES", ragnarok.dexterity, "dexterity"],
+                          ["SOR", ragnarok.luck, "luck"],
                         ] as const
-                      ).map(([label, value]) => (
+                      ).map(([label, value, stat]) => (
                         <div
                           key={label}
                           className="rounded-lg border border-border/50 bg-background/40 p-2"
@@ -286,7 +297,21 @@ export function CharacterScreen({
                           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                             {label}
                           </p>
-                          <p className="font-mono text-xl">{value}</p>
+                          <div className="flex items-center justify-between gap-1">
+                            <p className="font-mono text-xl">{value}</p>
+                            {onAllocateStat && ragnarok.statPoints > 0 ? (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="size-6 text-primary"
+                                aria-label={`Aumentar ${label}`}
+                                disabled={allocating}
+                                onClick={() => void onAllocateStat(stat)}
+                              >
+                                +
+                              </Button>
+                            ) : null}
+                          </div>
                         </div>
                       ))
                     : (
@@ -352,7 +377,7 @@ export function CharacterScreen({
                     </p>
                   </div>
                   <Badge variant="outline" className="font-mono text-[10px]">
-                    Pontos 0
+                    Pontos {ragnarok?.skillPoints ?? 0}
                   </Badge>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">

@@ -1364,6 +1364,22 @@ export interface paths {
         patch: operations["RagnarokCharactersController_update"];
         trace?: never;
     };
+    "/api/ragnarok/characters/{id}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["RagnarokCharactersController_allocateStat"];
+        trace?: never;
+    };
     "/api/ragnarok/characters/{id}/skills": {
         parameters: {
             query?: never;
@@ -2548,6 +2564,11 @@ export interface components {
             appearance?: string;
         };
         UpdateRagnarokCharacterDto: Record<string, never>;
+        AllocateStatDto: {
+            /** @enum {string} */
+            stat: "strength" | "agility" | "vitality" | "intelligence" | "dexterity" | "luck";
+            amount: number;
+        };
         AddRagnarokSkillDto: {
             skillId: number;
             level: number;
@@ -5173,6 +5194,31 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateRagnarokCharacterDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCharactersController_allocateStat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AllocateStatDto"];
             };
         };
         responses: {

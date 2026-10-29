@@ -3856,6 +3856,46 @@
         ]
       }
     },
+    "/api/ragnarok/characters/{id}/stats": {
+      "patch": {
+        "operationId": "RagnarokCharactersController_allocateStat",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AllocateStatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCharacters"
+        ]
+      }
+    },
     "/api/ragnarok/characters/{id}/skills": {
       "post": {
         "operationId": "RagnarokCharactersController_addSkill",
@@ -7441,6 +7481,31 @@
       "UpdateRagnarokCharacterDto": {
         "type": "object",
         "properties": {}
+      },
+      "AllocateStatDto": {
+        "type": "object",
+        "properties": {
+          "stat": {
+            "type": "string",
+            "enum": [
+              "strength",
+              "agility",
+              "vitality",
+              "intelligence",
+              "dexterity",
+              "luck"
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "stat",
+          "amount"
+        ]
       },
       "AddRagnarokSkillDto": {
         "type": "object",

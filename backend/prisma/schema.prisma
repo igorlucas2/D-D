@@ -1696,6 +1696,8 @@ model RagnarokCharacter {
   currentHp    Int      @default(1)
   maxSp        Int      @default(1)
   currentSp    Int      @default(1)
+  statPoints   Int      @default(0)
+  skillPoints  Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

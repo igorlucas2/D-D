@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddRagnarokSkillDto } from './dto/add-ragnarok-skill.dto';
 import {
@@ -6,6 +10,7 @@ import {
   UpdateRagnarokItemDto,
 } from './dto/add-ragnarok-item.dto';
 import { CreateRagnarokCharacterDto } from './dto/create-ragnarok-character.dto';
+import { AllocateStatDto } from './dto/allocate-stat.dto';
 import { UpdateRagnarokCharacterDto } from './dto/update-ragnarok-character.dto';
 
 const INCLUDE = {
@@ -56,6 +61,8 @@ export class RagnarokCharactersService {
         ...stats,
         currentHp: stats.maxHp,
         currentSp: stats.maxSp,
+        statPoints: (dto.level ?? 1) > 1 ? (dto.level ?? 1) * 3 : 15,
+        skillPoints: (dto.level ?? 1) > 1 ? (dto.level ?? 1) : 1,
       },
       include: INCLUDE,
     });
@@ -72,6 +79,7 @@ export class RagnarokCharactersService {
       dto.vitality ?? current.vitality,
       dto.intelligence ?? current.intelligence,
     );
+    const levelGain = Math.max(0, (dto.level ?? current.level) - current.level);
     return this.prisma.ragnarokCharacter.update({
       where: { id },
       data: {
@@ -89,10 +97,54 @@ export class RagnarokCharactersService {
         ...(dto.appearance !== undefined
           ? { appearance: dto.appearance || null }
           : {}),
+        ...(levelGain
+          ? {
+              statPoints: { increment: levelGain * 3 },
+              skillPoints: { increment: levelGain },
+            }
+          : {}),
         ...stats,
         currentHp: Math.min(stats.maxHp, current.currentHp),
         currentSp: Math.min(stats.maxSp, current.currentSp),
       },
+      include: INCLUDE,
+    });
+  }
+
+  async allocateStat(userId: string, id: string, dto: AllocateStatDto) {
+    const current = await this.owned(userId, id);
+    if (current[dto.stat] + dto.amount > 99) {
+      throw new BadRequestException('Atributo máximo é 99.');
+    }
+    if (current.statPoints < dto.amount) {
+      throw new BadRequestException('Pontos de atributo insuficientes.');
+    }
+    const result = await this.prisma.ragnarokCharacter.updateMany({
+      where: { id, userId, statPoints: { gte: dto.amount } },
+      data: {
+        [dto.stat]: { increment: dto.amount },
+        statPoints: { decrement: dto.amount },
+      },
+    });
+    if (result.count === 0) {
+      throw new BadRequestException('Pontos de atributo insuficientes.');
+    }
+    const updated = await this.owned(userId, id);
+    const stats = derived(
+      updated.level,
+      updated.vitality,
+      updated.intelligence,
+    );
+    await this.prisma.ragnarokCharacter.update({
+      where: { id },
+      data: {
+        ...stats,
+        currentHp: Math.min(stats.maxHp, updated.currentHp),
+        currentSp: Math.min(stats.maxSp, updated.currentSp),
+      },
+    });
+    return this.prisma.ragnarokCharacter.findUnique({
+      where: { id },
       include: INCLUDE,
     });
   }
@@ -105,16 +157,39 @@ export class RagnarokCharactersService {
     });
     if (!skill) throw new NotFoundException('Skill Ragnarok não encontrada.');
     const level = Math.max(1, Math.min(dto.level, skill.maxLevel));
-    await this.prisma.ragnarokCharacterSkill.upsert({
+    const existing = await this.prisma.ragnarokCharacterSkill.findUnique({
       where: {
         characterId_skillId: {
           characterId: character.id,
           skillId: dto.skillId,
         },
       },
-      update: { level },
-      create: { characterId: character.id, skillId: dto.skillId, level },
+      select: { level: true },
     });
+    const cost = Math.max(0, level - (existing?.level ?? 0));
+    if (cost > character.skillPoints) {
+      throw new BadRequestException('Pontos de skill insuficientes.');
+    }
+    await this.prisma.$transaction([
+      this.prisma.ragnarokCharacterSkill.upsert({
+        where: {
+          characterId_skillId: {
+            characterId: character.id,
+            skillId: dto.skillId,
+          },
+        },
+        update: { level },
+        create: { characterId: character.id, skillId: dto.skillId, level },
+      }),
+      ...(cost
+        ? [
+            this.prisma.ragnarokCharacter.update({
+              where: { id: character.id },
+              data: { skillPoints: { decrement: cost } },
+            }),
+          ]
+        : []),
+    ]);
     return this.prisma.ragnarokCharacter.findUnique({
       where: { id },
       include: INCLUDE,
@@ -233,7 +308,6 @@ export class RagnarokCharactersService {
   private async owned(userId: string, id: string) {
     const character = await this.prisma.ragnarokCharacter.findFirst({
       where: { id, userId },
-      select: { id: true },
     });
     if (!character)
       throw new NotFoundException('Ficha Ragnarok não encontrada.');

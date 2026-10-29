@@ -1,0 +1,3 @@
+ALTER TABLE `RagnarokCharacter`
+  ADD COLUMN `statPoints` INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN `skillPoints` INTEGER NOT NULL DEFAULT 0;
