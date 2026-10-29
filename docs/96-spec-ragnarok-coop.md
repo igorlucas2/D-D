@@ -449,7 +449,37 @@ Importar 14.397 itens com:
 - loot rights;
 - log.
 
-### 8.4 Lojas
+### 8.4 Loot
+
+Três modos configuráveis pelo mestre:
+
+**FFA (free-for-all)**
+- o primeiro que clicar pega;
+- qualquer jogador no mapa pode pegar;
+- o crédito de EXP/quest continua sendo de quem matou ou da festa;
+- simples, mas sujeito a “ninja loot”.
+
+**Killer**
+- o item pertence a quem deu o golpe final ou maior dano;
+- dono tem uma janela de alguns segundos;
+- membros da festa podem ter prioridade;
+- bom para manter autoria da caçada;
+- ruim se o jogador estiver longe ou morrer.
+
+**Festa (party)**
+- o loot entra no pool da festa;
+- distribuição por rodízio, need/greed ou decisão do líder;
+- itens de quest vão para quem precisa;
+- melhor para mesa cooperativa;
+- exige UI de distribuição.
+
+Padrão recomendado: **Festa**, com need/greed para raros. O mestre pode
+trocar por FFA ou Killer no painel.
+
+Itens de quest são sempre pessoais/automáticos para os elegíveis, mesmo em FFA
+ou Killer.
+
+### 8.5 Lojas
 - NPC loja;
 - catálogo;
 - preço de compra/venda;
@@ -457,13 +487,13 @@ Importar 14.397 itens com:
 - zeny;
 - transação atômica.
 
-### 8.5 Kafra
+### 8.6 Kafra
 - save;
 - teleporte;
 - armazém;
 - serviços.
 
-### 8.6 Refino/cartas
+### 8.7 Refino/cartas
 Fase posterior:
 
 - refino;
@@ -574,12 +604,19 @@ RagnarokQuestProgress
 - persistente.
 
 ### 10.3 Classe
-- Aprendiz;
-- job level 10;
-- missão de classe;
-- escolha da primeira classe;
-- nova árvore;
-- segunda classe depois.
+
+- todo personagem começa como **Aprendiz**;
+- **quem concede a classe é o mestre**, pelo painel;
+- o jogador não troca de classe sozinho;
+- o mestre pode exigir job level 10 e/ou uma missão antes de conceder;
+- a concessão é auditada;
+- ao conceder:
+  - troca o job;
+  - libera a árvore da classe;
+  - mantém nível base e job level;
+  - ajusta stats/skills permitidos;
+  - registra a jornada;
+- segunda classe depois, também pelo mestre.
 
 ### 10.4 Quests do mestre
 O mestre cria:
@@ -620,6 +657,7 @@ Tela cheia:
 - missões.
 
 ### 11.3 Janelas
+
 Janelas de jogo:
 
 - inventário;
@@ -629,12 +667,17 @@ Janelas de jogo:
 - baú;
 - quest.
 
-Podem ser:
+**Decisão:** nossa UI por padrão, no estilo Ragnarok. Se uma janela custar
+muito, usar uma janela **inspirada no original** como fallback visual. Nunca
+usar `Dialog` genérico para ficha/loja/skill.
 
-- nossa UI, no estilo Ragnarok;
-- ou janela inspirada no original, se custar menos.
+Prioridade:
 
-Não usar `Dialog` genérico para ficha/loja/skill.
+1. HUD e ficha: nossa UI;
+2. inventário/equipamento: nossa UI;
+3. loja/Kafra: nossa UI;
+4. baú/quest: nossa UI;
+5. fallback inspirado no original apenas onde o custo for desproporcional.
 
 ### 11.4 Painel do mestre
 Página separada:
@@ -672,9 +715,33 @@ Com modais e formulários.
 - EXP base;
 - job EXP;
 - buff;
-- nível.
+- nível;
+- **classe** (Aprendiz → primeira classe).
 
-### 12.3 Mundo
+### 12.3 Configuração de rates
+
+Aba **Configurações → Rates** no painel do mestre.
+
+Campos:
+
+- Base EXP;
+- Job EXP;
+- Drop;
+- Zeny.
+
+Padrão: **5x** em todos.
+
+Regras:
+
+- somente mestre;
+- inteiro de 1 a 100;
+- aplica-se a ganhos futuros;
+- não retroativo;
+- persistido por campanha;
+- auditado;
+- pode ser alterado sem reiniciar o mundo.
+
+### 12.4 Mundo
 - spawnar NPC;
 - spawnar mob;
 - spawnar chefe;
@@ -682,20 +749,20 @@ Com modais e formulários.
 - mudar clima/hora;
 - anunciar.
 
-### 12.4 Quests
+### 12.5 Quests
 - criar;
 - editar;
 - atribuir;
 - concluir;
 - recompensar.
 
-### 12.5 Economia
+### 12.6 Economia
 - lojas;
 - preços;
 - drop rates;
 - eventos.
 
-### 12.6 Auditoria
+### 12.7 Auditoria
 Toda ação:
 
 ```text
@@ -731,7 +798,9 @@ actor, action, target, payload, timestamp, requestId
 - `RagnarokQuestProgress`;
 - `RagnarokPet`;
 - `RagnarokCombatLog`;
-- `RagnarokAdminAudit`.
+- `RagnarokAdminAudit`;
+- `RagnarokCampaignConfig` (rates, loot mode, level cap);
+- `RagnarokClassGrant` (quem concedeu, classe, quando).
 
 ## 14. APIs e sockets
 
@@ -752,6 +821,9 @@ POST /campaigns/:id/shops/:shopId/buy
 POST /campaigns/:id/shops/:shopId/sell
 POST /campaigns/:id/kafra/teleport
 POST /campaigns/:id/kafra/storage
+GET  /campaigns/:id/admin/config
+PATCH /campaigns/:id/admin/config
+POST /campaigns/:id/admin/class-grant
 POST /campaigns/:id/admin/...
 ```
 
@@ -931,7 +1003,7 @@ Aceite: matar Poring e receber loot/EXP.
 - primeira classe;
 - skill tree.
 
-Aceite: virar Espadachim/Mago/Arqueiro.
+Aceite: receber a classe concedida pelo mestre.
 
 ### M7 — Mestre
 - painel;
@@ -940,7 +1012,7 @@ Aceite: virar Espadachim/Mago/Arqueiro.
 - quest builder;
 - auditoria.
 
-Aceite: mestre dá item/zeny/EXP e spawna mob.
+Aceite: mestre dá item/zeny/EXP, spawna mob, configura rates e concede classe.
 
 ### M8 — Conteúdo
 - mais cidades;
@@ -969,9 +1041,9 @@ Aceite: mestre dá item/zeny/EXP e spawna mob.
 10. distribuir pontos;
 11. aprender skill;
 12. concluir quest;
-13. mudar de classe;
-14. mestre conceder item/zeny/EXP;
-15. mestre criar quest;
+13. receber classe do mestre;
+14. mestre conceder item/zeny/EXP/classe;
+15. mestre criar quest e configurar rates/loot;
 16. tudo persiste após reload;
 17. servidor autoritativo.
 
@@ -987,20 +1059,26 @@ Aceite: mestre dá item/zeny/EXP e spawna mob.
 - UI custom vs original;
 - conteúdo de quests incompleto.
 
-## 21. Decisões abertas
+## 21. Decisões fechadas
 
-1. primeira classe: Espadachim, Mago ou Arqueiro?
-2. rates/level cap;
-3. loot: FFA, killer ou party;
-4. janelas: nossas ou inspiradas no original?
-5. canais por mapa;
-6. PvP;
-7. trade entre jogadores;
-8. fonte das quests;
-9. sprite 2D agora ou GLB;
-10. mestre com avatar ou observador.
+1. Todo personagem começa como **Aprendiz**.
+2. **Quem concede a classe é o mestre**, pelo painel.
+3. Rates configuráveis na aba do mestre; **5x** por padrão.
+4. Loot padrão: **Festa**, com opção de FFA/Killer.
+5. Janelas: **nossa UI por padrão**, com fallback inspirado no original apenas
+   quando o custo for desproporcional.
 
-## 22. Recomendação
+## 22. Decisões abertas
+
+1. level cap;
+2. canais por mapa;
+3. PvP;
+4. trade entre jogadores;
+5. fonte das quests;
+6. sprite 2D agora ou GLB;
+7. mestre com avatar ou observador.
+
+## 23. Recomendação
 
 Primeiro recorte:
 
@@ -1010,14 +1088,14 @@ Aprendiz + aparência local
 → portal para prt_fild01
 → Poring com combate tempo real
 → job level 10
-→ missão de classe
+→ mestre concede a classe (missão opcional)
 → primeira classe
 ```
 
 Isso prova todas as camadas sem tentar implementar 965 mapas de uma vez. Depois
 o conteúdo cresce por cidade, campo, classe e quest.
 
-## 23. Relação com o que já existe
+## 24. Relação com o que já existe
 
 - ficha em tela cheia: aproveitar;
 - pontos/skills: aproveitar;
@@ -1028,7 +1106,7 @@ o conteúdo cresce por cidade, campo, classe e quest.
 - token SRD: **não** é o ator Ragnarok;
 - `VttToken`: bridge temporária, não modelo final do mundo Ragnarok.
 
-## 24. Definição de pronto
+## 25. Definição de pronto
 
 A spec só está concluída quando:
 

@@ -88,8 +88,8 @@ Começa como **Aprendiz**:
 Progressão:
 
 1. job level 10;
-2. missão de mudança de classe;
-3. escolha da primeira classe;
+2. o mestre concede a classe pelo painel;
+3. missão de classe é opcional/narrativa;
 4. nova árvore de skills;
 5. segunda classe no futuro.
 
@@ -242,7 +242,7 @@ O mundo continua atrás; `Esc` fecha e devolve o controle.
 5. equipar itens e ver o paper doll;
 6. ver inventário/peso/zeny;
 7. chegar a job level 10;
-8. fazer a missão de classe no mundo;
-9. escolher a primeira classe;
+8. job level 10;
+9. receber a classe do mestre;
 10. ver mascote e missões na ficha;
 11. nada disso abre modal genérico.
