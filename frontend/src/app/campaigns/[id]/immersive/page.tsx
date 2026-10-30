@@ -90,11 +90,53 @@ const LIVE_SLUG: Record<string, string> = {
   "Passo de Moscóvia": "xmas",
 };
 
+const NPC_IMAGE = (
+  job: number,
+  gender: "male" | "female" = "female",
+  head = 1,
+) =>
+  `https://assets.latam-tools.com.br/image?job=${job}&gender=${gender}&head=${head}&action=0&frame=0&headdir=0&canvas=208x210%2B104%2B152&v=0.17.3`;
+
 const NPC_IMAGES = [
-  "https://assets.latam-tools.com.br/image?job=1&action=0&frame=0",
-  "https://assets.latam-tools.com.br/image?job=2&action=0&frame=0",
-  "https://assets.latam-tools.com.br/image?job=1002&action=0&frame=0",
+  NPC_IMAGE(4, "female", 1),
+  NPC_IMAGE(5, "male", 1),
+  NPC_IMAGE(1, "male", 1),
 ];
+
+const WORLD_NPCS: Record<
+  string,
+  Array<{
+    id: "kafra" | "shop" | "guide";
+    name: string;
+    dx: number;
+    dy: number;
+    imageUrl: string;
+  }>
+> = {
+  Prontera: [
+    {
+      id: "kafra",
+      name: "Kafra",
+      dx: -3,
+      dy: 2,
+      imageUrl: NPC_IMAGE(4, "female", 1),
+    },
+    {
+      id: "shop",
+      name: "Comerciante",
+      dx: 3,
+      dy: 2,
+      imageUrl: NPC_IMAGE(5, "male", 1),
+    },
+    {
+      id: "guide",
+      name: "Guia de Prontera",
+      dx: 0,
+      dy: -3,
+      imageUrl: NPC_IMAGE(1, "male", 1),
+    },
+  ],
+};
 
 const PORTAL_ICON = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
@@ -299,6 +341,10 @@ function ImmersiveContent() {
   const [kafraOpen, setKafraOpen] = useState(false);
   const [kafraBusy, setKafraBusy] = useState(false);
   const [kafraMessage, setKafraMessage] = useState<string | null>(null);
+  const [viewerPosition, setViewerPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [ratesForm, setRatesForm] = useState({
     baseExpRate: "5",
     jobExpRate: "5",
@@ -349,6 +395,15 @@ function ImmersiveContent() {
   const lastCombatTurn = useRef("");
   const lastPulsedAction = useRef("");
   const restoredPosition = useRef("");
+  const actorsRef = useRef<
+    Array<{
+      id: string;
+      x: number;
+      y: number;
+      imageUrl: string;
+      size?: number;
+    }>
+  >([]);
 
   const selected = maps.find((map) => map.id === selectedId) ?? null;
   const slug = selected ? (LIVE_SLUG[selected.name] ?? null) : null;
@@ -559,10 +614,17 @@ function ImmersiveContent() {
     [selected],
   );
 
+  const npcMapKey =
+    Object.keys(WORLD_NPCS).find((key) =>
+      selected?.name.toLowerCase().includes(key.toLowerCase()),
+    ) ??
+    selected?.name ??
+    "";
+
   const ambientNpcs = useMemo(
     () =>
       (
-        AMBIENT[selected?.name ?? ""] ?? [
+        AMBIENT[npcMapKey] ?? [
           { name: "Morador", x: 0.48, y: 0.55, job: 0 },
           { name: "Viajante", x: 0.58, y: 0.45, job: 1 },
         ]
@@ -572,7 +634,7 @@ function ImmersiveContent() {
           ...npc,
         }))
         .filter((npc) => !npcTokens.some((token) => token.name === npc.name)),
-    [npcTokens, selected?.id, selected?.name],
+    [npcMapKey, npcTokens, selected?.id],
   );
 
   const actors = useMemo(() => {
@@ -636,6 +698,19 @@ function ImmersiveContent() {
       imageUrl: NPC_IMAGES[npc.job] ?? NPC_IMAGES[0],
       size: 1.7,
     }));
+    const baseX = viewerPosition
+      ? viewerPosition.x * selected.width
+      : (ownToken?.x ?? Math.floor(selected.width / 2));
+    const baseY = viewerPosition
+      ? viewerPosition.y * selected.height
+      : (ownToken?.y ?? Math.floor(selected.height / 2));
+    const worldNpcs = (WORLD_NPCS[npcMapKey] ?? []).map((npc) => ({
+      id: `npc:${npc.id}`,
+      x: (baseX + npc.dx + 0.5) / selected.width,
+      y: (baseY + npc.dy + 0.5) / selected.height,
+      imageUrl: npc.imageUrl,
+      size: 6,
+    }));
     const portals = portalHotspots.map((hotspot, index) => ({
       id: `portal:${hotspot.id}`,
       x: (hotspot.x + hotspot.width / 2) / selected.width,
@@ -643,16 +718,23 @@ function ImmersiveContent() {
       imageUrl: PORTAL_ICON,
       size: 2.3 + (index % 2) * 0.15,
     }));
-    return [...tokens, ...players, ...ambient, ...portals];
+    return [...tokens, ...players, ...ambient, ...worldNpcs, ...portals];
   }, [
     ambientNpcs,
     combat,
     myCharacter,
+    npcMapKey,
     npcTokens,
     otherPlayerTokens,
+    ownToken,
     portalHotspots,
     selected,
+    viewerPosition,
   ]);
+
+  useEffect(() => {
+    actorsRef.current = actors;
+  }, [actors]);
 
   const myCombatTurn = Boolean(
     combat &&
@@ -692,6 +774,19 @@ function ImmersiveContent() {
       window.clearInterval(timer);
     };
   }, [applyFrame, buildCode, slug]);
+
+  useEffect(() => {
+    if (!frameReady) return;
+    const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+    if (!win?.__eldoria) return;
+    const update = () => {
+      const position = win.__eldoria?.getPlayerPosition?.();
+      if (position) setViewerPosition(position);
+    };
+    update();
+    const timer = window.setInterval(update, 500);
+    return () => window.clearInterval(timer);
+  }, [frameReady]);
 
   useEffect(() => {
     if (!frameReady || !selectedSheet) return;
@@ -734,6 +829,12 @@ function ImmersiveContent() {
         ? "Pele original"
         : `Tom ${Math.min(4, selectedSheet.skinTone + 1)}`;
     clickInBlock("Pele", skin);
+
+    const timer = window.setTimeout(() => {
+      const current = iframe.current?.contentWindow as ImmersiveWindow | null;
+      current?.__eldoria?.setActors(actorsRef.current);
+    }, 900);
+    return () => window.clearTimeout(timer);
   }, [frameReady, selectedSheet]);
 
   const openKafra = useCallback(() => {
@@ -825,12 +926,24 @@ function ImmersiveContent() {
         openPortal(id.slice(7));
         return;
       }
+      if (id === "npc:kafra") {
+        openKafra();
+        return;
+      }
+      if (id === "npc:shop") {
+        setError("A loja do comerciante entra na próxima etapa.");
+        return;
+      }
+      if (id === "npc:guide") {
+        setError("Guia: a Praça Central fica ao norte do portal sul.");
+        return;
+      }
       setSelectedTargetId(id.startsWith("combat-") ? id.slice(7) : id);
     };
     return () => {
       if (win.__eldoria) win.__eldoria.onActorClick = undefined;
     };
-  }, [frameReady, openPortal]);
+  }, [frameReady, openKafra, openPortal]);
 
   useEffect(() => {
     if (!frameReady) return;
@@ -3040,6 +3153,50 @@ function ImmersiveContent() {
           />
         </DialogContent>
       </Dialog>
+
+      {selected ? (
+        <div className="absolute bottom-20 left-3 z-40 w-56 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">
+          <p className="px-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Moradores de {npcMapKey}
+          </p>
+          <div className="mt-1 space-y-1">
+            {(WORLD_NPCS[npcMapKey] ?? []).map((npc) => (
+              <button
+                key={npc.id}
+                type="button"
+                className="flex w-full items-center gap-2 rounded-lg border border-border/50 bg-background/45 px-2 py-1.5 text-left transition hover:border-primary/40 hover:bg-primary/10"
+                onClick={() => {
+                  if (npc.id === "kafra") {
+                    openKafra();
+                  } else if (npc.id === "shop") {
+                    setError("A loja do comerciante entra na próxima etapa.");
+                  } else {
+                    setError(
+                      "Guia: a Praça Central fica ao norte do portão sul.",
+                    );
+                  }
+                }}
+              >
+                <img
+                  src={npc.imageUrl}
+                  alt=""
+                  className="size-8 rounded-md border border-border/50 object-contain"
+                />
+                <span className="min-w-0">
+                  <span className="block truncate text-xs">{npc.name}</span>
+                  <span className="block text-[9px] text-muted-foreground">
+                    {npc.id === "kafra"
+                      ? "Save · teleporte"
+                      : npc.id === "shop"
+                        ? "Comércio"
+                        : "Informações"}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {kafraOpen ? (
         <div className="absolute bottom-24 right-3 z-50 w-80 rounded-xl border border-primary/40 bg-card/96 p-3 shadow-2xl backdrop-blur">
