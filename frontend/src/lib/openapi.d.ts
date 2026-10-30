@@ -2513,7 +2513,8 @@ export interface components {
             visionRadius?: number;
         };
         SyncOwnTokenDto: {
-            characterId: string;
+            characterId?: string;
+            ragnarokCharacterId?: string;
             x: number;
             y: number;
         };

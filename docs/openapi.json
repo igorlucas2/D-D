@@ -7104,6 +7104,9 @@
           "characterId": {
             "type": "string"
           },
+          "ragnarokCharacterId": {
+            "type": "string"
+          },
           "x": {
             "type": "number",
             "minimum": 0
@@ -7114,7 +7117,6 @@
           }
         },
         "required": [
-          "characterId",
           "x",
           "y"
         ]

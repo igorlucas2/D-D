@@ -358,6 +358,10 @@ function ImmersiveContent() {
     boundSheet ??
     ragnarokSheets[0] ??
     null;
+  const activeWorldRagnarok =
+    selectedSheet && boundRagnarokIds.includes(selectedSheet.id)
+      ? selectedSheet
+      : null;
   const visualAppearance =
     selectedVisual?.appearance ?? myCharacter?.appearance;
   const buildCode = useMemo(() => {
@@ -510,7 +514,8 @@ function ImmersiveContent() {
   const npcTokens = useMemo(
     () =>
       (selected?.tokens ?? []).filter(
-        (token) => !token.characterId && token.visible,
+        (token) =>
+          !token.characterId && !token.ragnarokCharacterId && token.visible,
       ),
     [selected],
   );
@@ -519,19 +524,23 @@ function ImmersiveContent() {
     () =>
       (selected?.tokens ?? []).filter(
         (entry) =>
-          entry.characterId &&
+          (entry.characterId || entry.ragnarokCharacterId) &&
           entry.characterId !== myCharacter?.id &&
+          entry.ragnarokCharacterId !== activeWorldRagnarok?.id &&
           entry.visible,
       ),
-    [myCharacter?.id, selected],
+    [activeWorldRagnarok?.id, myCharacter?.id, selected],
   );
 
   const ownToken = useMemo(
     () =>
       selected?.tokens.find(
-        (entry) => entry.characterId && entry.characterId === myCharacter?.id,
+        (entry) =>
+          (entry.characterId && entry.characterId === myCharacter?.id) ||
+          (entry.ragnarokCharacterId &&
+            entry.ragnarokCharacterId === activeWorldRagnarok?.id),
       ) ?? null,
-    [myCharacter?.id, selected],
+    [activeWorldRagnarok?.id, myCharacter?.id, selected],
   );
 
   const portalHotspots = useMemo(
@@ -887,7 +896,14 @@ function ImmersiveContent() {
   }, [combat, frameReady, ownToken, params.id, selected]);
 
   useEffect(() => {
-    if (!frameReady || !myCharacter || !selected || !token) return;
+    if (
+      !frameReady ||
+      (!myCharacter && !activeWorldRagnarok) ||
+      !selected ||
+      !token
+    ) {
+      return;
+    }
     let cancelled = false;
 
     const send = async () => {
@@ -903,7 +919,7 @@ function ImmersiveContent() {
         Math.min(selected.height - 1, Math.floor(position.y * selected.height)),
       );
 
-      if (combat) {
+      if (combat && !activeWorldRagnarok) {
         if (!myCombatTurn) return;
         const current = combat.participants[combat.turnIndex];
         if (!current || (current.x === x && current.y === y)) return;
@@ -955,14 +971,18 @@ function ImmersiveContent() {
         return;
       }
 
-      const key = `${myCharacter.id}:${selected.id}:${x}:${y}`;
+      const key = activeWorldRagnarok
+        ? `ro:${activeWorldRagnarok.id}:${selected.id}:${x}:${y}`
+        : `${myCharacter!.id}:${selected.id}:${x}:${y}`;
       if (lastSentPosition.current === key) return;
       lastSentPosition.current = key;
       if (cancelled) return;
       try {
         await api.put(
           `/campaigns/${params.id}/vtt/maps/${selected.id}/tokens/me`,
-          { characterId: myCharacter.id, x, y },
+          activeWorldRagnarok
+            ? { ragnarokCharacterId: activeWorldRagnarok.id, x, y }
+            : { characterId: myCharacter!.id, x, y },
           token,
         );
       } catch {
@@ -977,6 +997,7 @@ function ImmersiveContent() {
       window.clearInterval(timer);
     };
   }, [
+    activeWorldRagnarok,
     combat,
     frameReady,
     myCharacter,

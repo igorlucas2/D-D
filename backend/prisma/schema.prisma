@@ -547,21 +547,23 @@ model VttMapHotspot {
 }
 
 model VttToken {
-  id           String  @id @default(cuid())
-  mapId        String
-  characterId  String?
-  name         String
-  x            Int     @default(0)
-  y            Int     @default(0)
-  size         Int     @default(1)
-  color        String  @default("#f59e0b")
-  imageUrl     String? @db.Text
-  visible      Boolean @default(true)
-  lightRadius  Int     @default(0) // luz que o token emite (ex.: tocha = 4), em celulas
-  visionRadius Int     @default(0) // visao no escuro, em celulas
+  id                  String  @id @default(cuid())
+  mapId               String
+  characterId         String?
+  ragnarokCharacterId String? @unique
+  name                String
+  x                   Int     @default(0)
+  y                   Int     @default(0)
+  size                Int     @default(1)
+  color               String  @default("#f59e0b")
+  imageUrl            String? @db.Text
+  visible             Boolean @default(true)
+  lightRadius         Int     @default(0) // luz que o token emite (ex.: tocha = 4), em celulas
+  visionRadius        Int     @default(0) // visao no escuro, em celulas
 
-  map       VttMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
-  character Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  map               VttMap             @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  character         Character?         @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  ragnarokCharacter RagnarokCharacter? @relation("RagnarokWorldToken", fields: [ragnarokCharacterId], references: [id], onDelete: SetNull)
 }
 
 model VttMarker {
@@ -1718,6 +1720,7 @@ model RagnarokCharacter {
   skills        RagnarokCharacterSkill[]
   equipment     RagnarokCharacterItem[]
   campaignLinks CampaignRagnarokCharacter[]
+  worldToken    VttToken?                   @relation("RagnarokWorldToken")
 
   @@index([userId])
   @@index([jobId])

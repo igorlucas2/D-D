@@ -131,6 +131,7 @@ export interface VttToken {
   id: string;
   mapId: string;
   characterId: string | null;
+  ragnarokCharacterId: string | null;
   /** Dono do personagem; null para NPC/monstro. */
   ownerId: string | null;
   /** Luz emitida e visão no escuro, em células (IM-13). */

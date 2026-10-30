@@ -28,7 +28,10 @@ import { SyncOwnTokenDto } from './dto/sync-own-token.dto';
 const MAP_INCLUDE = {
   tokens: {
     orderBy: { id: 'asc' },
-    include: { character: { select: { userId: true } } },
+    include: {
+      character: { select: { userId: true } },
+      ragnarokCharacter: { select: { userId: true } },
+    },
   },
   markers: { orderBy: { id: 'asc' } },
   hotspots: { orderBy: { id: 'asc' } },
@@ -299,6 +302,86 @@ export class VttService {
     dto: SyncOwnTokenDto,
   ) {
     await this.assertIsMember(campaignId, userId);
+    if (Boolean(dto.characterId) === Boolean(dto.ragnarokCharacterId)) {
+      throw new BadRequestException(
+        'Informe exatamente uma ficha: SRD ou Ragnarok.',
+      );
+    }
+
+    if (dto.ragnarokCharacterId) {
+      const character = await this.prisma.ragnarokCharacter.findFirst({
+        where: { id: dto.ragnarokCharacterId, userId },
+        select: {
+          id: true,
+          name: true,
+          jobId: true,
+          gender: true,
+          hairStyle: true,
+        },
+      });
+      if (!character) {
+        throw new ForbiddenException(
+          'Esta ficha Ragnarok não pertence a você.',
+        );
+      }
+      const binding = await this.prisma.campaignRagnarokCharacter.findUnique({
+        where: { characterId: character.id },
+        select: { campaignId: true },
+      });
+      if (!binding || binding.campaignId !== campaignId) {
+        throw new ConflictException(
+          'Vincule esta ficha Ragnarok à campanha antes de entrar no mapa.',
+        );
+      }
+
+      const map = await this.getOwnedMap(campaignId, mapId);
+      const position = this.clampTokenPosition(
+        dto.x,
+        dto.y,
+        1,
+        map.width,
+        map.height,
+      );
+      const sex = character.gender === 'F' ? 'female' : 'male';
+      const style = Math.max(1, Math.min(20, character.hairStyle || 1));
+      const imageUrl = `/ragassets/characters/job-${character.jobId}-${sex}-${style}.png`;
+      const existing = await this.prisma.vttToken.findFirst({
+        where: { mapId, ragnarokCharacterId: character.id },
+        select: { id: true },
+      });
+
+      if (existing) {
+        await this.prisma.vttToken.update({
+          where: { id: existing.id },
+          data: {
+            x: position.x,
+            y: position.y,
+            name: character.name,
+            imageUrl,
+            visible: true,
+          },
+        });
+      } else {
+        await this.prisma.vttToken.create({
+          data: {
+            mapId,
+            ragnarokCharacterId: character.id,
+            name: character.name,
+            x: position.x,
+            y: position.y,
+            size: 1,
+            color: '#a78bfa',
+            imageUrl,
+            visible: true,
+          },
+        });
+      }
+
+      const updated = await this.findMap(campaignId, mapId, userId);
+      await this.vttGateway.emitMapUpdated(campaignId, updated);
+      return updated;
+    }
+
     const character = await this.prisma.character.findFirst({
       where: { id: dto.characterId, userId },
       select: { id: true, name: true },
@@ -432,7 +515,10 @@ export class VttService {
     if (!map.published || !token || !token.visible) {
       throw new NotFoundException('Token nao encontrado.');
     }
-    if (token.character?.userId !== userId) {
+    if (
+      token.character?.userId !== userId &&
+      token.ragnarokCharacter?.userId !== userId
+    ) {
       throw new ForbiddenException('Voce so pode mover o seu personagem.');
     }
     await this.assertPlayerTurn(campaignId, token.characterId);
@@ -996,9 +1082,9 @@ export class VttService {
       ...rest,
       fogCells: this.parseFogCells(fogOfWarData),
       walls: this.parseWalls(wallsData, map.width, map.height),
-      tokens: tokens.map(({ character, ...token }) => ({
+      tokens: tokens.map(({ character, ragnarokCharacter, ...token }) => ({
         ...token,
-        ownerId: character?.userId ?? null,
+        ownerId: character?.userId ?? ragnarokCharacter?.userId ?? null,
       })),
     };
   }
