@@ -25,6 +25,8 @@ import { canReach, canReachDoor } from './movement';
 import { MoveVttTokenDto, ToggleVttDoorDto } from './dto/player-action.dto';
 import { SyncOwnTokenDto } from './dto/sync-own-token.dto';
 
+const MAX_SYNC_DISTANCE_CELLS = 10;
+
 const MAP_INCLUDE = {
   tokens: {
     orderBy: { id: 'asc' },
@@ -347,10 +349,11 @@ export class VttService {
       const imageUrl = `/ragassets/characters/job-${character.jobId}-${sex}-${style}.png`;
       const existing = await this.prisma.vttToken.findFirst({
         where: { mapId, ragnarokCharacterId: character.id },
-        select: { id: true },
+        select: { id: true, x: true, y: true, size: true },
       });
 
       if (existing) {
+        this.assertSyncMovement(existing, position, map);
         await this.prisma.vttToken.update({
           where: { id: existing.id },
           data: {
@@ -409,10 +412,11 @@ export class VttService {
     );
     const existing = await this.prisma.vttToken.findFirst({
       where: { mapId, characterId: character.id },
-      select: { id: true },
+      select: { id: true, x: true, y: true, size: true },
     });
 
     if (existing) {
+      this.assertSyncMovement(existing, position, map);
       await this.prisma.vttToken.update({
         where: { id: existing.id },
         data: { x: position.x, y: position.y, visible: true },
@@ -1144,6 +1148,30 @@ export class VttService {
     }
 
     return [...result];
+  }
+
+  private assertSyncMovement(
+    token: { x: number; y: number; size: number },
+    position: { x: number; y: number },
+    map: VttMapWithTokens,
+  ) {
+    const distance = Math.max(
+      Math.abs(position.x - token.x),
+      Math.abs(position.y - token.y),
+    );
+    if (distance > MAX_SYNC_DISTANCE_CELLS) {
+      throw new BadRequestException(
+        'Movimento rápido demais para um único sincronismo.',
+      );
+    }
+    const walls = this.parseWalls(map.wallsData, map.width, map.height);
+    if (
+      !canReach(token, position.x, position.y, map.width, map.height, walls)
+    ) {
+      throw new BadRequestException(
+        'Uma parede ou porta fechada impede o caminho.',
+      );
+    }
   }
 
   private clampTokenPosition(
