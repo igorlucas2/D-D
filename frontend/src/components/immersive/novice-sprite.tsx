@@ -2,19 +2,20 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
+import { ragnarokSpriteUrl } from "./ragnarok-sprite-url";
 
-export function NoviceSprite({
+export function RagnarokSprite({
+  jobId,
   gender,
   hairStyle,
   fallback,
 }: {
+  jobId: number;
   gender: string;
   hairStyle: number;
   fallback: ReactNode;
 }) {
-  const style = Math.max(1, Math.min(20, hairStyle || 1));
-  const sex = gender === "F" ? "female" : "male";
-  const src = `/ragassets/characters/novice-${sex}-${style}.png`;
+  const src = ragnarokSpriteUrl(jobId, gender, hairStyle);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {

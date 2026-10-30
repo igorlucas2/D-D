@@ -20,7 +20,7 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Character } from "@/lib/types";
 import type { HudCharacter, HudItem, HudSpell } from "@/lib/table-types";
-import { NoviceSprite } from "./novice-sprite";
+import { RagnarokSprite } from "./novice-sprite";
 
 export interface RagnarokSheet {
   id: string;
@@ -413,8 +413,9 @@ export function CharacterScreen({
           <div className="relative flex min-h-64 flex-1 items-center justify-center overflow-hidden rounded-2xl border border-primary/25 bg-[radial-gradient(circle_at_50%_35%,rgba(201,162,94,0.18),transparent_55%),linear-gradient(160deg,#181b18,#0c0e0c)]">
             <div className="absolute bottom-8 h-16 w-40 rounded-[50%] bg-black/50 blur-2xl" />
             <div className="relative flex flex-col items-center">
-              {ragnarok?.job.id === 0 ? (
-                <NoviceSprite
+              {ragnarok ? (
+                <RagnarokSprite
+                  jobId={ragnarok.job.id}
                   gender={appearance.gender}
                   hairStyle={appearance.hairStyle}
                   fallback={<PaperDoll appearance={appearance} name={name} />}
@@ -423,9 +424,7 @@ export function CharacterScreen({
                 <PaperDoll appearance={appearance} name={name} />
               )}
               <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-                {ragnarok?.job.id === 0
-                  ? "Sprite local · Aprendiz"
-                  : "Paper doll"}
+                Prévia do personagem
               </p>
               <p className="mt-1 font-heading text-lg">{name}</p>
               <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">

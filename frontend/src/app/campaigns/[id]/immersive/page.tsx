@@ -295,6 +295,7 @@ function ImmersiveContent() {
   const [zenyAmount, setZenyAmount] = useState("1000");
   const [grantingZeny, setGrantingZeny] = useState(false);
   const [savingRates, setSavingRates] = useState(false);
+  const [classNotice, setClassNotice] = useState<string | null>(null);
   const [ratesForm, setRatesForm] = useState({
     baseExpRate: "5",
     jobExpRate: "5",
@@ -679,6 +680,49 @@ function ImmersiveContent() {
       window.clearInterval(timer);
     };
   }, [applyFrame, buildCode, slug]);
+
+  useEffect(() => {
+    if (!frameReady || !selectedSheet) return;
+    const doc = iframe.current?.contentDocument;
+    if (!doc) return;
+
+    const click = (selector: string) =>
+      doc.querySelector<HTMLButtonElement>(selector)?.click();
+    const clickInBlock = (label: string, aria: string) => {
+      const block = [...doc.querySelectorAll(".control-block")].find(
+        (element) => element.textContent?.includes(label),
+      );
+      block
+        ?.querySelector<HTMLButtonElement>(`button[aria-label="${aria}"]`)
+        ?.click();
+    };
+    const option = [
+      ...doc.querySelectorAll<HTMLButtonElement>(".class-option"),
+    ].find((element) => element.textContent?.trim() === selectedSheet.job.name);
+    option?.click();
+    click(
+      `.gender-btn[aria-label="${selectedSheet.gender === "F" ? "Feminino" : "Masculino"}"]`,
+    );
+    click(`.hair-pick[aria-label="Estilo ${selectedSheet.hairStyle}"]`);
+
+    const hairColor =
+      selectedSheet.hairColor === 0
+        ? "Padrão"
+        : `Cor ${((selectedSheet.hairColor - 1) % 8) + 1}`;
+    clickInBlock("Cor do cabelo", hairColor);
+
+    const clothesColor =
+      selectedSheet.clothesColor === 0
+        ? "Padrão"
+        : `Cor ${((selectedSheet.clothesColor - 1) % 8) + 1}`;
+    clickInBlock("Cor da roupa", clothesColor);
+
+    const skin =
+      selectedSheet.skinTone === 0
+        ? "Pele original"
+        : `Tom ${Math.min(4, selectedSheet.skinTone + 1)}`;
+    clickInBlock("Pele", skin);
+  }, [frameReady, selectedSheet]);
 
   const openPortal = useCallback(
     (hotspotId: string) => {
@@ -1495,23 +1539,22 @@ function ImmersiveContent() {
   }
 
   useEffect(() => {
-    if (!token || roItemSearch.trim().length < 2) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa busca curta
-      setRoItemResults([]);
-      return;
-    }
+    if (!token) return;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
       try {
+        const query = roItemSearch.trim();
         const result = await api.get<
           Array<{ id: number; name: string; viewKind: string | null }>
         >(
-          `/ragnarok/items?take=20&search=${encodeURIComponent(roItemSearch.trim())}`,
+          `/ragnarok/items?take=20${
+            query.length >= 2 ? `&search=${encodeURIComponent(query)}` : ""
+          }`,
           token,
         );
         if (!cancelled) {
           setRoItemResults(result);
-          setRoItemChoice(String(result[0]?.id ?? ""));
+          setRoItemChoice((current) => current || String(result[0]?.id ?? ""));
         }
       } catch {
         if (!cancelled) setRoItemResults([]);
@@ -1634,6 +1677,8 @@ function ImmersiveContent() {
         current.map((entry) => (entry.id === updated.id ? updated : entry)),
       );
       setMasterMessage(`Classe concedida: ${updated.job.name}.`);
+      setClassNotice(`${updated.name} agora é ${updated.job.name}`);
+      window.setTimeout(() => setClassNotice(null), 4500);
     } catch (err) {
       setMasterMessage(
         err instanceof ApiError ? err.message : "Falha ao conceder classe.",
@@ -1739,6 +1784,13 @@ function ImmersiveContent() {
 
   return (
     <main className="fixed inset-x-0 bottom-0 top-[4.25rem] overflow-hidden bg-[#171816]">
+      {classNotice ? (
+        <div className="pointer-events-none absolute inset-x-0 top-4 z-50 flex justify-center">
+          <div className="animate-pulse rounded-full border border-primary/60 bg-background/95 px-6 py-2 text-sm font-semibold text-primary shadow-[0_0_45px_rgba(201,162,94,0.45)]">
+            ✦ {classNotice}
+          </div>
+        </div>
+      ) : null}
       {selected && slug ? (
         <iframe
           key={`${selected.id}-${buildCode ?? "default"}`}
@@ -2159,7 +2211,7 @@ function ImmersiveContent() {
           ) : null}
 
           {tab === "master" ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Console do Mestre
               </p>
@@ -2351,7 +2403,7 @@ function ImmersiveContent() {
                 )}
               </div>
 
-              <div className="space-y-2 rounded-lg border border-primary/30 p-2">
+              <div className="order-[-4] space-y-2 rounded-lg border border-primary/30 p-2">
                 <p className="text-xs font-semibold">Ragnarok — classe</p>
                 {boundRagnarokIds.length ? (
                   <>
@@ -2399,7 +2451,7 @@ function ImmersiveContent() {
                 )}
               </div>
 
-              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+              <div className="order-[-1] space-y-2 rounded-lg border border-border/60 p-2">
                 <p className="text-xs font-semibold">Ragnarok — job</p>
                 {boundRagnarokIds.length ? (
                   <>
@@ -2454,7 +2506,7 @@ function ImmersiveContent() {
                 )}
               </div>
 
-              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+              <div className="order-[-3] space-y-2 rounded-lg border border-border/60 p-2">
                 <p className="text-xs font-semibold">Ragnarok — item/zeny</p>
                 {boundRagnarokIds.length ? (
                   <>
@@ -2525,7 +2577,7 @@ function ImmersiveContent() {
                 )}
               </div>
 
-              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+              <div className="order-[-2] space-y-2 rounded-lg border border-border/60 p-2">
                 <p className="text-xs font-semibold">Ragnarok — rates e loot</p>
                 <div className="grid grid-cols-2 gap-1">
                   {(
