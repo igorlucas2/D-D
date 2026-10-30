@@ -256,6 +256,8 @@ export function CharacterScreen({
   binding = false,
   onSaveAppearance,
   savingAppearance = false,
+  onToggleEquip,
+  equipping = null,
 }: {
   open: boolean;
   onClose: () => void;
@@ -268,6 +270,8 @@ export function CharacterScreen({
   binding?: boolean;
   onSaveAppearance?: (appearance: RagnarokAppearance) => Promise<void> | void;
   savingAppearance?: boolean;
+  onToggleEquip?: (entryId: string, equipped: boolean) => Promise<void> | void;
+  equipping?: string | null;
   srd: Character | null;
   hud: HudCharacter | null;
   ragnarok: RagnarokSheet | null;
@@ -867,12 +871,27 @@ export function CharacterScreen({
                         <span className="truncate text-sm">
                           {entry.item.name}
                         </span>
-                        <Badge
-                          variant={entry.equipped ? "default" : "outline"}
-                          className="text-[9px]"
-                        >
-                          {entry.slot ?? "Geral"}
-                        </Badge>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Badge
+                            variant={entry.equipped ? "default" : "outline"}
+                            className="text-[9px]"
+                          >
+                            {entry.slot ?? "Geral"}
+                          </Badge>
+                          {entry.slot && onToggleEquip ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-[9px]"
+                              disabled={equipping === entry.id}
+                              onClick={() =>
+                                void onToggleEquip(entry.id, !entry.equipped)
+                              }
+                            >
+                              {entry.equipped ? "Desequipar" : "Equipar"}
+                            </Button>
+                          ) : null}
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -905,9 +924,24 @@ export function CharacterScreen({
                             {entry.equipped ? " · equipado" : ""}
                           </p>
                         </div>
-                        <span className="font-mono text-xs text-muted-foreground">
-                          x{entry.quantity}
-                        </span>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <span className="font-mono text-xs text-muted-foreground">
+                            x{entry.quantity}
+                          </span>
+                          {entry.slot && onToggleEquip ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-[9px]"
+                              disabled={equipping === entry.id}
+                              onClick={() =>
+                                void onToggleEquip(entry.id, !entry.equipped)
+                              }
+                            >
+                              {entry.equipped ? "Desequipar" : "Equipar"}
+                            </Button>
+                          ) : null}
+                        </div>
                       </div>
                     ))
                   ) : hud?.items.length ? (

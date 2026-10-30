@@ -274,6 +274,7 @@ function ImmersiveContent() {
   const [learningSkill, setLearningSkill] = useState(false);
   const [bindingSheet, setBindingSheet] = useState(false);
   const [savingAppearance, setSavingAppearance] = useState(false);
+  const [equippingEntry, setEquippingEntry] = useState<string | null>(null);
   const [ragnarokJobs, setRagnarokJobs] = useState<RagnarokJob[]>([]);
   const [ragnarokConfig, setRagnarokConfig] = useState<RagnarokConfig | null>(
     null,
@@ -1400,6 +1401,28 @@ function ImmersiveContent() {
       );
     } finally {
       setAllocating(false);
+    }
+  }
+
+  async function toggleRagnarokEquip(entryId: string, equipped: boolean) {
+    if (!token || !selectedSheet || equippingEntry) return;
+    setEquippingEntry(entryId);
+    setError(null);
+    try {
+      const updated = await api.patch<RagnarokSheet>(
+        `/ragnarok/characters/${selectedSheet.id}/items/${entryId}`,
+        { equipped },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Falha ao alterar equipamento.",
+      );
+    } finally {
+      setEquippingEntry(null);
     }
   }
 
@@ -2907,6 +2930,8 @@ function ImmersiveContent() {
         binding={bindingSheet}
         onSaveAppearance={saveSheetAppearance}
         savingAppearance={savingAppearance}
+        onToggleEquip={toggleRagnarokEquip}
+        equipping={equippingEntry}
       />
 
       <div className="absolute bottom-3 left-1/2 z-40 flex w-[min(45rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-1 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">
