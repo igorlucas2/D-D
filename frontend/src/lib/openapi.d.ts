@@ -1476,6 +1476,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/job-level": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCampaignController_grantJobLevel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/job-exp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCampaignController_grantJobExp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}": {
         parameters: {
             query?: never;
@@ -2666,6 +2698,12 @@ export interface components {
         };
         GrantRagnarokClassDto: {
             jobId: number;
+        };
+        GrantJobLevelDto: {
+            level: number;
+        };
+        GrantJobExpDto: {
+            amount: number;
         };
         UpdateRagnarokConfigDto: {
             baseExpRate?: number;
@@ -5505,6 +5543,58 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["GrantRagnarokClassDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_grantJobLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantJobLevelDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_grantJobExp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantJobExpDto"];
             };
         };
         responses: {

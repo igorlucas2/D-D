@@ -4217,6 +4217,102 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/job-level": {
+      "post": {
+        "operationId": "RagnarokCampaignController_grantJobLevel",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantJobLevelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/job-exp": {
+      "post": {
+        "operationId": "RagnarokCampaignController_grantJobExp",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantJobExpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}": {
       "delete": {
         "operationId": "RagnarokCampaignController_unbind",
@@ -7845,6 +7941,32 @@
         },
         "required": [
           "jobId"
+        ]
+      },
+      "GrantJobLevelDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 70
+          }
+        },
+        "required": [
+          "level"
+        ]
+      },
+      "GrantJobExpDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100000000
+          }
+        },
+        "required": [
+          "amount"
         ]
       },
       "UpdateRagnarokConfigDto": {

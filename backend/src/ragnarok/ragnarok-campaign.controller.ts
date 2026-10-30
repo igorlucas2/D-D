@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BindRagnarokCharacterDto } from './dto/bind-ragnarok-character.dto';
 import { GrantRagnarokClassDto } from './dto/grant-ragnarok-class.dto';
+import { GrantJobExpDto, GrantJobLevelDto } from './dto/grant-job-progress.dto';
 import { RagnarokCampaignService } from './ragnarok-campaign.service';
 
 @UseGuards(JwtAuthGuard)
@@ -43,6 +44,31 @@ export class RagnarokCampaignController {
     @Body() dto: GrantRagnarokClassDto,
   ) {
     return this.service.grantClass(campaignId, user.userId, characterId, dto);
+  }
+
+  @Post(':characterId/job-level')
+  grantJobLevel(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: GrantJobLevelDto,
+  ) {
+    return this.service.grantJobLevel(
+      campaignId,
+      user.userId,
+      characterId,
+      dto,
+    );
+  }
+
+  @Post(':characterId/job-exp')
+  grantJobExp(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: GrantJobExpDto,
+  ) {
+    return this.service.grantJobExp(campaignId, user.userId, characterId, dto);
   }
 
   @Delete(':characterId')

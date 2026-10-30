@@ -6,7 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GrantRagnarokClassDto } from './dto/grant-ragnarok-class.dto';
+import { GrantJobExpDto, GrantJobLevelDto } from './dto/grant-job-progress.dto';
 import { UpdateRagnarokConfigDto } from './dto/update-ragnarok-config.dto';
+
+const JOB_MAX_LEVEL = 70;
+
+function jobExpToNext(level: number) {
+  return 100 + Math.max(0, level - 1) * 50;
+}
 
 const INCLUDE = {
   job: true,
@@ -91,6 +98,83 @@ export class RagnarokCampaignService {
       where: { campaignId, characterId },
     });
     return { ok: true };
+  }
+
+  async grantJobLevel(
+    campaignId: string,
+    userId: string,
+    characterId: string,
+    dto: GrantJobLevelDto,
+  ) {
+    const campaign = await this.access(campaignId, userId);
+    if (campaign.masterId !== userId) {
+      throw new ForbiddenException('Somente o mestre concede job level.');
+    }
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    const current = await this.prisma.ragnarokCharacter.findUnique({
+      where: { id: characterId },
+      select: { jobLevel: true, skillPoints: true },
+    });
+    if (!current) throw new NotFoundException('Ficha Ragnarok não encontrada.');
+    const level = Math.max(1, Math.min(JOB_MAX_LEVEL, dto.level));
+    const gained = Math.max(0, level - current.jobLevel);
+    return this.prisma.ragnarokCharacter.update({
+      where: { id: characterId },
+      data: {
+        jobLevel: level,
+        jobExp: 0,
+        ...(gained ? { skillPoints: { increment: gained } } : {}),
+      },
+      include: INCLUDE,
+    });
+  }
+
+  async grantJobExp(
+    campaignId: string,
+    userId: string,
+    characterId: string,
+    dto: GrantJobExpDto,
+  ) {
+    const campaign = await this.access(campaignId, userId);
+    if (campaign.masterId !== userId) {
+      throw new ForbiddenException('Somente o mestre concede job EXP.');
+    }
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    const current = await this.prisma.ragnarokCharacter.findUnique({
+      where: { id: characterId },
+      select: { jobLevel: true, jobExp: true },
+    });
+    if (!current) throw new NotFoundException('Ficha Ragnarok não encontrada.');
+
+    let level = current.jobLevel;
+    let exp = current.jobExp + dto.amount;
+    let gained = 0;
+    while (level < JOB_MAX_LEVEL && exp >= jobExpToNext(level)) {
+      exp -= jobExpToNext(level);
+      level += 1;
+      gained += 1;
+    }
+    if (level >= JOB_MAX_LEVEL) exp = 0;
+
+    return this.prisma.ragnarokCharacter.update({
+      where: { id: characterId },
+      data: {
+        jobLevel: level,
+        jobExp: exp,
+        ...(gained ? { skillPoints: { increment: gained } } : {}),
+      },
+      include: INCLUDE,
+    });
   }
 
   async grantClass(

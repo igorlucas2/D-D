@@ -347,6 +347,7 @@ export function CharacterScreen({
       ? `${hud.currentHp}/${hud.maxHp}`
       : "—";
   const sp = ragnarok ? `${ragnarok.currentSp}/${ragnarok.maxSp}` : "—";
+  const jobNext = ragnarok ? 100 + Math.max(0, ragnarok.jobLevel - 1) * 50 : 0;
   const knownSkills = new Map(
     (ragnarok?.skills ?? []).map((entry) => [entry.skill.id, entry.level]),
   );
@@ -425,6 +426,24 @@ export function CharacterScreen({
               <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
                 {className}
               </p>
+              {ragnarok ? (
+                <div className="mt-3 w-40">
+                  <div className="flex justify-between text-[9px] text-muted-foreground">
+                    <span>Job {ragnarok.jobLevel}</span>
+                    <span className="font-mono">
+                      {ragnarok.jobExp}/{jobNext}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{
+                        width: `${Math.min(100, (ragnarok.jobExp / Math.max(1, jobNext)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="absolute inset-x-3 bottom-3 flex justify-between text-[10px] text-muted-foreground">
               <span>PV {hp}</span>

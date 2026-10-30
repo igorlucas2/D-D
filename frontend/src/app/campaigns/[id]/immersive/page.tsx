@@ -281,6 +281,9 @@ function ImmersiveContent() {
   const [classTarget, setClassTarget] = useState("");
   const [classJob, setClassJob] = useState("");
   const [grantingClass, setGrantingClass] = useState(false);
+  const [jobLevelValue, setJobLevelValue] = useState("10");
+  const [jobExpAmount, setJobExpAmount] = useState("500");
+  const [grantingJob, setGrantingJob] = useState(false);
   const [savingRates, setSavingRates] = useState(false);
   const [ratesForm, setRatesForm] = useState({
     baseExpRate: "5",
@@ -1459,6 +1462,54 @@ function ImmersiveContent() {
     }
   }
 
+  async function grantJobLevel() {
+    if (!token || !classTarget || grantingJob) return;
+    setGrantingJob(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/campaigns/${params.id}/ragnarok-characters/${classTarget}/job-level`,
+        { level: Number(jobLevelValue) },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setMasterMessage(`Job level: ${updated.jobLevel}.`);
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao conceder job level.",
+      );
+    } finally {
+      setGrantingJob(false);
+    }
+  }
+
+  async function grantJobExp() {
+    if (!token || !classTarget || grantingJob) return;
+    setGrantingJob(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/campaigns/${params.id}/ragnarok-characters/${classTarget}/job-exp`,
+        { amount: Number(jobExpAmount) },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setMasterMessage(
+        `Job EXP aplicado: Job ${updated.jobLevel} (${updated.jobExp}).`,
+      );
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao conceder job EXP.",
+      );
+    } finally {
+      setGrantingJob(false);
+    }
+  }
+
   async function grantRagnarokClass() {
     if (!token || !classTarget || !classJob || grantingClass) return;
     setGrantingClass(true);
@@ -2230,6 +2281,61 @@ function ImmersiveContent() {
                     >
                       {grantingClass ? "Concedendo..." : "Conceder classe"}
                     </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Nenhuma ficha Ragnarok vinculada.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                <p className="text-xs font-semibold">Ragnarok — job</p>
+                {boundRagnarokIds.length ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={70}
+                        value={jobLevelValue}
+                        onChange={(event) =>
+                          setJobLevelValue(event.target.value)
+                        }
+                        className="h-8 text-xs"
+                        aria-label="Novo job level"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        disabled={grantingJob || !classTarget}
+                        onClick={() => void grantJobLevel()}
+                      >
+                        Job level
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={jobExpAmount}
+                        onChange={(event) =>
+                          setJobExpAmount(event.target.value)
+                        }
+                        className="h-8 text-xs"
+                        aria-label="Quantidade de job EXP"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        disabled={grantingJob || !classTarget}
+                        onClick={() => void grantJobExp()}
+                      >
+                        Dar Job EXP
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <p className="text-xs text-muted-foreground">
