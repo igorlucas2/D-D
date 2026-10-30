@@ -30,7 +30,7 @@ Foram adicionados atores `npc:kafra`, `npc:shop`, `npc:guide` em Prontera, com
 sprites da API do viewer. As imagens são requisitadas, mas o sprite 3D ainda não
 aparece corretamente no enquadramento da câmera.
 
-O rail garante a interação enquanto a ancoragem 3D é corrigida.
+O rail e os **pins no mapa** garantem a interação enquanto a ancoragem 3D é corrigida.
 
 ## 5. Teste
 

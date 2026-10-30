@@ -3154,6 +3154,51 @@ function ImmersiveContent() {
         </DialogContent>
       </Dialog>
 
+      {selected && npcMapKey === "Prontera" ? (
+        <>
+          <button
+            type="button"
+            className="absolute left-[31%] top-[52%] z-40 flex -translate-x-1/2 flex-col items-center gap-0.5 rounded-lg border border-primary/40 bg-card/95 px-1.5 py-1 shadow-xl backdrop-blur"
+            onClick={openKafra}
+          >
+            <img
+              src={NPC_IMAGES[0]}
+              alt=""
+              className="h-10 w-auto object-contain"
+            />
+            <span className="text-[9px] font-semibold">Kafra</span>
+          </button>
+          <button
+            type="button"
+            className="absolute left-[62%] top-[48%] z-40 flex -translate-x-1/2 flex-col items-center gap-0.5 rounded-lg border border-border/60 bg-card/95 px-1.5 py-1 shadow-xl backdrop-blur"
+            onClick={() =>
+              setError("A loja do comerciante entra na próxima etapa.")
+            }
+          >
+            <img
+              src={NPC_IMAGES[1]}
+              alt=""
+              className="h-10 w-auto object-contain"
+            />
+            <span className="text-[9px] font-semibold">Comerciante</span>
+          </button>
+          <button
+            type="button"
+            className="absolute left-[48%] top-[38%] z-40 flex -translate-x-1/2 flex-col items-center gap-0.5 rounded-lg border border-border/60 bg-card/95 px-1.5 py-1 shadow-xl backdrop-blur"
+            onClick={() =>
+              setError("Guia: a Praça Central fica ao norte do portão sul.")
+            }
+          >
+            <img
+              src={NPC_IMAGES[2]}
+              alt=""
+              className="h-10 w-auto object-contain"
+            />
+            <span className="text-[9px] font-semibold">Guia</span>
+          </button>
+        </>
+      ) : null}
+
       {selected ? (
         <div className="absolute bottom-20 left-3 z-40 w-56 rounded-xl border border-primary/30 bg-card/94 p-2 shadow-2xl backdrop-blur">
           <p className="px-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
