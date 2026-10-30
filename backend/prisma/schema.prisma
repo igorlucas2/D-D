@@ -1699,6 +1699,9 @@ model RagnarokCharacter {
   skinTone         Int       @default(0)
   classGrantedAt   DateTime?
   classGrantedById String?
+  saveMapId        String?
+  saveX            Int?
+  saveY            Int?
   strength         Int       @default(1)
   agility          Int       @default(1)
   vitality         Int       @default(1)

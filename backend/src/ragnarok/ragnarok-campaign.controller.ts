@@ -85,6 +85,24 @@ export class RagnarokCampaignController {
     );
   }
 
+  @Post(':characterId/kafra/save')
+  kafraSave(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.service.kafraSave(campaignId, user.userId, characterId);
+  }
+
+  @Post(':characterId/kafra/teleport')
+  kafraTeleport(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.service.kafraTeleport(campaignId, user.userId, characterId);
+  }
+
   @Post(':characterId/job-exp')
   grantJobExp(
     @Param('campaignId') campaignId: string,

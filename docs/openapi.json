@@ -4361,6 +4361,75 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/kafra/save": {
+      "post": {
+        "operationId": "RagnarokCampaignController_kafraSave",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/kafra/teleport": {
+      "post": {
+        "operationId": "RagnarokCampaignController_kafraTeleport",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/job-exp": {
       "post": {
         "operationId": "RagnarokCampaignController_grantJobExp",

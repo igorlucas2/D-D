@@ -296,6 +296,9 @@ function ImmersiveContent() {
   const [grantingZeny, setGrantingZeny] = useState(false);
   const [savingRates, setSavingRates] = useState(false);
   const [classNotice, setClassNotice] = useState<string | null>(null);
+  const [kafraOpen, setKafraOpen] = useState(false);
+  const [kafraBusy, setKafraBusy] = useState(false);
+  const [kafraMessage, setKafraMessage] = useState<string | null>(null);
   const [ratesForm, setRatesForm] = useState({
     baseExpRate: "5",
     jobExpRate: "5",
@@ -733,11 +736,20 @@ function ImmersiveContent() {
     clickInBlock("Pele", skin);
   }, [frameReady, selectedSheet]);
 
+  const openKafra = useCallback(() => {
+    setKafraMessage(null);
+    setKafraOpen(true);
+  }, []);
+
   const openPortal = useCallback(
     (hotspotId: string) => {
       const hotspot = portalHotspots.find((entry) => entry.id === hotspotId);
       if (!hotspot) {
         setError("Portal não encontrado.");
+        return;
+      }
+      if (hotspot.label.toLowerCase().includes("kafra")) {
+        openKafra();
         return;
       }
       const target = hotspot.targetMapId
@@ -757,8 +769,51 @@ function ImmersiveContent() {
       restoredPosition.current = "";
       window.localStorage.setItem(storedMapKey(params.id), target.id);
     },
-    [maps, params.id, portalHotspots],
+    [maps, openKafra, params.id, portalHotspots],
   );
+
+  async function kafraAction(action: "save" | "teleport") {
+    if (!token || !activeWorldRagnarok || kafraBusy) return;
+    setKafraBusy(true);
+    setKafraMessage(null);
+    try {
+      const result = await api.post<{ mapId: string; x: number; y: number }>(
+        `/campaigns/${params.id}/ragnarok-characters/${activeWorldRagnarok.id}/kafra/${action}`,
+        {},
+        token,
+      );
+      if (action === "save") {
+        setKafraMessage("Ponto de save registrado.");
+      } else {
+        const target = maps.find((entry) => entry.id === result.mapId);
+        setKafraMessage(
+          `Teleportado para ${target?.name ?? "o save"} (${result.x}, ${result.y}).`,
+        );
+        if (result.mapId === selected?.id && selected) {
+          const win = iframe.current?.contentWindow as ImmersiveWindow | null;
+          win?.__eldoria?.setPlayerCell(
+            result.x,
+            result.y,
+            selected.width,
+            selected.height,
+          );
+          lastSentPosition.current = "";
+        } else {
+          setSelectedId(result.mapId);
+          setFrameReady(false);
+          lastSentPosition.current = "";
+          restoredPosition.current = "";
+          window.localStorage.setItem(storedMapKey(params.id), result.mapId);
+        }
+      }
+    } catch (err) {
+      setKafraMessage(
+        err instanceof ApiError ? err.message : "A Kafra recusou o serviço.",
+      );
+    } finally {
+      setKafraBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!frameReady) return;
@@ -2985,6 +3040,51 @@ function ImmersiveContent() {
           />
         </DialogContent>
       </Dialog>
+
+      {kafraOpen ? (
+        <div className="absolute bottom-24 right-3 z-50 w-80 rounded-xl border border-primary/40 bg-card/96 p-3 shadow-2xl backdrop-blur">
+          <div className="flex items-center justify-between">
+            <p className="font-heading text-lg">Kafra</p>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Fechar Kafra"
+              onClick={() => setKafraOpen(false)}
+            >
+              ×
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Serviços de Prontera para {activeWorldRagnarok?.name ?? "sua ficha"}
+            .
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!activeWorldRagnarok || kafraBusy}
+              onClick={() => void kafraAction("save")}
+            >
+              Salvar ponto
+            </Button>
+            <Button
+              size="sm"
+              disabled={!activeWorldRagnarok || kafraBusy}
+              onClick={() => void kafraAction("teleport")}
+            >
+              Teleportar ao save
+            </Button>
+          </div>
+          {kafraMessage ? (
+            <p className="mt-2 text-xs text-muted-foreground">{kafraMessage}</p>
+          ) : null}
+          {!activeWorldRagnarok ? (
+            <p className="mt-2 text-xs text-destructive">
+              Vincule uma ficha Ragnarok à campanha primeiro.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <CharacterScreen
         open={characterOpen}

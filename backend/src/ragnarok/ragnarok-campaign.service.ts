@@ -181,6 +181,105 @@ export class RagnarokCampaignService {
     });
   }
 
+  async kafraSave(campaignId: string, userId: string, characterId: string) {
+    const campaign = await this.access(campaignId, userId);
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    const character = await this.prisma.ragnarokCharacter.findFirst({
+      where: { id: characterId, userId },
+      select: { id: true },
+    });
+    if (!character) {
+      throw new ForbiddenException('Esta ficha não pertence a você.');
+    }
+    const token = await this.prisma.vttToken.findUnique({
+      where: { ragnarokCharacterId: characterId },
+      select: { mapId: true, x: true, y: true },
+    });
+    if (!token) {
+      throw new BadRequestException('Entre no mapa antes de usar a Kafra.');
+    }
+    const map = await this.prisma.vttMap.findUnique({
+      where: { id: token.mapId },
+      select: { campaignId: true },
+    });
+    if (!map || map.campaignId !== campaign.id) {
+      throw new BadRequestException('Mapa do token não pertence à campanha.');
+    }
+    return this.prisma.ragnarokCharacter.update({
+      where: { id: characterId },
+      data: {
+        saveMapId: token.mapId,
+        saveX: token.x,
+        saveY: token.y,
+      },
+      include: INCLUDE,
+    });
+  }
+
+  async kafraTeleport(campaignId: string, userId: string, characterId: string) {
+    await this.access(campaignId, userId);
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    const character = await this.prisma.ragnarokCharacter.findFirst({
+      where: { id: characterId, userId },
+      select: {
+        id: true,
+        saveMapId: true,
+        saveX: true,
+        saveY: true,
+        maxHp: true,
+        maxSp: true,
+      },
+    });
+    if (!character) {
+      throw new ForbiddenException('Esta ficha não pertence a você.');
+    }
+    if (
+      !character.saveMapId ||
+      character.saveX == null ||
+      character.saveY == null
+    ) {
+      throw new BadRequestException('Nenhum ponto de save da Kafra.');
+    }
+    const token = await this.prisma.vttToken.findUnique({
+      where: { ragnarokCharacterId: characterId },
+      select: { id: true },
+    });
+    if (!token) {
+      throw new BadRequestException('Entre no mapa antes de usar a Kafra.');
+    }
+    const map = await this.prisma.vttMap.findUnique({
+      where: { id: character.saveMapId },
+      select: { id: true, campaignId: true, width: true, height: true },
+    });
+    if (!map || map.campaignId !== campaignId) {
+      throw new BadRequestException('Mapa de save inválido.');
+    }
+    const x = Math.max(0, Math.min(character.saveX, map.width - 1));
+    const y = Math.max(0, Math.min(character.saveY, map.height - 1));
+    await this.prisma.vttToken.update({
+      where: { id: token.id },
+      data: { mapId: map.id, x, y, visible: true },
+    });
+    await this.prisma.ragnarokCharacter.update({
+      where: { id: characterId },
+      data: {
+        currentHp: character.maxHp,
+        currentSp: character.maxSp,
+      },
+    });
+    return { mapId: map.id, x, y };
+  }
+
   async grantItem(
     campaignId: string,
     userId: string,

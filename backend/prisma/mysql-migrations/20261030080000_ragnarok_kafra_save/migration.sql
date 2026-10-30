@@ -1,0 +1,4 @@
+ALTER TABLE `RagnarokCharacter`
+  ADD COLUMN `saveMapId` VARCHAR(191) NULL,
+  ADD COLUMN `saveX` INTEGER NULL,
+  ADD COLUMN `saveY` INTEGER NULL;
