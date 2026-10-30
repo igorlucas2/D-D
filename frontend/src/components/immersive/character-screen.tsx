@@ -58,6 +58,7 @@ export interface RagnarokSheet {
     id: string;
     slot: string | null;
     equipped: boolean;
+    quantity: number;
     item: { id: number; name: string };
   }>;
 }
@@ -891,7 +892,25 @@ export function CharacterScreen({
                   Itens disponíveis para uso em combate.
                 </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {hud?.items.length ? (
+                  {ragnarok?.equipment.length ? (
+                    ragnarok.equipment.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/45 px-3 py-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm">{entry.item.name}</p>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            {entry.slot ?? "Geral"}
+                            {entry.equipped ? " · equipado" : ""}
+                          </p>
+                        </div>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          x{entry.quantity}
+                        </span>
+                      </div>
+                    ))
+                  ) : hud?.items.length ? (
                     hud.items.map((item) => (
                       <ItemRow key={item.inventoryItemId} item={item} />
                     ))

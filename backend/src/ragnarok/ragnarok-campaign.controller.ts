@@ -12,6 +12,10 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { BindRagnarokCharacterDto } from './dto/bind-ragnarok-character.dto';
 import { GrantRagnarokClassDto } from './dto/grant-ragnarok-class.dto';
 import { GrantJobExpDto, GrantJobLevelDto } from './dto/grant-job-progress.dto';
+import {
+  GrantRagnarokItemDto,
+  GrantRagnarokZenyDto,
+} from './dto/grant-ragnarok-item.dto';
 import { RagnarokCampaignService } from './ragnarok-campaign.service';
 
 @UseGuards(JwtAuthGuard)
@@ -34,6 +38,26 @@ export class RagnarokCampaignController {
     @Body() dto: BindRagnarokCharacterDto,
   ) {
     return this.service.bind(campaignId, user.userId, dto.characterId);
+  }
+
+  @Post(':characterId/item')
+  grantItem(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: GrantRagnarokItemDto,
+  ) {
+    return this.service.grantItem(campaignId, user.userId, characterId, dto);
+  }
+
+  @Post(':characterId/zeny')
+  grantZeny(
+    @Param('campaignId') campaignId: string,
+    @Param('characterId') characterId: string,
+    @CurrentUser() user: { userId: string },
+    @Body() dto: GrantRagnarokZenyDto,
+  ) {
+    return this.service.grantZeny(campaignId, user.userId, characterId, dto);
   }
 
   @Post(':characterId/class')

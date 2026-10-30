@@ -284,6 +284,15 @@ function ImmersiveContent() {
   const [jobLevelValue, setJobLevelValue] = useState("10");
   const [jobExpAmount, setJobExpAmount] = useState("500");
   const [grantingJob, setGrantingJob] = useState(false);
+  const [roItemSearch, setRoItemSearch] = useState("");
+  const [roItemResults, setRoItemResults] = useState<
+    Array<{ id: number; name: string; viewKind: string | null }>
+  >([]);
+  const [roItemChoice, setRoItemChoice] = useState("");
+  const [roItemQuantity, setRoItemQuantity] = useState("1");
+  const [grantingItem, setGrantingItem] = useState(false);
+  const [zenyAmount, setZenyAmount] = useState("1000");
+  const [grantingZeny, setGrantingZeny] = useState(false);
   const [savingRates, setSavingRates] = useState(false);
   const [ratesForm, setRatesForm] = useState({
     baseExpRate: "5",
@@ -1462,6 +1471,84 @@ function ImmersiveContent() {
     }
   }
 
+  useEffect(() => {
+    if (!token || roItemSearch.trim().length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa busca curta
+      setRoItemResults([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await api.get<
+          Array<{ id: number; name: string; viewKind: string | null }>
+        >(
+          `/ragnarok/items?take=20&search=${encodeURIComponent(roItemSearch.trim())}`,
+          token,
+        );
+        if (!cancelled) {
+          setRoItemResults(result);
+          setRoItemChoice(String(result[0]?.id ?? ""));
+        }
+      } catch {
+        if (!cancelled) setRoItemResults([]);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [roItemSearch, token]);
+
+  async function grantRagnarokItem() {
+    if (!token || !classTarget || !roItemChoice || grantingItem) return;
+    setGrantingItem(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/campaigns/${params.id}/ragnarok-characters/${classTarget}/item`,
+        {
+          itemId: Number(roItemChoice),
+          quantity: Math.max(1, Number(roItemQuantity) || 1),
+        },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setMasterMessage("Item entregue à ficha Ragnarok.");
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao entregar item.",
+      );
+    } finally {
+      setGrantingItem(false);
+    }
+  }
+
+  async function grantRagnarokZeny() {
+    if (!token || !classTarget || grantingZeny) return;
+    setGrantingZeny(true);
+    setMasterMessage(null);
+    try {
+      const updated = await api.post<RagnarokSheet>(
+        `/campaigns/${params.id}/ragnarok-characters/${classTarget}/zeny`,
+        { amount: Math.max(1, Number(zenyAmount) || 1) },
+        token,
+      );
+      setRagnarokSheets((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      setMasterMessage(`Zeny entregue: ${updated.zeny}.`);
+    } catch (err) {
+      setMasterMessage(
+        err instanceof ApiError ? err.message : "Falha ao entregar zeny.",
+      );
+    } finally {
+      setGrantingZeny(false);
+    }
+  }
+
   async function grantJobLevel() {
     if (!token || !classTarget || grantingJob) return;
     setGrantingJob(true);
@@ -2334,6 +2421,77 @@ function ImmersiveContent() {
                         onClick={() => void grantJobExp()}
                       >
                         Dar Job EXP
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Nenhuma ficha Ragnarok vinculada.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                <p className="text-xs font-semibold">Ragnarok — item/zeny</p>
+                {boundRagnarokIds.length ? (
+                  <>
+                    <Input
+                      value={roItemSearch}
+                      onChange={(event) => setRoItemSearch(event.target.value)}
+                      className="h-8 text-xs"
+                      placeholder="Buscar item Ragnarok…"
+                    />
+                    <select
+                      value={roItemChoice}
+                      onChange={(event) => setRoItemChoice(event.target.value)}
+                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      aria-label="Item Ragnarok para entregar"
+                    >
+                      <option value="">Escolha um item…</option>
+                      {roItemResults.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="flex gap-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={roItemQuantity}
+                        onChange={(event) =>
+                          setRoItemQuantity(event.target.value)
+                        }
+                        className="h-8 w-20 text-xs"
+                        aria-label="Quantidade do item Ragnarok"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-8 flex-1"
+                        disabled={grantingItem || !roItemChoice}
+                        onClick={() => void grantRagnarokItem()}
+                      >
+                        Entregar item
+                      </Button>
+                    </div>
+                    <div className="flex gap-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={zenyAmount}
+                        onChange={(event) => setZenyAmount(event.target.value)}
+                        className="h-8 w-24 text-xs"
+                        aria-label="Zeny para entregar"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 flex-1"
+                        disabled={grantingZeny}
+                        onClick={() => void grantRagnarokZeny()}
+                      >
+                        Entregar zeny
                       </Button>
                     </div>
                   </>

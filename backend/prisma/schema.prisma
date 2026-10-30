@@ -1729,6 +1729,7 @@ model RagnarokCharacterItem {
   itemId      Int
   slot        String?
   equipped    Boolean  @default(false)
+  quantity    Int      @default(1)
   createdAt   DateTime @default(now())
 
   character RagnarokCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)

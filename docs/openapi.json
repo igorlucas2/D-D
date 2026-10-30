@@ -4169,6 +4169,102 @@
         ]
       }
     },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/item": {
+      "post": {
+        "operationId": "RagnarokCampaignController_grantItem",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRagnarokItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/zeny": {
+      "post": {
+        "operationId": "RagnarokCampaignController_grantZeny",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "characterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRagnarokZenyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RagnarokCampaign"
+        ]
+      }
+    },
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/class": {
       "post": {
         "operationId": "RagnarokCampaignController_grantClass",
@@ -7929,6 +8025,37 @@
         },
         "required": [
           "characterId"
+        ]
+      },
+      "GrantRagnarokItemDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number",
+            "minimum": 1
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "itemId",
+          "quantity"
+        ]
+      },
+      "GrantRagnarokZenyDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000000000
+          }
+        },
+        "required": [
+          "amount"
         ]
       },
       "GrantRagnarokClassDto": {

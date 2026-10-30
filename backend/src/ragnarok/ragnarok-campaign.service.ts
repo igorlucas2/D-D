@@ -7,6 +7,10 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { GrantRagnarokClassDto } from './dto/grant-ragnarok-class.dto';
 import { GrantJobExpDto, GrantJobLevelDto } from './dto/grant-job-progress.dto';
+import {
+  GrantRagnarokItemDto,
+  GrantRagnarokZenyDto,
+} from './dto/grant-ragnarok-item.dto';
 import { UpdateRagnarokConfigDto } from './dto/update-ragnarok-config.dto';
 
 const JOB_MAX_LEVEL = 70;
@@ -173,6 +177,74 @@ export class RagnarokCampaignService {
         jobExp: exp,
         ...(gained ? { skillPoints: { increment: gained } } : {}),
       },
+      include: INCLUDE,
+    });
+  }
+
+  async grantItem(
+    campaignId: string,
+    userId: string,
+    characterId: string,
+    dto: GrantRagnarokItemDto,
+  ) {
+    const campaign = await this.access(campaignId, userId);
+    if (campaign.masterId !== userId) {
+      throw new ForbiddenException('Somente o mestre entrega itens.');
+    }
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    const item = await this.prisma.ragnarokItem.findUnique({
+      where: { id: dto.itemId },
+      select: { id: true, viewKind: true, equipSlots: true },
+    });
+    if (!item) throw new NotFoundException('Item Ragnarok não encontrado.');
+    const slot =
+      item.viewKind ??
+      (Array.isArray(item.equipSlots)
+        ? item.equipSlots.map(String).join('/')
+        : 'Geral');
+    await this.prisma.ragnarokCharacterItem.upsert({
+      where: {
+        characterId_itemId: { characterId, itemId: item.id },
+      },
+      update: { quantity: { increment: dto.quantity } },
+      create: {
+        characterId,
+        itemId: item.id,
+        slot,
+        equipped: false,
+        quantity: dto.quantity,
+      },
+    });
+    return this.prisma.ragnarokCharacter.findUnique({
+      where: { id: characterId },
+      include: INCLUDE,
+    });
+  }
+
+  async grantZeny(
+    campaignId: string,
+    userId: string,
+    characterId: string,
+    dto: GrantRagnarokZenyDto,
+  ) {
+    const campaign = await this.access(campaignId, userId);
+    if (campaign.masterId !== userId) {
+      throw new ForbiddenException('Somente o mestre entrega zeny.');
+    }
+    const link = await this.prisma.campaignRagnarokCharacter.findFirst({
+      where: { campaignId, characterId },
+    });
+    if (!link) {
+      throw new BadRequestException('Ficha não vinculada a esta campanha.');
+    }
+    return this.prisma.ragnarokCharacter.update({
+      where: { id: characterId },
+      data: { zeny: { increment: dto.amount } },
       include: INCLUDE,
     });
   }

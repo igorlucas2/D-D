@@ -1460,6 +1460,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/item": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCampaignController_grantItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/zeny": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RagnarokCampaignController_grantZeny"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{campaignId}/ragnarok-characters/{characterId}/class": {
         parameters: {
             query?: never;
@@ -2695,6 +2727,13 @@ export interface components {
         };
         BindRagnarokCharacterDto: {
             characterId: string;
+        };
+        GrantRagnarokItemDto: {
+            itemId: number;
+            quantity: number;
+        };
+        GrantRagnarokZenyDto: {
+            amount: number;
         };
         GrantRagnarokClassDto: {
             jobId: number;
@@ -5517,6 +5556,58 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["BindRagnarokCharacterDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_grantItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantRagnarokItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RagnarokCampaignController_grantZeny: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+                characterId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantRagnarokZenyDto"];
             };
         };
         responses: {
